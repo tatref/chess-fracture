@@ -12,3 +12,4 @@
 *.toml filter=lfs diff=lfs merge=lfs -text
 *.rs filter=lfs diff=lfs merge=lfs -text
 *.hbs filter=lfs diff=lfs merge=lfs -text
+*.md filter=lfs diff=lfs merge=lfs -text
