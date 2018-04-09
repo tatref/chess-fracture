@@ -370,7 +370,7 @@ def play(board_map, game):
     # end for moves
     
     # assign materials
-    white_mat = bpy.data.materials.get('black')
+    white_mat = bpy.data.materials.get('white')
     black_mat = bpy.data.materials.get('black')
     
     whites_re = re.compile(r'[a-z]\.[a-h][12].*')
