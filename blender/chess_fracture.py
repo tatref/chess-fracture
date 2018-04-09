@@ -381,11 +381,7 @@ def play(board_map, game):
         elif blacks_re.match(obj.name):
             obj.data.materials.append(black_mat)
 
-    # bake dynamics
-    #override = {'scene': bpy.context.scene,
-    #        'point_cache': bpy.context.scene.rigidbody_world.point_cache}
-    # bake to current frame
-    #bpy.ops.ptcache.bake_all(override, bake=False)
+    # compute some stats
     end_time = time.time()
     duration = end_time - start_time
     print('Duration: ' + str(duration))
