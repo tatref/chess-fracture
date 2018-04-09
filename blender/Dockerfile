@@ -1,10 +1,5 @@
 FROM centos:7
 
-COPY blender-2.79a-linux-glibc219-x86_64.tar.bz2 /work/
-COPY chess_fracture.py /work/chess_fracture.py
-
-COPY chess_fracture_template.blend /work/chess_fracture_template.blend
-
 RUN yum install -y bzip2 \
                    wget \
                    mesa-libGLU \
@@ -13,6 +8,11 @@ RUN yum install -y bzip2 \
                    xorg-x11-server-Xvfb \
                    xorg-x11-utils \
                    mesa-dri-drivers
+
+
+COPY blender-2.79a-linux-glibc219-x86_64.tar.bz2 /work/
+COPY chess_fracture.py /work/chess_fracture.py
+COPY chess_fracture_template.blend /work/chess_fracture_template.blend
 
 
 RUN mkdir /output && \
