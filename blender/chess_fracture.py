@@ -401,8 +401,13 @@ else:
 board_map = initial_setup()
 print('Board setup done')
 
-play(board_map, game)
-print('Simulation done')
+try:
+    play(board_map, game)
+    print('Simulation done')
+except Exception as e:
+    print('Simulation failed')
+    print(str(e))
+    sys.exit(1)
 
 
 if 'PGN_NAME' in os.environ:
