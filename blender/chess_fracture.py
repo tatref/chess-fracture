@@ -377,9 +377,9 @@ def play(board_map, game):
     blacks_re = re.compile(r'[a-z]+\.[a-h][78].*')
     for obj in bpy.data.objects:
         if whites_re.match(obj.name):
-            obj.data.materials[0] = white_mat
+            obj.data.materials.append(white_mat)
         elif blacks_re.match(obj.name):
-            obj.data.materials[0] = black_mat
+            obj.data.materials.append(black_mat)
 
     # bake dynamics
     #override = {'scene': bpy.context.scene,
