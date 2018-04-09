@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:13d0b265fdcb0ab93f6c28fb9150e037f3ba7fe18d6c94f620a54b9003a4186b
-size 70
+version: '3'
+
+services:
+  nginx:
+   build: ./nginx
+   image: my-nginx

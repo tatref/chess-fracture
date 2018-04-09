@@ -1,3 +1,7 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:663e8b53531edb93f38c34de57de055327c4482042d1af4768befdb378d9d3b6
-size 216
+https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
+
+
+https://github.com/softprops/shiplift
+
+
+https://github.com/emk/rust-musl-builder/blob/master/examples/using-diesel/Dockerfile

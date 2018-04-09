@@ -1,3 +1,19 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:ef368dc1c77499a8fbdb1c6583add947bc90bcb7b4990e8afc7f4d0a32743d17
-size 329
+FROM ekidd/rust-musl-builder AS builder
+
+#WORKDIR /work
+COPY . .
+RUN sudo chown -R rust:rust .
+
+#VOLUME /home/rust/.cargo
+
+RUN cargo build --release
+
+
+
+FROM alpine
+
+WORKDIR /work
+COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/webapp .
+#COPY --from=builder /work/target/release/webapp .
+
+CMD ./webapp

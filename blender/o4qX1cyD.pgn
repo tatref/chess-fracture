@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:cb59f11d92ac05ad13e572b2c71f4a05df6204297400501b0f1130100b1069f5
-size 772
+[Event "Rated Blitz game"]
+[Site "https://lichess.org/o4qX1cyD"]
+[Date "2018.03.26"]
+[Round "-"]
+[White "tatrefthekiller"]
+[Black "priff"]
+[Result "0-1"]
+[UTCDate "2018.03.26"]
+[UTCTime "11:17:10"]
+[WhiteElo "1361"]
+[BlackElo "1372"]
+[WhiteRatingDiff "-11"]
+[BlackRatingDiff "+13"]
+[Variant "Standard"]
+[TimeControl "180+3"]
+[ECO "D00"]
+[Opening "Queen's Pawn Game #2"]
+[Termination "Normal"]
+[Annotator "lichess.org"]
+
+1. d4 d5 2. e3 { D00 Queen's Pawn Game #2 } Nc6 3. Bd3 g6 4. Bd2 f5 5. Ne2 Bg7 6. O-O e5 7. dxe5 Bxe5 8. f4 Bxb2 9. Bc3 Bxa1 10. Bxa1 Qe7 11. Bxh8 Be6 12. c4 O-O-O 13. cxd5 Bxd5 14. Qc2 Qxe3+ 15. Kh1 Qh3 16. Rg1 Nh6 17. Ng3 Ng4 18. Nf1 Rxh8 19. Nbd2 Re8 20. Nf3 Nd4 21. Nxd4 Re1 22. Nf3 Bxf3 23. gxf3 Qxf3+ 24. Qg2 Nf2# { Black wins by checkmate. } 0-1

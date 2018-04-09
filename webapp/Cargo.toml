@@ -1,3 +1,20 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:964e7ef4bbcf96750fc9258af3b5387998971d4200ef34b9da9d4bd758b65680
-size 392
+[package]
+name = "webapp"
+version = "0.1.0"
+authors = ["tatref <tatref@github.com>"]
+
+[dependencies]
+rocket = "0.3.6"
+rocket_codegen = "0.3.6"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+shiplift = { git = "https://github.com/matthiasbeyer/shiplift", branch = "refactor" }
+
+
+
+[dependencies.rocket_contrib]
+version = "*"
+default-features = false
+features = ["handlebars_templates"]
+
