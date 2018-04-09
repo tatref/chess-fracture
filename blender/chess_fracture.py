@@ -18,12 +18,12 @@ import requests
 SQUARE_SIZE = 3.0
 
 if 'CHESS_FRACTURE_FRAMES_PER_MOVE' in os.environ:
-    frames_per_move = os.environ['CHESS_FRACTURE_FRAMES_PER_MOVE']
+    frames_per_move = int(os.environ['CHESS_FRACTURE_FRAMES_PER_MOVE'])
 else:
     frames_per_move = 20
 
 if 'CHESS_FRACTURE_FRAGMENTS' in os.environ:
-    n_fragments = os.environ['CHESS_FRACTURE_FRAGMENTS']
+    n_fragments = int(os.environ['CHESS_FRACTURE_FRAGMENTS'])
 else:
     n_fragments = 10
 
