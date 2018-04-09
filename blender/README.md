@@ -74,3 +74,7 @@ docker run --name chess-fracture1 \
            -e PGN_NAME=$PGN_NAME \
            chess-fracture:latest
 ```
+
+## Variables
+- `CHESS_FRACTURE_FRAMES_PER_MOVE`
+- `CHESS_FRACTURE_FRAGMENTS`

@@ -16,7 +16,16 @@ import requests
 
 
 SQUARE_SIZE = 3.0
-FRAMES_PER_MOVE = 20
+
+if 'CHESS_FRACTURE_FRAMES_PER_MOVE' in os.environ:
+    frames_per_move = os.environ['CHESS_FRACTURE_FRAMES_PER_MOVE']
+else:
+    frames_per_move = 20
+
+if 'CHESS_FRACTURE_FRAGMENTS' in os.environ:
+    n_fragments = os.environ['CHESS_FRACTURE_FRAGMENTS']
+else:
+    n_fragments = 10
 
 
 
@@ -236,7 +245,7 @@ def play(board_map, game):
             king.keyframe_insert(data_path='location')
             rook.keyframe_insert(data_path='location')
             
-            bpy.context.scene.frame_set(bpy.context.scene.frame_current + FRAMES_PER_MOVE)
+            bpy.context.scene.frame_set(bpy.context.scene.frame_current + frames_per_move)
             
             # move king
             king.location = chess_to_coordinates(to_square[0], to_square[1], king.location.z)
@@ -266,7 +275,7 @@ def play(board_map, game):
             
             bpy.ops.object.select_all(action='DESELECT')
             board_map[to_square].select = True
-            bpy.ops.object.add_fracture_cell_objects(source_limit=10)
+            bpy.ops.object.add_fracture_cell_objects(source_limit=n_fragments)
             
             for obj in filter(lambda x: x.name.startswith(board_map[to_square].name + '_cell'), bpy.data.objects):
                 bpy.context.scene.rigidbody_world.group.objects.link(obj)
@@ -333,7 +342,7 @@ def play(board_map, game):
             
             
             # timestep
-            bpy.context.scene.frame_set(this_frame + FRAMES_PER_MOVE)
+            bpy.context.scene.frame_set(this_frame + frames_per_move)
         
             # move piece
             board_map[from_square].location = chess_to_coordinates(to_square[0], to_square[1], board_map[from_square].location.z)
@@ -352,7 +361,7 @@ def play(board_map, game):
             board_map[from_square].keyframe_insert(data_path='location')
             
             # timestep
-            bpy.context.scene.frame_set(bpy.context.scene.frame_current + FRAMES_PER_MOVE)
+            bpy.context.scene.frame_set(bpy.context.scene.frame_current + frames_per_move)
             
             # move piece
             board_map[from_square].location = chess_to_coordinates(to_square[0], to_square[1], board_map[from_square].location.z)
