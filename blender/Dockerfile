@@ -11,8 +11,6 @@ RUN yum install -y bzip2 \
 
 
 COPY blender-2.79a-linux-glibc219-x86_64.tar.bz2 /work/
-COPY chess_fracture.py /work/chess_fracture.py
-COPY chess_fracture_template.blend /work/chess_fracture_template.blend
 
 
 RUN mkdir /output && \
@@ -24,6 +22,8 @@ RUN mkdir /output && \
     2.79/python/bin/python3.5m get-pip.py && \
     2.79/python/bin/python3.5m -m pip install requests python-chess
 
+COPY chess_fracture.py /work/chess_fracture.py
+COPY chess_fracture_template.blend /work/chess_fracture_template.blend
 
 
 VOLUME blend_files
