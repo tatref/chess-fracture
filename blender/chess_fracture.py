@@ -373,8 +373,8 @@ def play(board_map, game):
     white_mat = bpy.data.materials.get('white')
     black_mat = bpy.data.materials.get('black')
     
-    whites_re = re.compile(r'[a-z]\.[a-h][12].*')
-    blacks_re = re.compile(r'[a-z]\.[a-h][78].*')
+    whites_re = re.compile(r'[a-z]+\.[a-h][12].*')
+    blacks_re = re.compile(r'[a-z]+\.[a-h][78].*')
     for obj in bpy.data.objects:
         if whites_re.match(obj.name):
             obj.data.materials[0] = white_mat
