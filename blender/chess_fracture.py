@@ -137,7 +137,7 @@ def initial_setup():
             new_obj.keyframe_insert(data_path='location')
             bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
     # QUEENS
-    z = 0.5
+    z = 2.0401
     for idx1, col in enumerate("d"):
         for idx2, row in enumerate("18"):
             src_obj = bpy.context.scene.objects['template_queen']
@@ -182,9 +182,9 @@ def initial_setup():
 
     bpy.context.scene.rigidbody_world.group.objects.link(bpy.data.objects['ground'])
 
-    bpy.data.materials.new(name='checker_texture')
-    bpy.data.materials['checker_texture'].use_nodes = True
     # TODO: create checker texture
+    checker_mat = bpy.data.materials.get('checker')
+    bpy.data.objects['ground'].data.materials.append(checker_mat)
 
     bpy.context.scene.frame_set(2)
     bpy.context.scene.frame_set(3)
