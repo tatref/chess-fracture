@@ -65,7 +65,7 @@ fn get_pgn_download_url(url: &Url) -> Option<Url> {
         Some("lichess.org") => {
             // Game URL: https://lichess.org/xxxxx/white
             // PGN URL:  https://lichess.org/game/export/xxxx.pgn
-            let re = Regex::new(r"^https://lichess.org/(?P<gameid>[[:alnum:]]+)(/white|black(#\d+)?)?$")
+            let re = Regex::new(r"^https://lichess.org/(?P<gameid>[[:alnum:]]+)(/(white|black)(#\d+)?)?$")
                 .unwrap();
             let game_id = re.captures(url.as_str())
                 .unwrap()  // TODO: handle error
