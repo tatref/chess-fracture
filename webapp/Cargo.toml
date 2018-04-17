@@ -12,6 +12,7 @@ serde_json = "1.0"
 shiplift = { git = "https://github.com/matthiasbeyer/shiplift", branch = "refactor" }
 url = "1.7.0"
 regex = "0.2"
+reqwest = "0.8.5"
 
 
 

@@ -8,6 +8,7 @@ extern crate rocket_contrib;
 extern crate shiplift;
 extern crate url;
 extern crate regex;
+extern crate reqwest;
 
 
 
@@ -42,6 +43,7 @@ mod fracture_chess {
     use rocket_contrib::Template;
     use url::Url;
     use shiplift;
+    use reqwest;
 
 
     #[derive(Serialize)]
@@ -81,7 +83,7 @@ mod fracture_chess {
         Template::render("index", &context)
     }
     
-    fn get_pgn_download_url(url: &Url) -> Option<Url> {
+    fn get_pgn_download_url(url: &Url) -> Result<Url, ()> {
         match url.domain() {
             Some("lichess.org") => {
                 // Game URL: https://lichess.org/xxxxx/white
@@ -89,7 +91,7 @@ mod fracture_chess {
                 let re = Regex::new(r"^https://lichess.org/(?P<gameid>[[:alnum:]]+)(/(white|black)(#\d+)?)?$")
                     .unwrap();
                 let game_id = re.captures(url.as_str())
-                    .unwrap()  // TODO: handle error
+                    .ok_or(())?
                     .name("gameid")
                     .unwrap()  // always succeeds
                     .as_str();
@@ -99,10 +101,10 @@ mod fracture_chess {
                 let base_url = Url::parse("https://lichess.org/game/export/")
                     .unwrap();  // always succeeds
                 let pgn_link = base_url.join(&pgn_name).unwrap();
-                return Some(pgn_link);
+                return Ok(pgn_link);
             },
-            Some(_) => None,
-            _ => None,
+            Some(_) => Err(()),
+            _ => Err(()),
         }
     }
     
@@ -122,12 +124,8 @@ mod fracture_chess {
                             .parse::<Url>()
                             .map_err(|_| ())?;
     
-                        match get_pgn_download_url(&url) {
-                            Some(url) => return Ok(PgnUrl {
-                                    pgn_url: url,
-                                }),
-                            None => return Err(()),
-                        }
+                        return get_pgn_download_url(&url)
+                            .map(|url| PgnUrl { pgn_url: url })
                     },
                     _ if strict => return Err(()),
                     _ => { /* allow extra value when not strict */ }
@@ -140,7 +138,12 @@ mod fracture_chess {
     
     #[post("/pgnurl", format = "application/x-www-form-urlencoded", data = "<url>")]
     fn pgnurl(url: Form<PgnUrl>) -> String {
-        url.into_inner().pgn_url.as_str().into()
+        //url.into_inner().pgn_url.as_str().into()
+        reqwest::get(url.into_inner().pgn_url)
+            .unwrap()
+            .text()
+            .unwrap()
+        // handle "Can't export PGN of game in progress"
     }
 
     pub fn rocket_chess() -> rocket::Rocket {
