@@ -12,6 +12,7 @@ extern crate reqwest;
 #[cfg(test)] #[macro_use] extern crate lazy_static;
 
 
+
 mod test;
 
 
@@ -150,16 +151,63 @@ mod fracture_chess {
 }
 
 fn main() {
+    //fracture_chess::run();
     //let docker = shiplift::Docker::new().unwrap();
     //let containers = docker.containers();
-    //let c = containers.get("ecstatic_chebyshe");
-    //println!("{:?}", c.inspect());
+    ////let c = containers.get("ecstatic_chebyshe");
+    ////println!("{:?}", c.inspect());
 
-    //let container_options = shiplift::builder::ContainerOptionsBuilder::new("chess-fracture")
+    //let container_options = shiplift::builder::ContainerOptionsBuilder::new("chess-fracture:latest")
     //    .name("myfracture")
     //    .build();
     //let res = containers.create(&container_options);
     //println!("{:?}", res);
+
+    use std::process::Command;
     
-    fracture_chess::run();
+    fn docker_run(image_name: &str, cmd: &[&str]) {
+        let vnc_display = 1;
+        let chess_fracture_pgn_path = "./././file.pgn";
+        let pgn_name = "lichess_xxxx";
+
+        let vol_pgn_path = format!("{}:/work/input.pgn:ro", chess_fracture_pgn_path);
+        let vol_x11_socket = format!("/tmp/.X11-unix/X{}:/tmp/.X11-unix/X{}", vnc_display, vnc_display);
+        let env_display = format!("DISPLAY=:{}", vnc_display);
+        let env_pgn_name = format!("PGN_NAME={}", pgn_name);
+
+        let container_name = format!("blender-fracture");
+
+
+
+        let args = &["run",
+                     "--name",
+                     &container_name,
+                     "--security-opt",
+                     "label=type:container_runtime_t",
+                     "--rm",
+                     "-v",
+                     &vol_pgn_path,
+                     "-v",
+                     "blend_files:/output",
+                     "-v",
+                     &vol_x11_socket,
+                     "-e",
+                     &env_display,
+                     "-e",
+                     &env_pgn_name,
+                     "chess-fracture:latest"];
+
+        let child = Command::new("docker")
+            .args(args)
+            .spawn()
+            .expect("failed to execute docker");
+
+        let output = child
+            .wait_with_output()
+            .unwrap();
+        println!("{:?}", output);
+    }
+
+    docker_run("centos", &["ls", "-al"]);
+
 }
