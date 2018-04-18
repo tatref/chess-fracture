@@ -13,6 +13,7 @@ shiplift = { git = "https://github.com/matthiasbeyer/shiplift", branch = "refact
 url = "1.7.0"
 regex = "0.2"
 reqwest = "0.8.5"
+lazy_static = "1.0.0"
 
 
 

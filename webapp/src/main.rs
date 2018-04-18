@@ -9,26 +9,12 @@ extern crate shiplift;
 extern crate url;
 extern crate regex;
 extern crate reqwest;
+#[macro_use] extern crate lazy_static;
 
 
+mod test;
 
 
-
-#[cfg(test)]
-mod test {
-    use rocket::local::Client;
-    use rocket::http::Status;
-    use fracture_chess;
-
-    #[test]
-    fn main_page() {
-        let rocket = fracture_chess::rocket_chess();
-        let client = Client::new(rocket).expect("valid rocket instance");
-
-        let response = client.get("/").dispatch();
-        assert_eq!(response.status(), Status::PermanentRedirect);
-    }
-}
 
 
 mod fracture_chess {
