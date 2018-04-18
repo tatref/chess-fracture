@@ -9,7 +9,7 @@ extern crate shiplift;
 extern crate url;
 extern crate regex;
 extern crate reqwest;
-#[macro_use] extern crate lazy_static;
+#[cfg(test)] #[macro_use] extern crate lazy_static;
 
 
 mod test;
@@ -72,7 +72,7 @@ mod fracture_chess {
     fn get_pgn_download_url(url: &Url) -> Result<Url, ()> {
         match url.domain() {
             Some("lichess.org") => {
-                // Game URL: https://lichess.org/xxxxx/white
+                // Game URL: https://lichess.org/xxxxx/white#2
                 // PGN URL:  https://lichess.org/game/export/xxxx.pgn
                 let re = Regex::new(r"^https://lichess.org/(?P<gameid>[[:alnum:]]+)(/(white|black)(#\d+)?)?$")
                     .unwrap();
@@ -123,13 +123,18 @@ mod fracture_chess {
     }
     
     #[post("/pgnurl", format = "application/x-www-form-urlencoded", data = "<url>")]
-    fn pgnurl(url: Form<PgnUrl>) -> String {
-        //url.into_inner().pgn_url.as_str().into()
-        reqwest::get(url.into_inner().pgn_url)
+    fn pgnurl(url: Form<PgnUrl>) -> Result<String, String> {
+        let pgn_url = url.into_inner().pgn_url;
+        let pgn = reqwest::get(pgn_url)
             .unwrap()
             .text()
-            .unwrap()
-        // handle "Can't export PGN of game in progress"
+            .unwrap();
+        if pgn == "Can't export PGN of game in progress" {
+            Err("Can't export PGN of game in progress".into())
+        }
+        else {
+            Ok("foo".into())
+        }
     }
 
     pub fn rocket_chess() -> rocket::Rocket {
