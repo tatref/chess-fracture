@@ -67,9 +67,9 @@ CHESS_FRACTURE_PGN_PATH=/path/to/my_awsome_game.pgn
 docker run --name chess-fracture1 \
            --security-opt label=type:container_runtime_t \
            --rm \
-           -v $CHESS_FRACTURE_PGN_PATH:/work/input.pgn:ro \
-           -v blend_files:/output \
-           -v /tmp/.X11-unix/X$VNC_DISPLAY:/tmp/.X11-unix/X$VNC_DISPLAY \
+           --mount type=bind,src=$CHESS_FRACTURE_PGN_PATH,dst=/work/input.pgn,ro=true \
+           --mount type=volume,src=blend_files,dst=/output \
+           --mount type=bind,src=/tmp/.X11-unix/X$VNC_DISPLAY,dst=/tmp/.X11-unix/X$VNC_DISPLAY \
            -e DISPLAY=:$VNC_DISPLAY \
            -e PGN_NAME=$PGN_NAME \
            chess-fracture:latest
