@@ -1,0 +1,2 @@
+VNCSERVERS="1:ec2-user"
+VNCSERVERARGS[1]="-geometry 800x600 -nohttpd -localhost"

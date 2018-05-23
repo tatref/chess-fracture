@@ -1,0 +1,5 @@
+---
+- hosts: docker-chess-fracture
+  roles:
+    - goozbach.EPEL
+    - docker-chess-fracture

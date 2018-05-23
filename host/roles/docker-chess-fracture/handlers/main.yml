@@ -1,0 +1,6 @@
+---
+# handlers file for docker-chess-fracture
+- name: restart docker
+  service:
+    name: docker
+    state: restarted

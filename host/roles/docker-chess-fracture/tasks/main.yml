@@ -1,0 +1,92 @@
+---
+# tasks file for docker-chess-fracture
+- name: test connection
+  ping:
+
+- name: install requirements
+  yum:
+    name:
+      - yum-utils
+      - zip
+      - xorg-x11-server-Xorg
+      - xorg-x11-xauth
+      - xorg-x11-server-utils
+      - mesa-dri-drivers
+
+#- name: enable repo rhui-REGION-rhel-server-extras
+#  yum_repository:
+#    name: rhui-REGION-rhel-server-extras
+#    state: present
+
+- name: install docker
+  yum:
+    name:
+      - docker
+
+- name: create docker group
+  group:
+    name: docker
+    state: present
+
+- name: docker daemon.json
+  copy:
+    src: etc/docker/daemon.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart docker
+
+- name: enable docker service
+  service:
+    name: docker
+    enabled: yes
+
+- name: add docker group to ec2-user
+  user:
+    name: ec2-user
+    groups: docker
+    append: yes
+
+- name: upload turbovnc RPM
+  copy:
+    src: turbovnc-2.1.90.x86_64.rpm
+    dest: /tmp/turbovnc-2.1.90.x86_64.rpm
+
+- name: install turbovnc
+  yum:
+    name: /tmp/turbovnc-2.1.90.x86_64.rpm
+    state: present
+
+- name: turbovnc sysconfig
+  copy:
+    src: etc/sysconfig/tvncservers
+    dest: /etc/sysconfig/tvncservers
+    owner: root
+    group: root
+    mode: 0644
+
+- name: turbovnc passwd dir
+  file:
+    path: /home/ec2-user/.vnc/
+    state: directory
+    mode: "u+rwx"
+    owner: ec2-user
+    group: ec2-user
+
+- name: turbovnc passwd
+  copy:
+    src: home/ec2-user/.vnc/passwd
+    dest: /home/ec2-user/.vnc/passwd
+    owner: ec2-user
+    group: ec2-user
+    mode: 0600
+    directory_mode: 0600
+
+- name: enable tvncserver service
+  service:
+    name: tvncserver
+    enabled: yes
+    state: started
+
