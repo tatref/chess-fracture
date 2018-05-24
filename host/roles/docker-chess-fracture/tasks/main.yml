@@ -12,6 +12,9 @@
       - xorg-x11-xauth
       - xorg-x11-server-utils
       - mesa-dri-drivers
+      - git
+      - git-lfs
+      - python2-pip
 
 #- name: enable repo rhui-REGION-rhel-server-extras
 #  yum_repository:
@@ -89,4 +92,20 @@
     name: tvncserver
     enabled: yes
     state: started
+
+- name: git clone http://github.com/tatref/docker-chess-fracture
+  git:
+    repo: 'http://github.com/tatref/docker-chess-fracture'
+    dest: /home/ec2-user/docker-chess-fracture
+    #depth: 1
+
+- name: install docker-py
+  pip:
+    name: docker-py
+
+- name: build chess-fracture docker images
+  docker_image:
+    path: /home/ec2-user/docker-chess-fracture/blender
+    name: chess-fracture
+
 
