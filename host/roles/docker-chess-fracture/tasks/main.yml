@@ -3,6 +3,19 @@
 - name: test connection
   ping:
 
+- name: enable repo docker-ce
+  yum_repository:
+    name: docker-ce
+    description: Docker CE Stable - $basearch
+    state: present
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+    gpgkey: https://download.docker.com/linux/centos/gpg
+
+#- name: enable repo rhui-REGION-rhel-server-extras
+#  yum_repository:
+#    name: rhui-REGION-rhel-server-extras
+#    state: present
+
 - name: install requirements
   yum:
     name:
@@ -15,21 +28,20 @@
       - git
       - git-lfs
       - python2-pip
-
-#- name: enable repo rhui-REGION-rhel-server-extras
-#  yum_repository:
-#    name: rhui-REGION-rhel-server-extras
-#    state: present
-
-- name: install docker
-  yum:
-    name:
-      - docker
+      - docker-ce
 
 - name: create docker group
   group:
     name: docker
     state: present
+
+- name: /etc/docker dir
+  file:
+    path: /etc/docker
+    state: directory
+    mode: "u+rwx"
+    owner: root
+    group: root
 
 - name: docker daemon.json
   copy:
@@ -45,6 +57,7 @@
   service:
     name: docker
     enabled: yes
+    state: started
 
 - name: add docker group to ec2-user
   user:
@@ -87,6 +100,16 @@
     mode: 0600
     directory_mode: 0600
 
+- name: set X11 permissions
+  copy:
+    src: etc/X1.hosts
+    dest: /etc/X1.hosts
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart tvncserver
+
 - name: enable tvncserver service
   service:
     name: tvncserver
@@ -107,5 +130,3 @@
   docker_image:
     path: /home/ec2-user/docker-chess-fracture/blender
     name: chess-fracture
-
-

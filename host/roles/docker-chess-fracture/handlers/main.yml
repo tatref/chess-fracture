@@ -4,3 +4,8 @@
   service:
     name: docker
     state: restarted
+
+- name: restart tvncserver
+  service:
+    name: tvncserver
+    state: restarted
