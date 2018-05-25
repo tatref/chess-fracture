@@ -79,5 +79,5 @@ docker run --name chess-fracture1 \
 - `CHESS_FRACTURE_PGN_PATH`: path to the PGN input file
 - `PGN_NAME`: output name (`*.blend`)
 - `CHESS_FRACTURE_FRAMES_PER_MOVE`
-- `CHESS_FRACTURE_FRAGMENTS`
+- `CHESS_FRACTURE_FRAGMENTS`: fragments per collison
 - `CHESS_FRACTURE_TEST`: early exit the python script for easier testing
