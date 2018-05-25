@@ -164,41 +164,74 @@ fn main() {
     //println!("{:?}", res);
 
     use std::process::Command;
+    use std::collections::HashMap;
+
+
+    enum MountType {
+        Bind,
+        Volume,
+        Tmpfs,
+    }
+
+    struct Mount {
+        mount_type: MountType,
+        src: String,
+        dst: String,
+        ro: bool,
+    }
+    impl Mount {
+        fn new(mount_type: MountType, src: String, dst: String, ro: bool) -> Self {
+            Mount { mount_type, src, dst, ro }
+        }
+    }
+
+    impl std::fmt::Display for Mount {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            write!(f, "--mount type=")?;
+            match self.mount_type {
+                MountType::Bind => write!(f, "bind,"),
+                MountType::Volume => write!(f, "mount,"),
+                MountType::Tmpfs => write!(f, "tmpfs,"),
+            }?;
+            if self.ro {
+                write!(f, "ro=true,")?;
+            }
+            write!(f, "src={},", self.src)?;
+            write!(f, "dst={}", self.dst)?;
+            Ok(())
+        }
+    }
     
-    fn docker_run(image_name: &str, cmd: &[&str]) {
-        let vnc_display = 1;
-        let chess_fracture_pgn_path = "./././file.pgn";
-        let pgn_name = "lichess_xxxx";
+    fn docker_run(image_name: &str,
+            container_name: &str,
+            env: &HashMap<String, String>,
+            mounts: &Vec<Mount>,
+            ) {
+        let mut args: Vec<String> = vec![
+            "run".into(),
+            "--name".into(),
+            container_name.into(),
+            "--security-opt".into(),
+            "label=type:container_runtime_t".into(),
+            "--rm".into(),
+        ];
 
-        let vol_pgn_path = format!("{}:/work/input.pgn:ro", chess_fracture_pgn_path);
-        let vol_x11_socket = format!("/tmp/.X11-unix/X{}:/tmp/.X11-unix/X{}", vnc_display, vnc_display);
-        let env_display = format!("DISPLAY=:{}", vnc_display);
-        let env_pgn_name = format!("PGN_NAME={}", pgn_name);
+        for (k, v) in env.iter() {
+            args.push("-e".into());
+            args.push(format!("{}={}", k, v));
+        }
 
-        let container_name = format!("blender-fracture");
+        for mount in mounts.iter() {
+            args.push(format!("{}", mount));
+        }
 
 
-
-        let args = &["run",
-                     "--name",
-                     &container_name,
-                     "--security-opt",
-                     "label=type:container_runtime_t",
-                     "--rm",
-                     "-v",
-                     &vol_pgn_path,
-                     "-v",
-                     "blend_files:/output",
-                     "-v",
-                     &vol_x11_socket,
-                     "-e",
-                     &env_display,
-                     "-e",
-                     &env_pgn_name,
-                     "chess-fracture:latest"];
+        args.push(image_name.into());
+        println!("{:?}", args);
+        return;
 
         let child = Command::new("docker")
-            .args(args)
+            .args(&args)
             .spawn()
             .expect("failed to execute docker");
 
@@ -208,6 +241,21 @@ fn main() {
         println!("{:?}", output);
     }
 
-    docker_run("centos", &["ls", "-al"]);
+    let x_display = String::from("1");
+
+    let mut env = HashMap::new();
+    env.insert("DISPLAY".into(), format!(":{}", x_display));
+    env.insert("PGN_NAME".into(), "best_game.blend".into());
+
+    let mut mounts = Vec::new();
+    mounts.push(Mount::new(MountType::Bind, "../blender/o4qX1cyD.pgn".into(), "/work/input.pgn".into(), true));
+    mounts.push(Mount::new(MountType::Volume, "blend_files".into(), "/output".into(), false));
+    mounts.push(Mount::new(MountType::Bind, format!("/tmp/.X11-unix/X{}", x_display.clone()), format!("/tmp/.X11-unix/X{}", x_display.clone()), false));
+
+    
+
+    docker_run("centos", "mycontainer", &env, &mounts);
+
+
 
 }
