@@ -119,6 +119,7 @@
     dest: /home/ec2-user/docker-chess-fracture
     #depth: 1
 
+# docker-py required for the `docker_image` module below
 - name: install docker-py
   pip:
     name: docker-py
