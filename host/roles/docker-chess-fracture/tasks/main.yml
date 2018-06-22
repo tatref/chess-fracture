@@ -10,11 +10,19 @@
     state: present
     baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
     gpgkey: https://download.docker.com/linux/centos/gpg
+  when: ansible_distribution == 'CentOS'
 
-#- name: enable repo rhui-REGION-rhel-server-extras
-#  yum_repository:
-#    name: rhui-REGION-rhel-server-extras
-#    state: present
+- name: install docker from rhui-REGION-rhel-server-extras
+  yum:
+    name: docker
+    enablerepo: rhui-REGION-rhel-server-extras
+  when: ansible_distribution == 'RedHat'
+
+- name: install docker-ce
+  yum:
+    name:
+      - docker-ce
+  when: ansible_distribution == 'CentOS'
 
 - name: install requirements
   yum:
@@ -28,7 +36,6 @@
       - git
       - git-lfs
       - python2-pip
-      - docker-ce
 
 - name: create docker group
   group:
@@ -99,16 +106,6 @@
     group: ec2-user
     mode: 0600
     directory_mode: 0600
-
-- name: set X11 permissions
-  copy:
-    src: etc/X1.hosts
-    dest: /etc/X1.hosts
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - restart tvncserver
 
 - name: enable tvncserver service
   service:
