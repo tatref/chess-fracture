@@ -1,2 +1,2 @@
-VNCSERVERS="1:ec2-user"
+VNCSERVERS="1:{{ ansible_user }}"
 VNCSERVERARGS[1]="-geometry 800x600 -nohttpd -localhost"

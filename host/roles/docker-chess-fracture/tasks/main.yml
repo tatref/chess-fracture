@@ -66,9 +66,9 @@
     enabled: yes
     state: started
 
-- name: add docker group to ec2-user
+- name: "add docker group to {{ ansible_user }}"
   user:
-    name: ec2-user
+    name: "{{ ansible_user }}"
     groups: docker
     append: yes
 
@@ -83,8 +83,8 @@
     state: present
 
 - name: turbovnc sysconfig
-  copy:
-    src: etc/sysconfig/tvncservers
+  template:
+    src: etc/sysconfig/tvncservers.j2
     dest: /etc/sysconfig/tvncservers
     owner: root
     group: root
@@ -92,18 +92,18 @@
 
 - name: turbovnc passwd dir
   file:
-    path: /home/ec2-user/.vnc/
+    path: "/home/{{ ansible_user }}/.vnc/"
     state: directory
     mode: "u+rwx"
-    owner: ec2-user
-    group: ec2-user
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
 
 - name: turbovnc passwd
   copy:
-    src: home/ec2-user/.vnc/passwd
-    dest: /home/ec2-user/.vnc/passwd
-    owner: ec2-user
-    group: ec2-user
+    src: "home/user/.vnc/passwd"
+    dest: "/home/{{ ansible_user }}/.vnc/passwd"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0600
     directory_mode: 0600
 
@@ -116,7 +116,7 @@
 - name: git clone http://github.com/tatref/docker-chess-fracture
   git:
     repo: 'http://github.com/tatref/docker-chess-fracture'
-    dest: /home/ec2-user/docker-chess-fracture
+    dest: "/home/{{ ansible_user }}/docker-chess-fracture"
     #depth: 1
 
 # docker-py required for the `docker_image` module below
@@ -126,5 +126,5 @@
 
 - name: build chess-fracture docker images
   docker_image:
-    path: /home/ec2-user/docker-chess-fracture/blender
+    path: "/home/{{ ansible_user }}/docker-chess-fracture/blender"
     name: chess-fracture

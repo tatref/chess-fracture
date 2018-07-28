@@ -1,1 +1,0 @@
-docker-chess-fracture ansible_host=192.168.0.5 ansible_user=ec2-user ansible_ssh_private_key_file=./id_rsa ansible_become=true
