@@ -138,9 +138,14 @@ mod fracture_chess {
         }
     }
 
+    #[get("/status/<game_id>")]
+    fn status(game_id: usize) -> String {
+        game_id.to_string()
+    }
+
     pub fn rocket_chess() -> rocket::Rocket {
         rocket::ignite()
-            .mount("/", routes![index, get, containers, pgnurl])
+            .mount("/", routes![index, get, containers, pgnurl, status])
             .attach(Template::fairing())
     }
 
@@ -151,17 +156,7 @@ mod fracture_chess {
 }
 
 fn main() {
-    //fracture_chess::run();
-    //let docker = shiplift::Docker::new().unwrap();
-    //let containers = docker.containers();
-    ////let c = containers.get("ecstatic_chebyshe");
-    ////println!("{:?}", c.inspect());
-
-    //let container_options = shiplift::builder::ContainerOptionsBuilder::new("chess-fracture:latest")
-    //    .name("myfracture")
-    //    .build();
-    //let res = containers.create(&container_options);
-    //println!("{:?}", res);
+    fracture_chess::run();
 
     use std::process::Command;
     use std::collections::HashMap;
