@@ -16,8 +16,6 @@ extern crate reqwest;
 mod test;
 
 
-
-
 mod fracture_chess {
     //use rocket::Request;
     //use rocket::http::Cookies;
@@ -29,48 +27,37 @@ mod fracture_chess {
     use rocket;
     use rocket_contrib::Template;
     use url::Url;
-    use shiplift;
     use reqwest;
+    use rocket::http::RawStr;
 
-
-    #[derive(Serialize)]
-    struct TemplateContext {
-        name: String,
-        items: Vec<String>
-    }
-    
-    #[derive(Serialize)]
-    struct ContainersListContext {
-        containers: Vec<shiplift::rep::Container>,
-    }
-    
-    #[get("/containers")]
-    fn containers() -> Template {
-        let context = ContainersListContext {
-            containers: Vec::new(),
-        };
-    
-        Template::render("containers", &context)
-    }
     
     #[get("/")]
-    fn index() -> Redirect {
-        Redirect::permanent("/containers")
-    }
-    
-    
-    
-    #[get("/hello/<name>")]
-    fn get(name: String) -> Template {
-        let context = TemplateContext {
-            name: name,
-            items: vec!["One", "Two", "Three"].iter().map(|s| s.to_string()).collect()
-        };
-    
+    fn index() -> Template {
+        use std::collections::HashMap;
+        let mut context = HashMap::new();
+        context.insert(0, 0);
+
         Template::render("index", &context)
     }
+
+    #[derive(Clone, Debug)]
+    enum Site {
+        Lichess,
+    }
+
+    impl<'a> rocket::request::FromParam<'a> for Site {
+        type Error = ();
+
+        fn from_param(param: &'a RawStr) -> Result<Self, Self::Error> {
+            match param.as_str() {
+                "lichess" => Ok(Site::Lichess),
+                _ => Err(()),
+            }
+        }
+    }
     
-    fn get_pgn_download_url(url: &Url) -> Result<Url, ()> {
+    
+    fn get_pgn_download_url(url: &Url) -> Result<PgnUrl, ()> {
         match url.domain() {
             Some("lichess.org") => {
                 // Game URL: https://lichess.org/xxxxx/white#2
@@ -87,16 +74,20 @@ mod fracture_chess {
     
                 let base_url = Url::parse("https://lichess.org/game/export/")
                     .unwrap();  // always succeeds
-                let pgn_link = base_url.join(&pgn_name).unwrap();
-                return Ok(pgn_link);
+                let pgn_url = base_url.join(&pgn_name).unwrap();
+
+                return Ok( PgnUrl { site: Site::Lichess, pgn_url, game_id: game_id.into() });
             },
             Some(_) => Err(()),
             _ => Err(()),
         }
     }
-    
+
+    #[derive(Clone, Debug)]
     struct PgnUrl {
-        pgn_url: Url,
+        site: Site,
+        pgn_url: Url,  // TODO: not required
+        game_id: String,
     }
     
     impl<'f> FromForm<'f> for PgnUrl {
@@ -111,8 +102,7 @@ mod fracture_chess {
                             .parse::<Url>()
                             .map_err(|_| ())?;
     
-                        return get_pgn_download_url(&url)
-                            .map(|url| PgnUrl { pgn_url: url })
+                        return get_pgn_download_url(&url);
                     },
                     _ if strict => return Err(()),
                     _ => { /* allow extra value when not strict */ }
@@ -123,29 +113,36 @@ mod fracture_chess {
         }
     }
     
-    #[post("/pgnurl", format = "application/x-www-form-urlencoded", data = "<url>")]
-    fn pgnurl(url: Form<PgnUrl>) -> Result<String, String> {
-        let pgn_url = url.into_inner().pgn_url;
+    #[post("/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
+    fn post(pgnurl: Form<PgnUrl>) -> Result<Redirect, String> {
+        let PgnUrl { site, pgn_url, game_id } = pgnurl.into_inner();
+
         let pgn = reqwest::get(pgn_url)
             .unwrap()
             .text()
             .unwrap();
         if pgn == "Can't export PGN of game in progress" {
-            Err("Can't export PGN of game in progress".into())
+            return Err("Can't export PGN of game in progress".into())
         }
-        else {
-            Ok("foo".into())
-        }
+
+        let site_str: &str = match site {
+            Lichess => "lichess".into(),
+            _ => unimplemented!(),
+        };
+
+        let redirect_url = format!("/get/{}/{}", site_str, game_id);
+        Ok(Redirect::to(&redirect_url))
     }
 
-    #[get("/status/<game_id>")]
-    fn status(game_id: usize) -> String {
+    /// Retrieve a blend file or wait if not computed yet
+    #[get("/get/<site>/<game_id>")]
+    fn get(site: Site, game_id: String) -> String {
         game_id.to_string()
     }
 
     pub fn rocket_chess() -> rocket::Rocket {
         rocket::ignite()
-            .mount("/", routes![index, get, containers, pgnurl, status])
+            .mount("/", routes![index, get, post])
             .attach(Template::fairing())
     }
 

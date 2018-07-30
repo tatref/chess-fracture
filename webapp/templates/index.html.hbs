@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 <html>
   <head>
@@ -7,18 +6,10 @@
     <title>Handlebars Demo</title>
   </head>
   <body>
-    <h1>Hi {{name}}</h1>
-    <h3>Here are your items:</h3>
-    <ul>
-      {{#each items}}
-      <li>{{this}}</li>
-      {{/each}}
-    </ul>
-
     <p>Try going to <a href="/hello/YourName">/hello/YourName</a></p>
 
     <p>
-      <form action="/pgn" method="post">
+      <form action="/post" method="post">
         <input name="url">
         <button>Fracture!</button>
       </form>
