@@ -5,6 +5,22 @@
     name: nginx
     state: installed
 
-#- name: configure nginx
-#  template/copy
-#
+- name: nginx service
+  service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: open port 80
+  firewalld:
+    port: 80/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: configure nginx
+  copy:
+    src: etc/nginx/conf.d/webapp.conf
+    dest: /etc/nginx/conf.d/webapp.conf
+  notify: restart nginx
+
