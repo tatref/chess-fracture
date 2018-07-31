@@ -16,6 +16,7 @@ extern crate reqwest;
 mod test;
 
 
+
 mod fracture_chess {
     //use rocket::Request;
     //use rocket::http::Cookies;
@@ -30,6 +31,7 @@ mod fracture_chess {
     use reqwest;
     use rocket::http::RawStr;
 
+    const NAME_PREFIX: &str = "fract";
     
     #[get("/")]
     fn index() -> Template {
@@ -126,7 +128,7 @@ mod fracture_chess {
         }
 
         let site_str: &str = match site {
-            Lichess => "lichess".into(),
+            Site::Lichess => "lichess".into(),
             _ => unimplemented!(),
         };
 
@@ -137,7 +139,24 @@ mod fracture_chess {
     /// Retrieve a blend file or wait if not computed yet
     #[get("/get/<site>/<game_id>")]
     fn get(site: Site, game_id: String) -> String {
-        game_id.to_string()
+        use std::process::Command;
+        use std::process::Stdio;
+
+        let cmd_status = Command::new("docker")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .arg("inspect")
+            .arg("--type")
+            .arg("container")
+            .arg(&format!("{}_{:?}_{}", NAME_PREFIX, site, game_id))
+            .status()
+            .unwrap();
+        if cmd_status.success() {
+            "container still running!".to_string()
+        }
+        else {
+            format!("finished: {:?}/{}", site, game_id)
+        }
     }
 
     pub fn rocket_chess() -> rocket::Rocket {
@@ -155,30 +174,51 @@ mod fracture_chess {
 fn main() {
     fracture_chess::run();
 
+    use std::collections::HashMap;
+    use docker::*;
+
+    let x_display = String::from("1");
+
+    let mut env = HashMap::new();
+    env.insert("DISPLAY".into(), format!(":{}", x_display));
+    env.insert("PGN_NAME".into(), "best_game.blend".into());
+
+    let mut mounts = Vec::new();
+    mounts.push(Mount::new(MountType::Bind, "../blender/o4qX1cyD.pgn".into(), "/work/input.pgn".into(), true));
+    mounts.push(Mount::new(MountType::Volume, "blend_files".into(), "/output".into(), false));
+    mounts.push(Mount::new(MountType::Bind, format!("/tmp/.X11-unix/X{}", x_display.clone()), format!("/tmp/.X11-unix/X{}", x_display.clone()), false));
+
+    
+
+    run("centos", "mycontainer", &env, &mounts);
+}
+
+mod docker {
     use std::process::Command;
     use std::collections::HashMap;
+    use std::fmt::{self, Formatter, Display};
 
 
-    enum MountType {
+    pub enum MountType {
         Bind,
         Volume,
         Tmpfs,
     }
 
-    struct Mount {
+    pub struct Mount {
         mount_type: MountType,
         src: String,
         dst: String,
         ro: bool,
     }
     impl Mount {
-        fn new(mount_type: MountType, src: String, dst: String, ro: bool) -> Self {
+        pub fn new(mount_type: MountType, src: String, dst: String, ro: bool) -> Self {
             Mount { mount_type, src, dst, ro }
         }
     }
 
-    impl std::fmt::Display for Mount {
-        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    impl Display for Mount {
+        fn fmt(&self, f: &mut Formatter) -> fmt::Result {
             write!(f, "--mount type=")?;
             match self.mount_type {
                 MountType::Bind => write!(f, "bind,"),
@@ -194,7 +234,7 @@ fn main() {
         }
     }
     
-    fn docker_run(image_name: &str,
+    pub fn run(image_name: &str,
             container_name: &str,
             env: &HashMap<String, String>,
             mounts: &Vec<Mount>,
@@ -232,22 +272,5 @@ fn main() {
             .unwrap();
         println!("{:?}", output);
     }
-
-    let x_display = String::from("1");
-
-    let mut env = HashMap::new();
-    env.insert("DISPLAY".into(), format!(":{}", x_display));
-    env.insert("PGN_NAME".into(), "best_game.blend".into());
-
-    let mut mounts = Vec::new();
-    mounts.push(Mount::new(MountType::Bind, "../blender/o4qX1cyD.pgn".into(), "/work/input.pgn".into(), true));
-    mounts.push(Mount::new(MountType::Volume, "blend_files".into(), "/output".into(), false));
-    mounts.push(Mount::new(MountType::Bind, format!("/tmp/.X11-unix/X{}", x_display.clone()), format!("/tmp/.X11-unix/X{}", x_display.clone()), false));
-
-    
-
-    docker_run("centos", "mycontainer", &env, &mounts);
-
-
-
 }
+
