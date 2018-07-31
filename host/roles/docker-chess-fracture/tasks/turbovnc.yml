@@ -1,0 +1,42 @@
+---
+
+- name: upload turbovnc RPM
+  copy:
+    src: turbovnc-2.1.90.x86_64.rpm
+    dest: /tmp/turbovnc-2.1.90.x86_64.rpm
+
+- name: install turbovnc
+  yum:
+    name: /tmp/turbovnc-2.1.90.x86_64.rpm
+    state: present
+
+- name: turbovnc sysconfig
+  template:
+    src: etc/sysconfig/tvncservers.j2
+    dest: /etc/sysconfig/tvncservers
+    owner: root
+    group: root
+    mode: 0644
+
+- name: turbovnc passwd dir
+  file:
+    path: "/home/{{ ansible_user }}/.vnc/"
+    state: directory
+    mode: "u+rwx"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: turbovnc passwd
+  copy:
+    src: "home/user/.vnc/passwd"
+    dest: "/home/{{ ansible_user }}/.vnc/passwd"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0600
+    directory_mode: 0600
+
+- name: enable tvncserver service
+  service:
+    name: tvncserver
+    enabled: yes
+    state: started
