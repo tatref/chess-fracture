@@ -15,6 +15,8 @@
       - git
       - git-lfs
       - python2-pip
+      - gcc
+      - openssl-devel
 
 - name: docker play
   include: docker.yml
@@ -31,8 +33,19 @@
     repo: 'http://github.com/tatref/docker-chess-fracture'
     dest: "/home/{{ ansible_user }}/docker-chess-fracture"
     #depth: 1
+  become_user: "{{ ansible_user }}"
+  notify:
+    - rebuild webapp
 
 - name: build chess-fracture docker images
   docker_image:
     path: "/home/{{ ansible_user }}/docker-chess-fracture/blender"
     name: chess-fracture
+  become_user: "{{ ansible_user }}"
+
+- name: build webapp
+  command: /home/ansible/.cargo/bin/cargo build
+  args:
+    chdir: "/home/{{ ansible_user }}/docker-chess-fracture/webapp"
+    creates: "/home/{{ ansible_user }}/docker-chess-fracture/webapp/target/"
+  become_user: "{{ ansible_user }}"

@@ -9,3 +9,9 @@
   service:
     name: tvncserver
     state: restarted
+
+- name: rebuild webapp
+  command: /home/ansible/.cargo/bin/cargo build
+  args:
+    chdir: "/home/{{ ansible_user }}/docker-chess-fracture/webapp"
+  become_user: "{{ ansible_user }}"
