@@ -160,9 +160,21 @@ mod fracture_chess {
     }
 
     pub fn rocket_chess() -> rocket::Rocket {
-        rocket::ignite()
+        use rocket::config::{Config, Environment};
+        
+        let config = Config::build(Environment::Staging)
+            .address("127.0.0.1")
+            .port(8000)
+            .finalize()
+            .unwrap();
+        
+        rocket::custom(config, true)
             .mount("/", routes![index, get, post])
             .attach(Template::fairing())
+
+        //rocket::ignite()
+        //    .mount("/", routes![index, get, post])
+        //    .attach(Template::fairing())
     }
 
     pub fn run() {
