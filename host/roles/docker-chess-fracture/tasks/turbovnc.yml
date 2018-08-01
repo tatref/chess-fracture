@@ -1,14 +1,18 @@
 ---
 
-- name: upload turbovnc RPM
-  copy:
-    src: turbovnc-2.1.90.x86_64.rpm
-    dest: /tmp/turbovnc-2.1.90.x86_64.rpm
+- name: add turbovnc repo
+  yum_repository:
+    name: TurboVNC
+    description: TurboVNC official RPMs
+    baseurl: https://sourceforge.net/projects/turbovnc/files
+    gpgcheck: yes
+    gpgkey: http://pgp.mit.edu/pks/lookup?op=get&search=0x6BBEFA1972FEB9CE
+    enabled: yes
 
 - name: install turbovnc
   yum:
-    name: /tmp/turbovnc-2.1.90.x86_64.rpm
-    state: present
+    name: turbovnc
+    state: installed
 
 - name: turbovnc sysconfig
   template:

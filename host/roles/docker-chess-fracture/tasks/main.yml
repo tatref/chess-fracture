@@ -13,12 +13,12 @@
       - xorg-x11-server-utils
       - mesa-dri-drivers
       - git
-      - git-lfs
+      - git-lfs  # TODO: remove
       - python2-pip
       - gcc
       - openssl-devel
 
-- name: docker play
+- name: docker
   include: docker.yml
 
 - name: turbovnc
@@ -27,6 +27,10 @@
 - name: reverse proxy
   include: nginx.yml
 
+- name: wget blender
+  get_url:
+    url: https://download.blender.org/release/Blender2.79/blender-2.79-linux-glibc219-x86_64.tar.bz2
+    dest: "/home/{{ ansible_user }}/docker-chess-fracture/blender/"
 
 - name: git clone http://github.com/tatref/docker-chess-fracture
   git:
