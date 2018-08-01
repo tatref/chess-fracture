@@ -47,6 +47,10 @@
     name: chess-fracture
   become_user: "{{ ansible_user }}"
 
+- name: install rust
+  shell: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+  become_user: "{{ ansible_user }}"
+
 - name: build webapp
   command: /home/ansible/.cargo/bin/cargo build
   args:
