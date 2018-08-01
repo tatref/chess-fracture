@@ -26,11 +26,6 @@
 - name: reverse proxy
   include: nginx.yml
 
-- name: wget blender
-  get_url:
-    url: https://download.blender.org/release/Blender2.79/blender-2.79-linux-glibc219-x86_64.tar.bz2
-    dest: "/home/{{ ansible_user }}/docker-chess-fracture/blender/"
-
 - name: git clone http://github.com/tatref/docker-chess-fracture
   git:
     repo: 'http://github.com/tatref/docker-chess-fracture'
@@ -39,6 +34,11 @@
   become_user: "{{ ansible_user }}"
   notify:
     - rebuild webapp
+
+- name: wget blender
+  get_url:
+    url: https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2
+    dest: "/home/{{ ansible_user }}/docker-chess-fracture/blender/"
 
 - name: build chess-fracture docker images
   docker_image:

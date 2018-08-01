@@ -10,7 +10,7 @@ RUN yum install -y bzip2 \
                    mesa-dri-drivers
 
 
-COPY blender-2.79a-linux-glibc219-x86_64.tar.bz2 /work/
+COPY blender-2.79b-linux-glibc219-x86_64.tar.bz2 /work/
 
 
 RUN mkdir /output && \
