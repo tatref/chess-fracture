@@ -61,7 +61,7 @@ mod fracture_chess {
         }
     }
     
-    
+    /// check the provided URL and fix it to a correctl PGN URL
     fn get_pgn_download_url(url: &Url) -> Result<PgnUrl, ()> {
         match url.domain() {
             Some("lichess.org") => {
@@ -118,6 +118,7 @@ mod fracture_chess {
         }
     }
     
+    /// this is the input
     #[post("/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
     fn post(pgnurl: Form<PgnUrl>) -> Result<Redirect, String> {
         let PgnUrl { site, pgn_url, game_id } = pgnurl.into_inner();
@@ -139,7 +140,9 @@ mod fracture_chess {
         Ok(Redirect::to(&redirect_url))
     }
 
+    /// check if the blender process exited and successfully generated the blend file
     fn simulation_finished(site: &Site, game_id: &str) -> bool {
+        // TODO
         //use std::process::Command;
         //use std::process::Stdio;
         //let cmd_status = Command::new("docker")
@@ -162,7 +165,7 @@ mod fracture_chess {
     #[get("/get/<site>/<game_id>")]
     fn get(site: Site, game_id: String) -> String {
         if simulation_finished(&site, &game_id) {
-            format!("{}/{:?}/{}", BLEND_FILES_URL_PREFIX, site, game_id)
+            format!("{}/{:?}/{}.blend", BLEND_FILES_URL_PREFIX, site, game_id)
         }
         else {
             "container still running!".to_string()
@@ -181,10 +184,6 @@ mod fracture_chess {
         rocket::custom(config, true)
             .mount("/", routes![index, get, post])
             .attach(Template::fairing())
-
-        //rocket::ignite()
-        //    .mount("/", routes![index, get, post])
-        //    .attach(Template::fairing())
     }
 
     pub fn run() {
