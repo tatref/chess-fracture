@@ -15,6 +15,7 @@
   args:
     chdir: "/home/{{ ansible_user }}/docker-chess-fracture/webapp"
   become_user: "{{ ansible_user }}"
+  notify: restart webapp
 
 - name: restart nginx
   service:
