@@ -4,6 +4,7 @@
 
 extern crate rocket;
 extern crate rocket_contrib;
+#[allow(unused_imports)]
 #[macro_use] extern crate serde_derive;
 extern crate shiplift;
 extern crate url;
@@ -25,13 +26,15 @@ mod fracture_chess {
     use rocket::request::FormItems;
     use rocket::request::FromForm;
     use rocket::response::Redirect;
+    use rocket::response::Response;
     use rocket;
     use rocket_contrib::Template;
     use url::Url;
     use reqwest;
     use rocket::http::RawStr;
 
-    const NAME_PREFIX: &str = "fract";
+    const CONTAINER_NAME_PREFIX: &str = "fract";
+    const BLEND_FILES_URL_PREFIX: &str = "/blend";
     
     #[get("/")]
     fn index() -> Template {
@@ -136,26 +139,33 @@ mod fracture_chess {
         Ok(Redirect::to(&redirect_url))
     }
 
+    fn simulation_finished(site: &Site, game_id: &str) -> bool {
+        //use std::process::Command;
+        //use std::process::Stdio;
+        //let cmd_status = Command::new("docker")
+        //    .stdout(Stdio::null())
+        //    .stderr(Stdio::null())
+        //    .arg("inspect")
+        //    .arg("--type")
+        //    .arg("container")
+        //    .arg(&format!("{}_{:?}_{}", CONTAINER_NAME_PREFIX, site, game_id))
+        //    .status()
+        //    .unwrap();
+        //if cmd_status.success() {
+        //}
+        //else {
+        //}
+        true
+    }
+
     /// Retrieve a blend file or wait if not computed yet
     #[get("/get/<site>/<game_id>")]
     fn get(site: Site, game_id: String) -> String {
-        use std::process::Command;
-        use std::process::Stdio;
-
-        let cmd_status = Command::new("docker")
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .arg("inspect")
-            .arg("--type")
-            .arg("container")
-            .arg(&format!("{}_{:?}_{}", NAME_PREFIX, site, game_id))
-            .status()
-            .unwrap();
-        if cmd_status.success() {
-            "container still running!".to_string()
+        if simulation_finished(&site, &game_id) {
+            format!("{}/{:?}/{}", BLEND_FILES_URL_PREFIX, site, game_id)
         }
         else {
-            format!("finished: {:?}/{}", site, game_id)
+            "container still running!".to_string()
         }
     }
 
@@ -211,6 +221,7 @@ mod docker {
     use std::fmt::{self, Formatter, Display};
 
 
+    #[allow(dead_code)]
     pub enum MountType {
         Bind,
         Volume,
