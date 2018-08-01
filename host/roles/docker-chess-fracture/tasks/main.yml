@@ -50,6 +50,7 @@
   shell: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
   args:
     creates: "/home/{{ ansible_user }}/.cargo/bin/cargo"
+    warn: false
   become_user: "{{ ansible_user }}"
 
 - name: build webapp
