@@ -25,7 +25,7 @@
   notify: restart nginx
 
 - name: configure nginx
-  copy:
+  template:
     src: etc/nginx/conf.d/webapp.conf
     dest: /etc/nginx/conf.d/webapp.conf
   notify: restart nginx
