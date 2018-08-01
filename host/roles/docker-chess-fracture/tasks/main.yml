@@ -48,6 +48,8 @@
 
 - name: install rust
   shell: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+  args:
+    creates: "/home/{{ ansible_user }}/.cargo/bin/cargo"
   become_user: "{{ ansible_user }}"
 
 - name: build webapp
