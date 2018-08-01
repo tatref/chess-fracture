@@ -58,3 +58,16 @@
     chdir: "/home/{{ ansible_user }}/docker-chess-fracture/webapp"
     creates: "/home/{{ ansible_user }}/docker-chess-fracture/webapp/target/"
   become_user: "{{ ansible_user }}"
+  notify: restart webapp
+
+- name: copy webapp startup script
+  template:
+    src: usr/lib/systemd/system/webapp.service.j2
+    dest: /usr/lib/systemd/system/webapp.service
+  notify: systemctl daemon-reload
+
+- name: start webapp
+  service:
+    name: webapp
+    state: started
+    enabled: yes

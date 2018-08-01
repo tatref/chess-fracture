@@ -20,3 +20,11 @@
   service:
     name: nginx
     state: restarted
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: restart webapp
+  service:
+    name: webapp
+    state: restarted

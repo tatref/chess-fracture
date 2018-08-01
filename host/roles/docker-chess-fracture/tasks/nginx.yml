@@ -19,8 +19,18 @@
     state: enabled
 
 - name: configure nginx
+  template:
+    src: etc/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+  notify: restart nginx
+
+- name: configure nginx
   copy:
     src: etc/nginx/conf.d/webapp.conf
     dest: /etc/nginx/conf.d/webapp.conf
   notify: restart nginx
 
+- name: disable selinux # FIXME
+  selinux:
+    policy: targeted
+    state: permissive
