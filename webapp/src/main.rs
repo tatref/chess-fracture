@@ -142,6 +142,7 @@ mod fracture_chess {
         let pgn_path = format!("{}_{}", site_str, &game_id);
         let mut f = File::create(&pgn_path).expect(&format!("Can't create file {}", &pgn_path));
         f.write_all(pgn.as_bytes()).expect("Can't write to file");
+        f.flush().expect("Can't write to file");
 
         use std::env::var;
         let username = var("USER").unwrap();
