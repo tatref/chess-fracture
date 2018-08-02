@@ -66,9 +66,3 @@
       - "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.5/site-packages/chess"
   become_user: "{{ ansible_user }}"
 
-- name: create /blend
-  file:
-    path: /blend
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"

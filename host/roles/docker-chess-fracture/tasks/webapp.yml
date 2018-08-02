@@ -27,9 +27,12 @@
     state: started
     enabled: yes
 
-- name: create /pgn
+- name: create app dirs
   file:
     path: /pgn
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
+  with_items:
+    - /pgn
+    - /blend

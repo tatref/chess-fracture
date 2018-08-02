@@ -35,7 +35,7 @@ mod fracture_chess {
     const BLEND_FILES_SAVE_PATH: &str = "/blend";
     const PGN_SAVE_PATH: &str = "/pgn";
     
-    #[get("/")]
+    #[get("/webapp")]
     fn index() -> Template {
         use std::collections::HashMap;
         let mut context = HashMap::new();
@@ -118,7 +118,7 @@ mod fracture_chess {
     }
     
     /// this is the input
-    #[post("/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
+    #[post("/webapp/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
     fn post(pgnurl: Form<PgnUrl>) -> Result<Redirect, String> {
         let PgnUrl { site, pgn_url, game_id } = pgnurl.into_inner();
 
@@ -151,31 +151,36 @@ mod fracture_chess {
         use std::env::var;
         let username = var("USER").unwrap();
 
-        use std::process::Command;
-        use std::process::Stdio;
-        let cmd_status = Command::new(&format!("/home/{}/blender-2.79b-linux-glibc219-x86_64/blender", username))
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .arg(&format!("/home/{}/docker-chess-fracture/blender/chess_fracture_template.blend", username))
-            .arg("-noaudio")
-            .arg("--addons")
-            .arg("object_fracture_cell")
-            .arg("--python")
-            .arg(&format!("/home/{}/docker-chess-fracture/blender/chess_fracture.py", username))
-            .env("CHESS_FRACTURE_OUT_BLEND", format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id))
-            .env("DISPLAY", ":1")
-            .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
-            .env("CHESS_FRACTURE_TEST", "")
-            .status()
-            .expect("blender failed");
-        if cmd_status.success() {
-            println!("exec blender ok");
-        }
-        else {
-            println!("failed");
+        let chess_fracture_out_blend = format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id);
+        use std::fs;
+        if let Err(_) = fs::metadata(&chess_fracture_out_blend) {
+            use std::process::Command;
+            use std::process::Stdio;
+            let cmd_status = Command::new(&format!("/home/{}/blender-2.79b-linux-glibc219-x86_64/blender", username))
+                .stdout(Stdio::inherit())
+                .stderr(Stdio::inherit())
+                .arg(&format!("/home/{}/docker-chess-fracture/blender/chess_fracture_template.blend", username))
+                .arg("-noaudio")
+                .arg("--addons")
+                .arg("object_fracture_cell")
+                .arg("--python")
+                .arg(&format!("/home/{}/docker-chess-fracture/blender/chess_fracture.py", username))
+                .env("CHESS_FRACTURE_OUT_BLEND", &chess_fracture_out_blend)
+                .env("DISPLAY", ":1")
+                .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
+                .env("CHESS_FRACTURE_TEST", "")
+                .status()
+                .expect("blender failed");
+            if cmd_status.success() {
+                println!("exec blender ok");
+            }
+            else {
+                println!("failed");
+            }
         }
 
-        let redirect_url = format!("/get/{:?}/{}", &site, game_id);
+
+        let redirect_url = format!("/webapp/get/{:?}/{}", &site, game_id);
         Ok(Redirect::to(&redirect_url))
     }
 
@@ -186,13 +191,13 @@ mod fracture_chess {
     }
 
     /// Retrieve a blend file or wait if not computed yet
-    #[get("/get/<site>/<game_id>")]
+    #[get("/webapp/get/<site>/<game_id>")]
     fn get(site: Site, game_id: String) -> String {
         if simulation_finished(&site, &game_id) {
-            format!("{}/{:?}/{}.blend", BLEND_FILES_URL_PREFIX, site, game_id)
+            format!("Download link: <a href={}/{:?}_{}.blend>Download</a>", BLEND_FILES_URL_PREFIX, site, game_id)
         }
         else {
-            "container still running!".to_string()
+            "Not finished...".to_string()
         }
     }
 
@@ -218,105 +223,5 @@ mod fracture_chess {
 
 fn main() {
     fracture_chess::run();
-
-    use std::collections::HashMap;
-    use docker::*;
-
-    let x_display = String::from("1");
-
-    let mut env = HashMap::new();
-    env.insert("DISPLAY".into(), format!(":{}", x_display));
-    env.insert("PGN_NAME".into(), "best_game.blend".into());
-
-    let mut mounts = Vec::new();
-    mounts.push(Mount::new(MountType::Bind, "../blender/o4qX1cyD.pgn".into(), "/work/input.pgn".into(), true));
-    mounts.push(Mount::new(MountType::Volume, "blend_files".into(), "/output".into(), false));
-    mounts.push(Mount::new(MountType::Bind, format!("/tmp/.X11-unix/X{}", x_display.clone()), format!("/tmp/.X11-unix/X{}", x_display.clone()), false));
-
-    
-
-    run("centos", "mycontainer", &env, &mounts);
-}
-
-mod docker {
-    use std::process::Command;
-    use std::collections::HashMap;
-    use std::fmt::{self, Formatter, Display};
-
-
-    #[allow(dead_code)]
-    pub enum MountType {
-        Bind,
-        Volume,
-        Tmpfs,
-    }
-
-    pub struct Mount {
-        mount_type: MountType,
-        src: String,
-        dst: String,
-        ro: bool,
-    }
-    impl Mount {
-        pub fn new(mount_type: MountType, src: String, dst: String, ro: bool) -> Self {
-            Mount { mount_type, src, dst, ro }
-        }
-    }
-
-    impl Display for Mount {
-        fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-            write!(f, "--mount type=")?;
-            match self.mount_type {
-                MountType::Bind => write!(f, "bind,"),
-                MountType::Volume => write!(f, "mount,"),
-                MountType::Tmpfs => write!(f, "tmpfs,"),
-            }?;
-            if self.ro {
-                write!(f, "ro=true,")?;
-            }
-            write!(f, "src={},", self.src)?;
-            write!(f, "dst={}", self.dst)?;
-            Ok(())
-        }
-    }
-    
-    pub fn run(image_name: &str,
-            container_name: &str,
-            env: &HashMap<String, String>,
-            mounts: &Vec<Mount>,
-            ) {
-        let mut args: Vec<String> = vec![
-            "run".into(),
-            "--name".into(),
-            container_name.into(),
-            "--security-opt".into(),
-            "label=type:container_runtime_t".into(),
-            "--rm".into(),
-        ];
-
-        for (k, v) in env.iter() {
-            args.push("-e".into());
-            args.push(format!("{}={}", k, v));
-        }
-
-        for mount in mounts.iter() {
-            args.push(format!("{}", mount));
-        }
-
-
-        args.push(image_name.into());
-        println!("{:?}", args);
-        return;
-
-        let child = Command::new("docker")
-            .args(&args)
-            .spawn()
-            .expect("failed to execute docker");
-
-        let output = child
-            .wait_with_output()
-            .unwrap();
-        println!("{:?}", output);
-    }
 }
 

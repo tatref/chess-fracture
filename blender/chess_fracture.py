@@ -381,7 +381,7 @@ def play(board_map, game):
         # update the board
         board.push(move)
         
-        if 'CHESS_FRACTURE_TEST' in os.environ:
+        if 'CHESS_FRACTURE_TEST' in os.environ and move_number > 8:
             break
     # end for moves
     
