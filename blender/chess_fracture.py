@@ -21,11 +21,13 @@ if 'CHESS_FRACTURE_FRAMES_PER_MOVE' in os.environ:
     frames_per_move = int(os.environ['CHESS_FRACTURE_FRAMES_PER_MOVE'])
 else:
     frames_per_move = 20
+print("CHESS_FRACTURE_FRAMES_PER_MOVE=" + str(frames_per_move))
 
 if 'CHESS_FRACTURE_FRAGMENTS' in os.environ:
     n_fragments = int(os.environ['CHESS_FRACTURE_FRAGMENTS'])
 else:
     n_fragments = 10
+print("CHESS_FRACTURE_FRAGMENTS=" + str(n_fragments))
 
 
 
@@ -403,6 +405,7 @@ def play(board_map, game):
 
 
 if 'CHESS_FRACTURE_PGN_PATH' in os.environ:
+    print('CHESS_FRACTURE_PGN_PATH=' + str(os.environ['CHESS_FRACTURE_PGN_PATH']))
     game = load_pgn(os.environ['CHESS_FRACTURE_PGN_PATH'])
 else:
     game = load_pgn('/work/input.pgn')
@@ -419,12 +422,15 @@ except Exception as e:
     print(str(e))
     sys.exit(1)
 
-
-if 'CHESS_FRACTURE_OUT_BLEND' in os.environ:
-    save_file = os.environ['CHESS_FRACTURE_OUT_BLEND']
-
-    bpy.ops.wm.save_as_mainfile(filepath=save_file)
-
-    print('File saved as "{}"'.format(save_file))
-
-    sys.exit(0)
+try:
+    if 'CHESS_FRACTURE_OUT_BLEND' in os.environ:
+        save_file = os.environ['CHESS_FRACTURE_OUT_BLEND']
+    
+        bpy.ops.wm.save_as_mainfile(filepath=save_file)
+    
+        print('File saved as "{}"'.format(save_file))
+    
+        sys.exit(0)
+except Exception as e:
+    print('Save failed ' + str(e))
+    sys.exit(1)

@@ -17,14 +17,22 @@
       - gcc
       - openssl-devel
 
-- name: git clone http://github.com/tatref/docker-chess-fracture
-  git:
-    repo: 'http://github.com/tatref/docker-chess-fracture'
+- name: sync files
+  synchronize:
+    src: "{{ playbook_dir }}/.."
     dest: "/home/{{ ansible_user }}/docker-chess-fracture"
-    #depth: 1
   become_user: "{{ ansible_user }}"
   notify:
     - rebuild webapp
+
+#- name: git clone http://github.com/tatref/docker-chess-fracture
+#  git:
+#    repo: 'http://github.com/tatref/docker-chess-fracture'
+#    dest: "/home/{{ ansible_user }}/docker-chess-fracture"
+#    #depth: 1
+#  become_user: "{{ ansible_user }}"
+#  notify:
+#    - rebuild webapp
 
 
 - name: turbovnc

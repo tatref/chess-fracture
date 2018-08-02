@@ -1,65 +1,65 @@
 ---
 
-- name: enable repo docker-ce
-  yum_repository:
-    name: docker-ce
-    description: Docker CE Stable - $basearch
-    state: present
-    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
-    gpgkey: https://download.docker.com/linux/centos/gpg
-  when: ansible_distribution == 'CentOS'
-
-- name: install docker from rhui-REGION-rhel-server-extras
-  yum:
-    name: docker
-    enablerepo: rhui-REGION-rhel-server-extras
-  when: ansible_distribution == 'RedHat'
-
-- name: install docker-ce
-  yum:
-    name:
-      - docker-ce
-  when: ansible_distribution == 'CentOS'
-
-- name: create docker group
-  group:
-    name: docker
-    state: present
-
-- name: /etc/docker dir
-  file:
-    path: /etc/docker
-    state: directory
-    mode: "u+rwx"
-    owner: root
-    group: root
-
-- name: docker daemon.json
-  copy:
-    src: etc/docker/daemon.json
-    dest: /etc/docker/daemon.json
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - restart docker
-
-- name: enable docker service
-  service:
-    name: docker
-    enabled: yes
-    state: started
-
-- name: "add docker group to {{ ansible_user }}"
-  user:
-    name: "{{ ansible_user }}"
-    groups: docker
-    append: yes
-
-# docker-py required for the `docker_image` module
-- name: install docker-py
-  pip:
-    name: docker-py
-
-- name: reset ssh connection
-  meta: reset_connection
+#- name: enable repo docker-ce
+#  yum_repository:
+#    name: docker-ce
+#    description: Docker CE Stable - $basearch
+#    state: present
+#    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+#    gpgkey: https://download.docker.com/linux/centos/gpg
+#  when: ansible_distribution == 'CentOS'
+#
+#- name: install docker from rhui-REGION-rhel-server-extras
+#  yum:
+#    name: docker
+#    enablerepo: rhui-REGION-rhel-server-extras
+#  when: ansible_distribution == 'RedHat'
+#
+#- name: install docker-ce
+#  yum:
+#    name:
+#      - docker-ce
+#  when: ansible_distribution == 'CentOS'
+#
+#- name: create docker group
+#  group:
+#    name: docker
+#    state: present
+#
+#- name: /etc/docker dir
+#  file:
+#    path: /etc/docker
+#    state: directory
+#    mode: "u+rwx"
+#    owner: root
+#    group: root
+#
+#- name: docker daemon.json
+#  copy:
+#    src: etc/docker/daemon.json
+#    dest: /etc/docker/daemon.json
+#    owner: root
+#    group: root
+#    mode: 0644
+#  notify:
+#    - restart docker
+#
+#- name: enable docker service
+#  service:
+#    name: docker
+#    enabled: yes
+#    state: started
+#
+#- name: "add docker group to {{ ansible_user }}"
+#  user:
+#    name: "{{ ansible_user }}"
+#    groups: docker
+#    append: yes
+#
+## docker-py required for the `docker_image` module
+#- name: install docker-py
+#  pip:
+#    name: docker-py
+#
+#- name: reset ssh connection
+#  meta: reset_connection

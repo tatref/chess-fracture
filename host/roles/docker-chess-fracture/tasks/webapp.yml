@@ -26,3 +26,10 @@
     name: webapp
     state: started
     enabled: yes
+
+- name: create /pgn
+  file:
+    path: /pgn
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"

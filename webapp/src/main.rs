@@ -6,7 +6,6 @@ extern crate rocket;
 extern crate rocket_contrib;
 #[allow(unused_imports)]
 #[macro_use] extern crate serde_derive;
-extern crate shiplift;
 extern crate url;
 extern crate regex;
 extern crate reqwest;
@@ -22,19 +21,19 @@ mod fracture_chess {
     //use rocket::Request;
     //use rocket::http::Cookies;
     use regex::Regex;
+    use reqwest;
+    use rocket::http::RawStr;
     use rocket::request::Form;
     use rocket::request::FormItems;
     use rocket::request::FromForm;
     use rocket::response::Redirect;
-    use rocket::response::Response;
     use rocket;
     use rocket_contrib::Template;
     use url::Url;
-    use reqwest;
-    use rocket::http::RawStr;
 
-    const CONTAINER_NAME_PREFIX: &str = "fract";
     const BLEND_FILES_URL_PREFIX: &str = "/blend";
+    const BLEND_FILES_SAVE_PATH: &str = "/blend";
+    const PGN_SAVE_PATH: &str = "/pgn";
     
     #[get("/")]
     fn index() -> Template {
@@ -55,7 +54,7 @@ mod fracture_chess {
 
         fn from_param(param: &'a RawStr) -> Result<Self, Self::Error> {
             match param.as_str() {
-                "lichess" => Ok(Site::Lichess),
+                "Lichess" => Ok(Site::Lichess),
                 _ => Err(()),
             }
         }
@@ -123,26 +122,31 @@ mod fracture_chess {
     fn post(pgnurl: Form<PgnUrl>) -> Result<Redirect, String> {
         let PgnUrl { site, pgn_url, game_id } = pgnurl.into_inner();
 
-        let pgn = reqwest::get(pgn_url)
-            .unwrap()
-            .text()
+        let mut response = reqwest::get(pgn_url.clone())
             .unwrap();
+        let pgn = match response.status().is_success() {
+            true => {
+                response
+                    .text()
+                    .unwrap()
+            },
+            false => {
+                return Err(format!("wget '{}' failed", &pgn_url));
+            },
+        };
 
         if pgn == "Can't export PGN of game in progress" {
             return Err("Can't export PGN of game in progress".into())
         }
 
-        let site_str: &str = match site {
-            Site::Lichess => "lichess".into(),
-            _ => unimplemented!(),
-        };
 
         use std::fs::File;
         use std::io::prelude::*;
-        let pgn_path = format!("{}_{}", site_str, &game_id);
+        let pgn_path = format!("{}/{:?}_{}", PGN_SAVE_PATH, &site, &game_id);
         let mut f = File::create(&pgn_path).expect(&format!("Can't create file {}", &pgn_path));
         f.write_all(pgn.as_bytes()).expect("Can't write to file");
         f.flush().expect("Can't write to file");
+        println!("PGN dumped to {:?}", f);
 
         use std::env::var;
         let username = var("USER").unwrap();
@@ -158,9 +162,10 @@ mod fracture_chess {
             .arg("object_fracture_cell")
             .arg("--python")
             .arg(&format!("/home/{}/docker-chess-fracture/blender/chess_fracture.py", username))
-            .env("CHESS_FRACTURE_OUT_BLEND", format!("{}.blend", &game_id))
+            .env("CHESS_FRACTURE_OUT_BLEND", format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id))
             .env("DISPLAY", ":1")
             .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
+            .env("CHESS_FRACTURE_TEST", "")
             .status()
             .expect("blender failed");
         if cmd_status.success() {
@@ -170,28 +175,13 @@ mod fracture_chess {
             println!("failed");
         }
 
-        let redirect_url = format!("/get/{}/{}", site_str, game_id);
+        let redirect_url = format!("/get/{:?}/{}", &site, game_id);
         Ok(Redirect::to(&redirect_url))
     }
 
     /// check if the blender process exited and successfully generated the blend file
-    fn simulation_finished(site: &Site, game_id: &str) -> bool {
+    fn simulation_finished(_site: &Site, _game_id: &str) -> bool {
         // TODO
-        //use std::process::Command;
-        //use std::process::Stdio;
-        //let cmd_status = Command::new("docker")
-        //    .stdout(Stdio::null())
-        //    .stderr(Stdio::null())
-        //    .arg("inspect")
-        //    .arg("--type")
-        //    .arg("container")
-        //    .arg(&format!("{}_{:?}_{}", CONTAINER_NAME_PREFIX, site, game_id))
-        //    .status()
-        //    .unwrap();
-        //if cmd_status.success() {
-        //}
-        //else {
-        //}
         true
     }
 
