@@ -146,8 +146,8 @@ mod fracture_chess {
         use std::process::Command;
         use std::process::Stdio;
         let cmd_status = Command::new("/home/ansible/blender-2.79b-linux-glibc219-x86_64/blender")
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
             .arg("/home/ansible/docker-chess-fracture/blender/chess_fracture_template.blend")
             .arg("-noaudio")
             .arg("--addons")
@@ -155,7 +155,7 @@ mod fracture_chess {
             .arg("--python")
             .arg("/home/ansiblehome/ansible/docker-chess-fracture/blender/chess_fracture.py")
             .env("PGN_NAME", &game_id)
-            .env("DISPLAY=", ":1")
+            .env("DISPLAY", ":1")
             .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
             .status()
             .expect("blender failed");
