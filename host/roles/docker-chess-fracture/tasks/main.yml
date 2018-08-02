@@ -17,15 +17,6 @@
       - gcc
       - openssl-devel
 
-- name: docker
-  include: docker.yml
-
-- name: turbovnc
-  include: turbovnc.yml
-
-- name: reverse proxy
-  include: nginx.yml
-
 - name: git clone http://github.com/tatref/docker-chess-fracture
   git:
     repo: 'http://github.com/tatref/docker-chess-fracture'
@@ -35,46 +26,16 @@
   notify:
     - rebuild webapp
 
-- name: verify is blender archive is present
-  stat:
-    path: "/home/{{ ansible_user }}/docker-chess-fracture/blender/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
-  register: blender_archive
 
-- name: wget blender
-  get_url:
-    url: https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2
-    dest: "/home/{{ ansible_user }}/docker-chess-fracture/blender/"
-  when: blender_archive.stat.exists == false
+- name: turbovnc
+  include: turbovnc.yml
 
-- name: build chess-fracture docker images
-  docker_image:
-    path: "/home/{{ ansible_user }}/docker-chess-fracture/blender"
-    name: chess-fracture
-  become_user: "{{ ansible_user }}"
+- name: reverse proxy
+  include: nginx.yml
 
-- name: install rust
-  shell: curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
-  args:
-    creates: "/home/{{ ansible_user }}/.cargo/bin/cargo"
-    warn: false
-  become_user: "{{ ansible_user }}"
+- name: blender
+  include: blender.yml
 
-- name: build webapp
-  command: /home/ansible/.cargo/bin/cargo build
-  args:
-    chdir: "/home/{{ ansible_user }}/docker-chess-fracture/webapp"
-    creates: "/home/{{ ansible_user }}/docker-chess-fracture/webapp/target/"
-  become_user: "{{ ansible_user }}"
-  notify: restart webapp
+- name: webapp
+  include: webapp.yml
 
-- name: copy webapp startup script
-  template:
-    src: usr/lib/systemd/system/webapp.service.j2
-    dest: /usr/lib/systemd/system/webapp.service
-  notify: systemctl daemon-reload
-
-- name: start webapp
-  service:
-    name: webapp
-    state: started
-    enabled: yes
