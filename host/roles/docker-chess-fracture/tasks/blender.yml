@@ -34,6 +34,7 @@
     remote_src: yes
     src: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
     dest: "/home/{{ ansible_user }}/"
+    creates: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64"
   become_user: "{{ ansible_user }}"
 
 - name: verify if get-pip is present
