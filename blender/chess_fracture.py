@@ -200,8 +200,12 @@ def initial_setup():
 
 
 def load_pgn(pgn_path):
-    with open(pgn_path) as pgn_file:
-        game = chess.pgn.read_game(pgn_file)
+    try:
+        with open(pgn_path) as pgn_file:
+            game = chess.pgn.read_game(pgn_file)
+    except Exception as e:
+        print(str(e))
+        sys.exit(1)
     
     
     return game

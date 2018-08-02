@@ -3,51 +3,58 @@
 - name: docker
   include: docker.yml
 
-- name: install bzip2
+- name: install blender requirments
   yum:
-    name: bzip2
+    name: "{{ item }}"
     state: installed
+  with_items:
+    - bzip2
+    - mesa-libGLU
+    - libXi
+    - libXrender
+    - xorg-x11-server-Xvfb
+    - xorg-x11-utils
+    - mesa-dri-drivers
 
 - name: verify if blender archive is present
   stat:
     path: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
   register: blender_archive
+  become_user: "{{ ansible_user }}"
 
 - name: wget blender
   get_url:
     url: https://download.blender.org/release/Blender2.79/blender-2.79b-linux-glibc219-x86_64.tar.bz2
     dest: "/home/{{ ansible_user }}/"
   when: blender_archive.stat.exists == false
-
-  #- name: build chess-fracture docker images
-  #  docker_image:
-  #    path: "/home/{{ ansible_user }}/docker-chess-fracture/blender"
-  #    name: chess-fracture
-  #  become_user: "{{ ansible_user }}"
-  #
+  become_user: "{{ ansible_user }}"
 
 - name: unarchive blender
   unarchive:
     remote_src: yes
     src: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64.tar.bz2"
     dest: "/home/{{ ansible_user }}/"
+  become_user: "{{ ansible_user }}"
 
 - name: verify if get-pip is present
   stat:
     path: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/get-pip.py"
   register: get_pip
+  become_user: "{{ ansible_user }}"
 
 - name: wget get-pip
   get_url:
     url: https://bootstrap.pypa.io/get-pip.py
     dest: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/"
   when: get_pip.stat.exists == false
+  become_user: "{{ ansible_user }}"
 
 - name: install pip
   command: 2.79/python/bin/python3.5m get-pip.py
   args:
     chdir: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/"
     creates: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/2.79/python/bin/pip"
+  become_user: "{{ ansible_user }}"
 
 - name: install requests python-chess
   command: 2.79/python/bin/python3.5m -m pip install requests python-chess
@@ -56,3 +63,4 @@
     creates:
       - "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.5/site-packages/requests"
       - "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.5/site-packages/chess"
+  become_user: "{{ ansible_user }}"
