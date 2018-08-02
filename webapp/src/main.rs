@@ -127,6 +127,7 @@ mod fracture_chess {
             .unwrap()
             .text()
             .unwrap();
+
         if pgn == "Can't export PGN of game in progress" {
             return Err("Can't export PGN of game in progress".into())
         }
@@ -135,6 +136,35 @@ mod fracture_chess {
             Site::Lichess => "lichess".into(),
             _ => unimplemented!(),
         };
+
+        use std::fs::File;
+        use std::io::prelude::*;
+        let pgn_path = format!("{}_{}", site_str, &game_id);
+        let mut f = File::create(&pgn_path).unwrap();
+        f.write_all(pgn.as_bytes()).unwrap();
+
+        use std::process::Command;
+        use std::process::Stdio;
+        let cmd_status = Command::new("~/blender-2.79b-linux-glibc219-x86_64/blender")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .arg("~/docker-chess-fracture/blender/chess_fracture_template.blend")
+            .arg("-noaudio")
+            .arg("--addons")
+            .arg("object_fracture_cell")
+            .arg("--python")
+            .arg("~home/ansible/docker-chess-fracture/blender/chess_fracture.py")
+            .env("PGN_NAME", &game_id)
+            .env("DISPLAY=", ":1")
+            .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
+            .status()
+            .unwrap();
+        if cmd_status.success() {
+            println!("exec blender ok");
+        }
+        else {
+            println!("failed");
+        }
 
         let redirect_url = format!("/get/{}/{}", site_str, game_id);
         Ok(Redirect::to(&redirect_url))
