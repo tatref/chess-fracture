@@ -140,8 +140,8 @@ mod fracture_chess {
         use std::fs::File;
         use std::io::prelude::*;
         let pgn_path = format!("{}_{}", site_str, &game_id);
-        let mut f = File::create(&pgn_path).unwrap();
-        f.write_all(pgn.as_bytes()).unwrap();
+        let mut f = File::create(&pgn_path).expect(&format!("Can't create file {}", &pgn_path));
+        f.write_all(pgn.as_bytes()).expect("Can't write to file");
 
         use std::process::Command;
         use std::process::Stdio;
@@ -158,7 +158,7 @@ mod fracture_chess {
             .env("DISPLAY=", ":1")
             .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
             .status()
-            .unwrap();
+            .expect("blender failed");
         if cmd_status.success() {
             println!("exec blender ok");
         }
