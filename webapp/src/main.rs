@@ -143,17 +143,20 @@ mod fracture_chess {
         let mut f = File::create(&pgn_path).expect(&format!("Can't create file {}", &pgn_path));
         f.write_all(pgn.as_bytes()).expect("Can't write to file");
 
+        use std::env::var;
+        let username = var("USER").unwrap();
+
         use std::process::Command;
         use std::process::Stdio;
-        let cmd_status = Command::new("/home/ansible/blender-2.79b-linux-glibc219-x86_64/blender")
+        let cmd_status = Command::new(&format!("/home/{}/blender-2.79b-linux-glibc219-x86_64/blender", username))
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
-            .arg("/home/ansible/docker-chess-fracture/blender/chess_fracture_template.blend")
+            .arg(&format!("/home/{}/docker-chess-fracture/blender/chess_fracture_template.blend", username))
             .arg("-noaudio")
             .arg("--addons")
             .arg("object_fracture_cell")
             .arg("--python")
-            .arg("/home/ansiblehome/ansible/docker-chess-fracture/blender/chess_fracture.py")
+            .arg(&format!("/home/{}/docker-chess-fracture/blender/chess_fracture.py", username))
             .env("CHESS_FRACTURE_OUT_BLEND", format!("{}.blend", &game_id))
             .env("DISPLAY", ":1")
             .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
