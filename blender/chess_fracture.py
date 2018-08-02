@@ -200,6 +200,7 @@ def initial_setup():
 
 
 def load_pgn(pgn_path):
+    print("Loading PGN " + str(pgn_path))
     try:
         with open(pgn_path) as pgn_file:
             game = chess.pgn.read_game(pgn_file)
