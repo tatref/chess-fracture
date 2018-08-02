@@ -154,7 +154,7 @@ mod fracture_chess {
             .arg("object_fracture_cell")
             .arg("--python")
             .arg("/home/ansiblehome/ansible/docker-chess-fracture/blender/chess_fracture.py")
-            .env("PGN_NAME", &game_id)
+            .env("CHESS_FRACTURE_OUT_BLEND", format!("{}.blend", &game_id))
             .env("DISPLAY", ":1")
             .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
             .status()

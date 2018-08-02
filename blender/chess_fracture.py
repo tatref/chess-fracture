@@ -419,8 +419,8 @@ except Exception as e:
     sys.exit(1)
 
 
-if 'PGN_NAME' in os.environ:
-    save_file = path.join('/output', os.environ['PGN_NAME'])
+if 'CHESS_FRACTURE_OUT_BLEND' in os.environ:
+    save_file = os.environ['CHESS_FRACTURE_OUT_BLEND']
 
     bpy.ops.wm.save_as_mainfile(filepath=save_file)
 

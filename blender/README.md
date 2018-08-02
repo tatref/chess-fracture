@@ -59,7 +59,7 @@ docker build -t chess-fracture .
 VNC_DISPLAY=1
 
 # output name (will end up under /var/lib/docker/volumes/blend_files/_data/)
-PGN_NAME=my_awsome_game.blend
+CHESS_FRACTURE_OUT_BLEND=my_awsome_game.blend
 
 # input PGN (absolute path required)
 CHESS_FRACTURE_PGN_PATH=/path/to/my_awsome_game.pgn
@@ -71,13 +71,13 @@ docker run --name chess-fracture1 \
            --mount type=volume,src=blend_files,dst=/output \
            --mount type=bind,src=/tmp/.X11-unix/X$VNC_DISPLAY,dst=/tmp/.X11-unix/X$VNC_DISPLAY \
            -e DISPLAY=:$VNC_DISPLAY \
-           -e PGN_NAME=$PGN_NAME \
+           -e CHESS_FRACTURE_OUT_BLEND=$CHESS_FRACTURE_OUT_BLEND \
            chess-fracture:latest
 ```
 
 ## Variables
 - `CHESS_FRACTURE_PGN_PATH`: path to the PGN input file
-- `PGN_NAME`: output name (`*.blend`)
+- `CHESS_FRACTURE_OUT_BLEND`: output name (`*.blend`)
 - `CHESS_FRACTURE_FRAMES_PER_MOVE`
 - `CHESS_FRACTURE_FRAGMENTS`: fragments per collison
 - `CHESS_FRACTURE_TEST`: early exit the python script for easier testing
