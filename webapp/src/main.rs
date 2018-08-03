@@ -192,12 +192,20 @@ mod fracture_chess {
 
     /// Retrieve a blend file or wait if not computed yet
     #[get("/webapp/get/<site>/<game_id>")]
-    fn get(site: Site, game_id: String) -> String {
+    fn get(site: Site, game_id: String) -> Result<Template, String> {
         if simulation_finished(&site, &game_id) {
-            format!("Download link: <a href={}/{:?}_{}.blend>Download</a>", BLEND_FILES_URL_PREFIX, site, game_id)
+            use std::collections::HashMap;
+
+            let blend_link = format!("{}/{:?}_{}.blend", BLEND_FILES_URL_PREFIX, &site, &game_id);
+
+            let mut context = HashMap::new();
+            context.insert("blend_link", blend_link);
+
+            Ok(Template::render("get", &context))
         }
         else {
-            "Not finished...".to_string()
+            // TODO: wait + autorefresh
+            Err("Not finished...".to_string())
         }
     }
 
