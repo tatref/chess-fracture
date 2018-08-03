@@ -190,16 +190,32 @@ mod fracture_chess {
         true
     }
 
+    use std::collections::HashMap;
+    use std::thread::JoinHandle;
+    struct WebappState {
+        inner: HashMap<usize, usize>,
+        threads: HashMap<String, JoinHandle<()>>,
+    }
+
+    use rocket::request::State;
+    use std::sync::RwLock;
     /// Retrieve a blend file or wait if not computed yet
     #[get("/webapp/get/<site>/<game_id>")]
-    fn get(site: Site, game_id: String) -> Result<Template, String> {
+    fn get(site: Site, game_id: String, state: State<RwLock<WebappState>>) -> Result<Template, String> {
         if simulation_finished(&site, &game_id) {
             use std::collections::HashMap;
 
             let blend_link = format!("{}/{:?}_{}.blend", BLEND_FILES_URL_PREFIX, &site, &game_id);
+            let mut rw_state = state.write().unwrap();
+            use std::thread;
+            let thread_handle = thread::spawn(|| { println!("hello from thread"); });
+            rw_state.threads.insert("coucou".into(), thread_handle);
+
+            *rw_state.inner.get_mut(&0).unwrap() += 1;
 
             let mut context = HashMap::new();
             context.insert("blend_link", blend_link);
+            context.insert("value", format!("{:?}", rw_state.inner.get(&0).unwrap()));
 
             Ok(Template::render("get", &context))
         }
@@ -217,10 +233,15 @@ mod fracture_chess {
             .port(8000)
             .finalize()
             .unwrap();
+
+        use std::collections::HashMap;
+        let mut webapp_state = WebappState { inner: HashMap::new(), threads: HashMap::new()};
+        webapp_state.inner.insert(0, 0);
         
         rocket::custom(config, true)
             .mount("/", routes![index, get, post])
             .attach(Template::fairing())
+            .manage(RwLock::new(webapp_state))
     }
 
     pub fn run() {
