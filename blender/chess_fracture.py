@@ -411,6 +411,11 @@ else:
     game = load_pgn('/work/input.pgn')
 
 
+variant = board.uci_variant
+if variant != 'chess':
+    sys.stdout.write('Unsupported game type {}\n'.format(variant))
+    sys.exit(1)
+
 board_map = initial_setup()
 print('Board setup done')
 
