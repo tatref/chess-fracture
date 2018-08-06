@@ -21,6 +21,7 @@
     owner: root
     group: root
     mode: 0644
+  notify: restart tvncserver
 
 - name: turbovnc passwd dir
   file:
@@ -38,6 +39,12 @@
     group: "{{ ansible_user }}"
     mode: 0600
     directory_mode: 0600
+  notify: restart tvncserver
+
+    #- name: turbovnc passwd
+    #  shell: echo abcdef | /opt/TurboVNC/bin/vncpasswd -f
+    #    creates: "/home/user/.vnc/passwd"
+    #  become_user: "{{ ansible_user }}"
 
 - name: enable tvncserver service
   service:

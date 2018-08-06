@@ -1,6 +1,6 @@
 ---
 
-- name: install blender requirments
+- name: install blender requirements
   yum:
     name: "{{ item }}"
     state: installed
@@ -54,12 +54,16 @@
     creates: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/2.79/python/bin/pip"
   become_user: "{{ ansible_user }}"
 
-- name: install requests python-chess
-  command: 2.79/python/bin/python3.5m -m pip install requests python-chess
+- name: verify if pip python-chess is installed
+  stat:
+    path: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.5/site-packages/chess"
+  register: python_chess
+  become_user: "{{ ansible_user }}"
+
+- name: pip install python-chess
+  command: 2.79/python/bin/python3.5m -m pip install python-chess
   args:
     chdir: "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/"
-    creates:
-      - "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.5/site-packages/requests"
-      - "/home/{{ ansible_user }}/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.5/site-packages/chess"
+  when: python_chess.stat.exists == false
   become_user: "{{ ansible_user }}"
 

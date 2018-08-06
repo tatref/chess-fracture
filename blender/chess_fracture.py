@@ -7,27 +7,19 @@ import sys
 from pprint import pprint
 import time
 import re
+import traceback
 
 import bpy
 
-import chess.pgn
-import requests
-
+try:
+    import chess.pgn
+except Exception as e:
+    print('chess module missing (pip install python-chess?)')
+    traceback.print_exc()
+    sys.exit(1)
 
 
 SQUARE_SIZE = 3.0
-
-if 'CHESS_FRACTURE_FRAMES_PER_MOVE' in os.environ:
-    frames_per_move = int(os.environ['CHESS_FRACTURE_FRAMES_PER_MOVE'])
-else:
-    frames_per_move = 20
-print("CHESS_FRACTURE_FRAMES_PER_MOVE=" + str(frames_per_move))
-
-if 'CHESS_FRACTURE_FRAGMENTS' in os.environ:
-    n_fragments = int(os.environ['CHESS_FRACTURE_FRAGMENTS'])
-else:
-    n_fragments = 10
-print("CHESS_FRACTURE_FRAGMENTS=" + str(n_fragments))
 
 
 
@@ -207,14 +199,15 @@ def load_pgn(pgn_path):
         with open(pgn_path) as pgn_file:
             game = chess.pgn.read_game(pgn_file)
     except Exception as e:
-        print(str(e))
+        print("Load PGN failed")
+        traceback.print_exc()
         sys.exit(1)
     
     
     return game
     
 
-def play(board_map, game):
+def play(board_map, game, frames_per_move):
     start_time = time.time()
 
     board = game.board()
@@ -382,6 +375,7 @@ def play(board_map, game):
         board.push(move)
         
         if 'CHESS_FRACTURE_TEST' in os.environ and move_number > 8:
+            print('Early exit because CHESS_FRACTURE_TEST is defined')
             break
     # end for moves
     
@@ -401,41 +395,66 @@ def play(board_map, game):
     end_time = time.time()
     duration = end_time - start_time
     print('Duration: ' + str(duration))
+    # end def play
 
 
 
-if 'CHESS_FRACTURE_PGN_PATH' in os.environ:
-    print('CHESS_FRACTURE_PGN_PATH=' + str(os.environ['CHESS_FRACTURE_PGN_PATH']))
-    game = load_pgn(os.environ['CHESS_FRACTURE_PGN_PATH'])
-else:
-    game = load_pgn('/work/input.pgn')
+def main():
+    if 'CHESS_FRACTURE_FRAMES_PER_MOVE' in os.environ:
+        frames_per_move = int(os.environ['CHESS_FRACTURE_FRAMES_PER_MOVE'])
+    else:
+        frames_per_move = 20
+    print("CHESS_FRACTURE_FRAMES_PER_MOVE=" + str(frames_per_move))
+
+    if 'CHESS_FRACTURE_FRAGMENTS' in os.environ:
+        n_fragments = int(os.environ['CHESS_FRACTURE_FRAGMENTS'])
+    else:
+        n_fragments = 10
+    print("CHESS_FRACTURE_FRAGMENTS=" + str(n_fragments))
+
+    if 'CHESS_FRACTURE_PGN_PATH' in os.environ:
+        print('CHESS_FRACTURE_PGN_PATH=' + str(os.environ['CHESS_FRACTURE_PGN_PATH']))
+        game = load_pgn(os.environ['CHESS_FRACTURE_PGN_PATH'])
+    else:
+        game = load_pgn('/work/input.pgn')
 
 
-variant = board.uci_variant
-if variant != 'chess':
-    sys.stdout.write('Unsupported game type {}\n'.format(variant))
-    sys.exit(1)
+    variant = game.board().uci_variant
+    if variant != 'chess':
+        sys.stdout.write('Unsupported game type {}\n'.format(variant))
+        sys.exit(1)
 
-board_map = initial_setup()
-print('Board setup done')
+    board_map = initial_setup()
+    print('Board setup done')
 
-try:
-    play(board_map, game)
-    print('Simulation done')
-except Exception as e:
-    print('Simulation failed')
-    print(str(e))
-    sys.exit(1)
+    try:
+        play(board_map, game, frames_per_move)
+        print('Simulation done')
+    except Exception as e:
+        print('Simulation failed')
+        traceback.print_exc()
+        sys.exit(1)
 
-try:
-    if 'CHESS_FRACTURE_OUT_BLEND' in os.environ:
-        save_file = os.environ['CHESS_FRACTURE_OUT_BLEND']
-    
-        bpy.ops.wm.save_as_mainfile(filepath=save_file)
-    
-        print('File saved as "{}"'.format(save_file))
-    
-        sys.exit(0)
-except Exception as e:
-    print('Save failed ' + str(e))
-    sys.exit(1)
+    try:
+        if 'CHESS_FRACTURE_OUT_BLEND' in os.environ:
+            save_file = os.environ['CHESS_FRACTURE_OUT_BLEND']
+        
+            bpy.ops.wm.save_as_mainfile(filepath=save_file)
+        
+            print('File saved as "{}"'.format(save_file))
+        
+            sys.exit(0)  # happy path
+    except Exception as e:
+        print('Save failed ' + str(e))
+        traceback.print_exc()
+        sys.exit(1)
+    # end def main
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as e:
+        print('main failed :' + str(e))
+        traceback.print_exc()
+        sys.exit(1)

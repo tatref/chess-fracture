@@ -1,16 +1,20 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 #![feature(custom_derive)] 
+#![allow(dead_code)]
+#![allow(unused_imports)]
 
 extern crate rocket;
 extern crate rocket_contrib;
-#[allow(unused_imports)]
 #[macro_use] extern crate serde_derive;
 extern crate url;
 extern crate regex;
 extern crate reqwest;
 #[cfg(test)] #[macro_use] extern crate lazy_static;
+#[macro_use] extern crate crossbeam_channel;
 
+
+use crossbeam_channel as channel;
 
 
 mod test;
@@ -116,10 +120,57 @@ mod fracture_chess {
             return Err(())
         }
     }
+
+    #[derive(Copy, Clone, Debug, Hash)]
+    enum BlenderResult {
+        Success,
+        Failure,
+    }
+
+    use crossbeam_channel::{Sender, Receiver};
+    fn run_blender(state: &State<RwLock<WebappState>>, site: &Site, game_id: &str, pgn_path: &str) {
+        use std::env::var;
+        let username = var("USER").unwrap();
+
+        let chess_fracture_out_blend = format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id);
+        use std::fs;
+        if let Err(_) = fs::metadata(&chess_fracture_out_blend) {  // prevent resubmiting
+            use std::process::Command;
+            use std::process::Stdio;
+
+            // CHESS_FRACTURE_OUT_BLEND=out.blend DISPLAY=:1 CHESS_FRACTURE_PGN_PATH=game.pgn CHESS_FRACTURE_TEST= blender chess_fracture_template.blend -noaudio --addons object_fracture_cell --python chess_fracture.py 
+            let cmd = Command::new(&format!("/home/{}/blender-2.79b-linux-glibc219-x86_64/blender", username))
+                .stdout(Stdio::inherit())
+                .stderr(Stdio::inherit())
+                .arg(&format!("/home/{}/chess-fracture/blender/chess_fracture_template.blend", username))
+                .arg("-noaudio")
+                .arg("--addons")
+                .arg("object_fracture_cell")
+                .arg("--python")
+                .arg(&format!("/home/{}/chess-fracture/blender/chess_fracture.py", username))
+                .env("CHESS_FRACTURE_OUT_BLEND", &chess_fracture_out_blend)
+                .env("DISPLAY", ":1")
+                .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
+                .env("CHESS_FRACTURE_TEST", "")
+                .spawn()
+                .expect("call to blender failed");
+
+            cmd.wait_with_output().expect("fooo");
+            //if cmd.status.success() {
+            //    println!("exec blender ok");
+            //}
+            //else {
+            //    println!("failed");
+            //    println!("stdout: {:?}", &cmd.stdout);
+            //    println!("stderr: {:?}", &cmd.stderr);
+            //}
+        }
+        //outcome.send(BlenderResult::Success)
+    }
     
     /// this is the input
     #[post("/webapp/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
-    fn post(pgnurl: Form<PgnUrl>) -> Result<Redirect, String> {
+    fn post(pgnurl: Form<PgnUrl>, state: State<RwLock<WebappState>>) -> Result<Redirect, String> {
         let PgnUrl { site, pgn_url, game_id } = pgnurl.into_inner();
 
         let mut response = reqwest::get(pgn_url.clone())
@@ -139,7 +190,6 @@ mod fracture_chess {
             return Err("Can't export PGN of game in progress".into())
         }
 
-
         use std::fs::File;
         use std::io::prelude::*;
         let pgn_path = format!("{}/{:?}_{}", PGN_SAVE_PATH, &site, &game_id);
@@ -148,37 +198,7 @@ mod fracture_chess {
         f.flush().expect("Can't write to file");
         println!("PGN dumped to {:?}", f);
 
-        use std::env::var;
-        let username = var("USER").unwrap();
-
-        let chess_fracture_out_blend = format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id);
-        use std::fs;
-        if let Err(_) = fs::metadata(&chess_fracture_out_blend) {
-            use std::process::Command;
-            use std::process::Stdio;
-            let cmd_status = Command::new(&format!("/home/{}/blender-2.79b-linux-glibc219-x86_64/blender", username))
-                .stdout(Stdio::inherit())
-                .stderr(Stdio::inherit())
-                .arg(&format!("/home/{}/chess-fracture/blender/chess_fracture_template.blend", username))
-                .arg("-noaudio")
-                .arg("--addons")
-                .arg("object_fracture_cell")
-                .arg("--python")
-                .arg(&format!("/home/{}/chess-fracture/blender/chess_fracture.py", username))
-                .env("CHESS_FRACTURE_OUT_BLEND", &chess_fracture_out_blend)
-                .env("DISPLAY", ":1")
-                .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
-                .env("CHESS_FRACTURE_TEST", "")
-                .status()
-                .expect("blender failed");
-            if cmd_status.success() {
-                println!("exec blender ok");
-            }
-            else {
-                println!("failed");
-            }
-        }
-
+        run_blender(&state, &site, &game_id, &pgn_path);
 
         let redirect_url = format!("/webapp/get/{:?}/{}", &site, game_id);
         Ok(Redirect::to(&redirect_url))
@@ -194,7 +214,7 @@ mod fracture_chess {
     use std::thread::JoinHandle;
     struct WebappState {
         inner: HashMap<usize, usize>,
-        threads: HashMap<String, JoinHandle<()>>,
+        threads: HashMap<String, Receiver<BlenderResult>>,
     }
 
     use rocket::request::State;
@@ -206,16 +226,16 @@ mod fracture_chess {
             use std::collections::HashMap;
 
             let blend_link = format!("{}/{:?}_{}.blend", BLEND_FILES_URL_PREFIX, &site, &game_id);
-            let mut rw_state = state.write().unwrap();
-            use std::thread;
-            let thread_handle = thread::spawn(|| { println!("hello from thread"); });
-            rw_state.threads.insert("coucou".into(), thread_handle);
+            //let mut rw_state = state.write().unwrap();
+            //use std::thread;
+            //let thread_handle = thread::spawn(|| { println!("hello from thread"); });
+            //rw_state.threads.insert("coucou".into(), thread_handle);
 
-            *rw_state.inner.get_mut(&0).unwrap() += 1;
+            //*rw_state.inner.get_mut(&0).unwrap() += 1;
 
             let mut context = HashMap::new();
             context.insert("blend_link", blend_link);
-            context.insert("value", format!("{:?}", rw_state.inner.get(&0).unwrap()));
+            //context.insert("value", format!("{:?}", rw_state.inner.get(&0).unwrap()));
 
             Ok(Template::render("get", &context))
         }
