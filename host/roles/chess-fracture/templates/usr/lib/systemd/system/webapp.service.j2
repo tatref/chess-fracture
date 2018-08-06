@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/{{ ansible_user }}/docker-chess-fracture/webapp
+WorkingDirectory=/home/{{ ansible_user }}/chess-fracture/webapp
 ExecStart=/home/ansible/.cargo/bin/cargo run
 Restart=on-failure
 User={{ ansible_user }}

@@ -1,5 +1,5 @@
 ---
-# handlers file for docker-chess-fracture
+# handlers file for chess-fracture
 - name: restart docker
   service:
     name: docker
@@ -13,7 +13,7 @@
 - name: rebuild webapp
   command: /home/ansible/.cargo/bin/cargo build
   args:
-    chdir: "/home/{{ ansible_user }}/docker-chess-fracture/webapp"
+    chdir: "/home/{{ ansible_user }}/chess-fracture/webapp"
   become_user: "{{ ansible_user }}"
   notify: restart webapp
 

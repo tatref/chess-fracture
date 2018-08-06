@@ -1,8 +1,5 @@
 ---
 
-- name: docker
-  include: docker.yml
-
 - name: install blender requirments
   yum:
     name: "{{ item }}"
