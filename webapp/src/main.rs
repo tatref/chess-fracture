@@ -302,7 +302,9 @@ mod fracture_chess {
                 Ok(Template::render("download", &context))
             },
             SimulationStatus::NotRunning => {
-                unimplemented!("Simulation is not running");
+                let mut context = HashMap::new();
+                context.insert("error_message", "Can't find this ID... maybe re-try?");
+                Err(Template::render("error", &context))
             },
             SimulationStatus::Running => {
                 let mut context = HashMap::new();
