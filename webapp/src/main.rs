@@ -39,7 +39,7 @@ mod fracture_chess {
     const BLEND_FILES_SAVE_PATH: &str = "/blend";
     const PGN_SAVE_PATH: &str = "/pgn";
     
-    #[get("/webapp")]
+    #[get("/")]
     fn index() -> Template {
         use std::collections::HashMap;
         let mut context = HashMap::new();
@@ -127,10 +127,17 @@ mod fracture_chess {
         let username = var("USER").unwrap();
 
         let chess_fracture_out_blend = format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id);
-        let outcome = &state.write().expect("Unable to open state").threads[&(*site, game_id.into())].0;
+
+        {
+            let mut_state = &mut state.write().expect("Unable to open state");
+            mut_state.stats.current_running += 1;
+        }
 
         use std::fs;
         if fs::metadata(&chess_fracture_out_blend).is_ok() {
+            let mut_state = &mut state.write().expect("Unable to open state");
+            mut_state.stats.current_running -= 1;
+            let outcome = &mut_state.threads[&(*site, game_id.into())].0;
             outcome.send(BlenderResult::AlreadySimulated);
             return;
         }
@@ -151,16 +158,23 @@ mod fracture_chess {
             .env("CHESS_FRACTURE_OUT_BLEND", &chess_fracture_out_blend)
             .env("DISPLAY", ":1")
             .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
-            .env("CHESS_FRACTURE_TEST", "")
+            //.env("CHESS_FRACTURE_TEST", "")
+            //.env("CHESS_FRACTURE_FRAMES_PER_MOVE", "20")
+            //.env("CHESS_FRACTURE_FRAGMENTS", "10")
             .spawn()
             .expect("call to blender failed");
 
         cmd.wait_with_output().expect("fooo");
+
+        let mut_state = &mut state.write().expect("Unable to open state");
+        mut_state.stats.current_running -= 1;
+        mut_state.stats.total_runs += 1;
+        let outcome = &mut_state.threads[&(*site, game_id.into())].0;
         outcome.send(BlenderResult::Success);
     }
     
     /// this is the input
-    #[post("/webapp/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
+    #[post("/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
     fn post(pgnurl: Form<PgnUrl>, state: State<RwLock<WebappState>>) -> Result<Redirect, String> {
         let PgnUrl { site, game_id } = pgnurl.into_inner();
 
@@ -196,8 +210,8 @@ mod fracture_chess {
         println!("PGN dumped to {:?}", f);
 
         use crossbeam_channel as channel;
-        let (s, r) = channel::bounded(0);
-        let outcome = &state.write().expect("Unable to open state").threads.insert((site, game_id.clone()), (s, r));
+        let (s, r) = channel::bounded(1);
+        &state.write().expect("Unable to write state").threads.insert((site, game_id.clone()), (s, r));
         run_blender(&state, &site, &game_id, &pgn_path);
 
         let redirect_url = format!("/webapp/get/{:?}/{}", &site, game_id);
@@ -207,35 +221,40 @@ mod fracture_chess {
     /// check if the blender process exited and successfully generated the blend file
     fn simulation_finished(_site: &Site, _game_id: &str) -> bool {
         // TODO
+        // 1) check file /blend/...
+        // 2) try_recv
         true
+    }
+
+    #[derive(Debug)]
+    struct WebappStats {
+        total_runs: u32,
+        current_running: u32,
+    }
+    #[get("/stats")]
+    fn stats(state: State<RwLock<WebappState>>) -> String {
+        format!("{:?}", state.read().expect("Unable to read state").stats)
     }
 
     use std::collections::HashMap;
     use std::thread::JoinHandle;
     struct WebappState {
-        inner: HashMap<usize, usize>,
+        stats: WebappStats,
         threads: HashMap<(Site, String), (Sender<BlenderResult>, Receiver<BlenderResult>)>,
     }
 
     use rocket::request::State;
     use std::sync::RwLock;
     /// Retrieve a blend file or wait if not computed yet
-    #[get("/webapp/get/<site>/<game_id>")]
+    #[get("/get/<site>/<game_id>")]
     fn get(site: Site, game_id: String, state: State<RwLock<WebappState>>) -> Result<Template, String> {
         if simulation_finished(&site, &game_id) {
             use std::collections::HashMap;
 
             let blend_link = format!("{}/{:?}_{}.blend", BLEND_FILES_URL_PREFIX, &site, &game_id);
-            //let mut rw_state = state.write().unwrap();
-            //use std::thread;
-            //let thread_handle = thread::spawn(|| { println!("hello from thread"); });
-            //rw_state.threads.insert("coucou".into(), thread_handle);
-
-            //*rw_state.inner.get_mut(&0).unwrap() += 1;
 
             let mut context = HashMap::new();
             context.insert("blend_link", blend_link);
-            //context.insert("value", format!("{:?}", rw_state.inner.get(&0).unwrap()));
 
             Ok(Template::render("get", &context))
         }
@@ -256,11 +275,14 @@ mod fracture_chess {
             .unwrap();
 
         use std::collections::HashMap;
-        let mut webapp_state = WebappState { inner: HashMap::new(), threads: HashMap::new()};
-        webapp_state.inner.insert(0, 0);
+        let webapp_state = WebappState {
+            stats: WebappStats { total_runs: 0, current_running: 0 },
+            threads: HashMap::new(),
+        };
         
         rocket::custom(config, true)
-            .mount("/", routes![index, get, post])
+            .mount("/webapp", routes![index, get, post])
+            .mount("/monitoring", routes![stats])
             .attach(Template::fairing())
             .manage(RwLock::new(webapp_state))
     }
@@ -269,7 +291,7 @@ mod fracture_chess {
         rocket_chess()
             .launch();
     }
-}
+}  // end fracture_chess
 
 fn main() {
     fracture_chess::run();
