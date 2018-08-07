@@ -207,7 +207,7 @@ def load_pgn(pgn_path):
     return game
     
 
-def play(board_map, game, frames_per_move):
+def play(board_map, game, frames_per_move, n_fragments):
     start_time = time.time()
 
     board = game.board()
@@ -374,7 +374,7 @@ def play(board_map, game, frames_per_move):
         # update the board
         board.push(move)
         
-        if 'CHESS_FRACTURE_TEST' in os.environ and move_number > 8:
+        if 'CHESS_FRACTURE_TEST' in os.environ and move_number > 10:
             print('Early exit because CHESS_FRACTURE_TEST is defined')
             break
     # end for moves
@@ -428,7 +428,7 @@ def main():
     print('Board setup done')
 
     try:
-        play(board_map, game, frames_per_move)
+        play(board_map, game, frames_per_move, n_fragments)
         print('Simulation done')
     except Exception as e:
         print('Simulation failed')
