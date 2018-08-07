@@ -35,3 +35,8 @@
     policy: targeted
     state: permissive
 
+- name: copy /static
+  synchronize:
+    src: static/
+    dest: /static
+    delete: yes
