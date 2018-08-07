@@ -48,7 +48,7 @@ mod fracture_chess {
         Template::render("index", &context)
     }
 
-    #[derive(Clone, Debug)]
+    #[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
     enum Site {
         Lichess,
     }
@@ -77,14 +77,8 @@ mod fracture_chess {
                     .name("gameid")
                     .unwrap()  // always succeeds
                     .as_str();
-                let mut pgn_name = String::from(game_id);
-                pgn_name.push_str(".pgn");
-    
-                let base_url = Url::parse("https://lichess.org/game/export/")
-                    .unwrap();  // always succeeds
-                let pgn_url = base_url.join(&pgn_name).unwrap();
 
-                return Ok( PgnUrl { site: Site::Lichess, pgn_url, game_id: game_id.into() });
+                return Ok( PgnUrl { site: Site::Lichess, game_id: game_id.into() });
             },
             Some(_) => Err(()),
             _ => Err(()),
@@ -94,7 +88,6 @@ mod fracture_chess {
     #[derive(Clone, Debug)]
     struct PgnUrl {
         site: Site,
-        pgn_url: Url,  // TODO: not required
         game_id: String,
     }
     
@@ -125,6 +118,7 @@ mod fracture_chess {
     enum BlenderResult {
         Success,
         Failure,
+        AlreadySimulated,
     }
 
     use crossbeam_channel::{Sender, Receiver};
@@ -133,46 +127,49 @@ mod fracture_chess {
         let username = var("USER").unwrap();
 
         let chess_fracture_out_blend = format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id);
+        let outcome = &state.write().expect("Unable to open state").threads[&(*site, game_id.into())].0;
+
         use std::fs;
-        if let Err(_) = fs::metadata(&chess_fracture_out_blend) {  // prevent resubmiting
-            use std::process::Command;
-            use std::process::Stdio;
-
-            // CHESS_FRACTURE_OUT_BLEND=out.blend DISPLAY=:1 CHESS_FRACTURE_PGN_PATH=game.pgn CHESS_FRACTURE_TEST= blender chess_fracture_template.blend -noaudio --addons object_fracture_cell --python chess_fracture.py 
-            let cmd = Command::new(&format!("/home/{}/blender-2.79b-linux-glibc219-x86_64/blender", username))
-                .stdout(Stdio::inherit())
-                .stderr(Stdio::inherit())
-                .arg(&format!("/home/{}/chess-fracture/blender/chess_fracture_template.blend", username))
-                .arg("-noaudio")
-                .arg("--addons")
-                .arg("object_fracture_cell")
-                .arg("--python")
-                .arg(&format!("/home/{}/chess-fracture/blender/chess_fracture.py", username))
-                .env("CHESS_FRACTURE_OUT_BLEND", &chess_fracture_out_blend)
-                .env("DISPLAY", ":1")
-                .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
-                .env("CHESS_FRACTURE_TEST", "")
-                .spawn()
-                .expect("call to blender failed");
-
-            cmd.wait_with_output().expect("fooo");
-            //if cmd.status.success() {
-            //    println!("exec blender ok");
-            //}
-            //else {
-            //    println!("failed");
-            //    println!("stdout: {:?}", &cmd.stdout);
-            //    println!("stderr: {:?}", &cmd.stderr);
-            //}
+        if fs::metadata(&chess_fracture_out_blend).is_ok() {
+            outcome.send(BlenderResult::AlreadySimulated);
+            return;
         }
-        //outcome.send(BlenderResult::Success)
+
+        use std::process::Command;
+        use std::process::Stdio;
+
+        // CHESS_FRACTURE_OUT_BLEND=out.blend DISPLAY=:1 CHESS_FRACTURE_PGN_PATH=game.pgn CHESS_FRACTURE_TEST= blender chess_fracture_template.blend -noaudio --addons object_fracture_cell --python chess_fracture.py 
+        let cmd = Command::new(&format!("/home/{}/blender-2.79b-linux-glibc219-x86_64/blender", username))
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .arg(&format!("/home/{}/chess-fracture/blender/chess_fracture_template.blend", username))
+            .arg("-noaudio")
+            .arg("--addons")
+            .arg("object_fracture_cell")
+            .arg("--python")
+            .arg(&format!("/home/{}/chess-fracture/blender/chess_fracture.py", username))
+            .env("CHESS_FRACTURE_OUT_BLEND", &chess_fracture_out_blend)
+            .env("DISPLAY", ":1")
+            .env("CHESS_FRACTURE_PGN_PATH", &pgn_path)
+            .env("CHESS_FRACTURE_TEST", "")
+            .spawn()
+            .expect("call to blender failed");
+
+        cmd.wait_with_output().expect("fooo");
+        outcome.send(BlenderResult::Success);
     }
     
     /// this is the input
     #[post("/webapp/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
     fn post(pgnurl: Form<PgnUrl>, state: State<RwLock<WebappState>>) -> Result<Redirect, String> {
-        let PgnUrl { site, pgn_url, game_id } = pgnurl.into_inner();
+        let PgnUrl { site, game_id } = pgnurl.into_inner();
 
+        let mut pgn_name = String::from(game_id.clone());
+        pgn_name.push_str(".pgn");
+        
+        let base_url = Url::parse("https://lichess.org/game/export/")
+            .unwrap();  // always succeeds
+        let pgn_url = base_url.join(&pgn_name).unwrap();
         let mut response = reqwest::get(pgn_url.clone())
             .unwrap();
         let pgn = match response.status().is_success() {
@@ -198,6 +195,9 @@ mod fracture_chess {
         f.flush().expect("Can't write to file");
         println!("PGN dumped to {:?}", f);
 
+        use crossbeam_channel as channel;
+        let (s, r) = channel::bounded(0);
+        let outcome = &state.write().expect("Unable to open state").threads.insert((site, game_id.clone()), (s, r));
         run_blender(&state, &site, &game_id, &pgn_path);
 
         let redirect_url = format!("/webapp/get/{:?}/{}", &site, game_id);
@@ -214,7 +214,7 @@ mod fracture_chess {
     use std::thread::JoinHandle;
     struct WebappState {
         inner: HashMap<usize, usize>,
-        threads: HashMap<String, Receiver<BlenderResult>>,
+        threads: HashMap<(Site, String), (Sender<BlenderResult>, Receiver<BlenderResult>)>,
     }
 
     use rocket::request::State;
@@ -241,6 +241,7 @@ mod fracture_chess {
         }
         else {
             // TODO: wait + autorefresh
+            //Ok(Template::render("refresh", &context))
             Err("Not finished...".to_string())
         }
     }
