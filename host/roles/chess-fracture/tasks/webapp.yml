@@ -21,6 +21,9 @@
     dest: /usr/lib/systemd/system/webapp.service
   notify: systemctl daemon-reload
 
+- name: force handlers
+  meta: flush_handlers
+
 - name: start webapp
   service:
     name: webapp
@@ -36,3 +39,9 @@
   with_items:
     - /pgn
     - /blend
+
+- name: add /blend purge
+  template:
+    src: etc/cron.d/purge_blend.j2
+    dest: /etc/cron.d/purge_blend.j2
+
