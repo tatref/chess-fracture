@@ -31,20 +31,22 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
 
-- name: turbovnc passwd
-  copy:
-    src: "home/user/.vnc/passwd"
-    dest: "/home/{{ ansible_user }}/.vnc/passwd"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0600
-    directory_mode: 0600
-  notify: restart tvncserver
-
     #- name: turbovnc passwd
-    #  shell: echo abcdef | /opt/TurboVNC/bin/vncpasswd -f
-    #    creates: "/home/user/.vnc/passwd"
-    #  become_user: "{{ ansible_user }}"
+    #  copy:
+    #    src: "home/user/.vnc/passwd"
+    #    dest: "/home/{{ ansible_user }}/.vnc/passwd"
+    #    owner: "{{ ansible_user }}"
+    #    group: "{{ ansible_user }}"
+    #    mode: 0600
+    #    directory_mode: 0600
+    #  notify: restart tvncserver
+
+- name: turbovnc passwd
+  shell: 'umask 077; echo mypassword | /opt/TurboVNC/bin/vncpasswd -f > /home/{{ ansible_user }}/.vnc/passwd'
+  args:
+    creates: "/home/{{ ansible_user }}/.vnc/passwd"
+  become_user: "{{ ansible_user }}"
+  notify: restart tvncserver
 
 - name: enable tvncserver service
   service:
