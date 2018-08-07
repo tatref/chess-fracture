@@ -48,7 +48,7 @@ mod fracture_chess {
         Template::render("index", &context)
     }
 
-    #[derive(Clone, Debug)]
+    #[derive(Clone, Debug, Hash)]
     enum Site {
         Lichess,
     }
@@ -77,14 +77,8 @@ mod fracture_chess {
                     .name("gameid")
                     .unwrap()  // always succeeds
                     .as_str();
-                let mut pgn_name = String::from(game_id);
-                pgn_name.push_str(".pgn");
-    
-                let base_url = Url::parse("https://lichess.org/game/export/")
-                    .unwrap();  // always succeeds
-                let pgn_url = base_url.join(&pgn_name).unwrap();
 
-                return Ok( PgnUrl { site: Site::Lichess, pgn_url, game_id: game_id.into() });
+                return Ok( PgnUrl { site: Site::Lichess, game_id: game_id.into() });
             },
             Some(_) => Err(()),
             _ => Err(()),
@@ -94,7 +88,6 @@ mod fracture_chess {
     #[derive(Clone, Debug)]
     struct PgnUrl {
         site: Site,
-        pgn_url: Url,  // TODO: not required
         game_id: String,
     }
     
@@ -171,8 +164,14 @@ mod fracture_chess {
     /// this is the input
     #[post("/webapp/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
     fn post(pgnurl: Form<PgnUrl>, state: State<RwLock<WebappState>>) -> Result<Redirect, String> {
-        let PgnUrl { site, pgn_url, game_id } = pgnurl.into_inner();
+        let PgnUrl { site, game_id } = pgnurl.into_inner();
 
+        let mut pgn_name = String::from(game_id.clone());
+        pgn_name.push_str(".pgn");
+        
+        let base_url = Url::parse("https://lichess.org/game/export/")
+            .unwrap();  // always succeeds
+        let pgn_url = base_url.join(&pgn_name).unwrap();
         let mut response = reqwest::get(pgn_url.clone())
             .unwrap();
         let pgn = match response.status().is_success() {
