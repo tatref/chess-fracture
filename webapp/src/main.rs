@@ -122,23 +122,24 @@ mod fracture_chess {
     }
 
     use crossbeam_channel::{Sender, Receiver};
-    fn run_blender(state: &State<RwLock<WebappState>>, site: &Site, game_id: &str, pgn_path: &str) {
+    fn run_blender(s: Sender<BlenderResult>, site: &Site, game_id: String, pgn_path: &str) {
         use std::env::var;
         let username = var("USER").unwrap();
 
         let chess_fracture_out_blend = format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id);
 
-        {
-            let mut_state = &mut state.write().expect("Unable to open state");
-            mut_state.stats.current_running += 1;
-        }
+        //{
+        //    let mut_state = &mut state.write().expect("Unable to open state");
+        //    mut_state.stats.current_running += 1;
+        //}
 
         use std::fs;
         if fs::metadata(&chess_fracture_out_blend).is_ok() {
-            let mut_state = &mut state.write().expect("Unable to open state");
-            mut_state.stats.current_running -= 1;
-            let outcome = &mut_state.threads[&(*site, game_id.into())].0;
-            outcome.send(BlenderResult::AlreadySimulated);
+            //let mut_state = &mut state.write().expect("Unable to open state");
+            //mut_state.stats.current_running -= 1;
+            //let outcome = &mut_state.threads[&(*site, game_id.into())].0;
+            //outcome.send(BlenderResult::AlreadySimulated);
+            s.send(BlenderResult::AlreadySimulated);
             return;
         }
 
@@ -166,17 +167,25 @@ mod fracture_chess {
 
         cmd.wait_with_output().expect("fooo");
 
-        let mut_state = &mut state.write().expect("Unable to open state");
-        mut_state.stats.current_running -= 1;
-        mut_state.stats.total_runs += 1;
-        let outcome = &mut_state.threads[&(*site, game_id.into())].0;
-        outcome.send(BlenderResult::Success);
+        //let mut_state = &mut state.write().expect("Unable to open state");
+        //mut_state.stats.current_running -= 1;
+        //mut_state.stats.total_runs += 1;
+        //let outcome = &mut_state.threads[&(*site, game_id.into())].0;
+        //outcome.send(BlenderResult::Success);
+        s.send(BlenderResult::Success);
+        drop(s);
     }
     
     /// this is the input
     #[post("/post", format = "application/x-www-form-urlencoded", data = "<pgnurl>")]
     fn post(pgnurl: Form<PgnUrl>, state: State<RwLock<WebappState>>) -> Result<Redirect, String> {
         let PgnUrl { site, game_id } = pgnurl.into_inner();
+
+        let redirect_url = format!("/webapp/get/{:?}/{}", &site, game_id);
+        if state.read().expect("Unable to read state").threads.contains_key(&(site, game_id.clone())) {
+            // prevent resubmits
+            return Ok(Redirect::to(&redirect_url));
+        }
 
         let mut pgn_name = String::from(game_id.clone());
         pgn_name.push_str(".pgn");
@@ -211,19 +220,52 @@ mod fracture_chess {
 
         use crossbeam_channel as channel;
         let (s, r) = channel::bounded(1);
-        &state.write().expect("Unable to write state").threads.insert((site, game_id.clone()), (s, r));
-        run_blender(&state, &site, &game_id, &pgn_path);
+        &state.write().expect("Unable to write state").threads.insert((site, game_id.clone()), (s.clone(), r));
 
-        let redirect_url = format!("/webapp/get/{:?}/{}", &site, game_id);
+        use std::thread;
+        let xx = game_id.clone();
+        thread::spawn( move || {
+            run_blender(s, &site, xx, &pgn_path);
+        });
+
         Ok(Redirect::to(&redirect_url))
     }
 
+    #[derive(Debug, Copy, Clone)]
+    enum SimulationStatus {
+        Running,
+        Finished,
+        NotRunning,
+        Failed,
+    }
+
     /// check if the blender process exited and successfully generated the blend file
-    fn simulation_finished(_site: &Site, _game_id: &str) -> bool {
-        // TODO
+    fn simulation_status(site: &Site, game_id: String, state: State<RwLock<WebappState>>) -> SimulationStatus {
         // 1) check file /blend/...
+        use std::fs;
+        let chess_fracture_out_blend = format!("{}/{:?}_{}.blend", BLEND_FILES_SAVE_PATH, &site, &game_id);
+        if fs::metadata(&chess_fracture_out_blend).is_ok() {
+            return SimulationStatus::Finished;
+        }
+
         // 2) try_recv
-        true
+        let read_state = state.read().expect("Unable to read state");
+        let entry = read_state.threads.get(&(*site, game_id.clone()));
+        match entry {
+            Some(x) => {
+                match x.1.try_recv() {
+                    Some(xx) => {
+                        match xx {
+                            BlenderResult::Success => SimulationStatus::Finished,
+                            BlenderResult::Failure => SimulationStatus::Failed,
+                            BlenderResult::AlreadySimulated => SimulationStatus::Finished,
+                        }
+                    },
+                    None => SimulationStatus::Running,  // TODO: if the channel is closed??
+                }
+            },
+            None => SimulationStatus::NotRunning,
+        }
     }
 
     #[derive(Debug)]
@@ -247,21 +289,31 @@ mod fracture_chess {
     use std::sync::RwLock;
     /// Retrieve a blend file or wait if not computed yet
     #[get("/get/<site>/<game_id>")]
-    fn get(site: Site, game_id: String, state: State<RwLock<WebappState>>) -> Result<Template, String> {
-        if simulation_finished(&site, &game_id) {
-            use std::collections::HashMap;
+    fn get(site: Site, game_id: String, state: State<RwLock<WebappState>>) -> Result<Template, Template> {
+        match simulation_status(&site, game_id.clone(), state) {
+            SimulationStatus::Finished => {
+                use std::collections::HashMap;
 
-            let blend_link = format!("{}/{:?}_{}.blend", BLEND_FILES_URL_PREFIX, &site, &game_id);
+                let blend_link = format!("{}/{:?}_{}.blend", BLEND_FILES_URL_PREFIX, &site, &game_id);
 
-            let mut context = HashMap::new();
-            context.insert("blend_link", blend_link);
+                let mut context = HashMap::new();
+                context.insert("blend_link", blend_link);
 
-            Ok(Template::render("get", &context))
-        }
-        else {
-            // TODO: wait + autorefresh
-            //Ok(Template::render("refresh", &context))
-            Err("Not finished...".to_string())
+                Ok(Template::render("download", &context))
+            },
+            SimulationStatus::NotRunning => {
+                unimplemented!("Simulation is not running");
+            },
+            SimulationStatus::Running => {
+                let mut context = HashMap::new();
+                context.insert("", "");
+                Ok(Template::render("refresh", &context))
+            },
+            SimulationStatus::Failed => {
+                let mut context = HashMap::new();
+                context.insert("error_message", "Simulation failed");
+                Err(Template::render("error", &context))
+            },
         }
     }
 
