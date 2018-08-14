@@ -11,7 +11,7 @@ class Game(models.Model):
     gameid = models.CharField(max_length=15)
     pgn = models.TextField(blank=True)
     lastmodified = models.DateTimeField(auto_now=True)
-    status =  # new, downloaded, simulating, done, failed
+    status =  models.PositiveSmallIntegerField()  # new, downloaded, simulating, done, failed
 
     class Meta:
         unique_together = (('site', 'gameid'),)

@@ -1,0 +1,12 @@
+{% include 'chessfracture/header.html' %}
+
+
+{% if latest_games %}
+  <ul>
+  {% for game in latest_games %}
+    <li>{{ game.gameid }}</li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <p>No game yet</p>
+{% endif %}
