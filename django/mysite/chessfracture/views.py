@@ -4,6 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Game
 from .forms import FractureForm
 
+import re
 from urllib.parse import urlparse
 
 # Create your views here.
@@ -19,29 +20,64 @@ def index(request):
     return render(request, 'chessfracture/index.html', ctx)
 
 
+'''
+    1) validate URL
+    2) return site, gameid
+'''
 def parse_pgn_url(url):
     url = urlparse(url)
-    if url.scheme != 'https' or url.netloc != 'lichess.org':
-        return HttpResponse('error')
+    if url.netloc != 'lichess.org':
+        raise Exception('Invalid site')
+    path = url.path
+    # https://lichess.org/xxxxx/white#2
+    r = re.compile(r'^/(?P<gameid>\w+)(?:/(white|black)?)')
+    m = r.match(path)
+    if m:
+        gameid, color = m.groups()
+    else:
+        raise Exception('Wrong URL must be "https://lichess.org/xxxxx/white#2"')
+
+    return 'lichess.org', gameid
 
 
 def fracture(request):
-    if request.method == 'POST':
-        form = FractureForm(request.POST)
-        if form.is_valid():
-            url = form.cleaned_data['url']
-            parse_pgn_url(url)
+    if request.method != 'POST':
+        context = { 'error_message': 'Must be POST, not GET' }
+        return render(request, 'chessfracture/error.html', context)
 
-            return redirect('chessfracture:get', kwargs={'site': 'lichess', 'gameid': '1234'})
-        else:
-            # TODO
-            pass
-    else:
-        # TODO
+    form = FractureForm(request.POST)
+    if not form.is_valid():
+        #TODO: log
+        context = { 'error_message': 'Invalid request: form is not valid ' + str(request.POST) }
+        return render(request, 'chessfracture/error.html', context)
+
+    url = form.cleaned_data['url']
+    try:
+        site, gameid = parse_pgn_url(url)
+    except Exception as e:
+        context = { 'error_message': str(e) }
+        return render(request, 'chessfracture/error.html', context)
+
+    game = Game.objects.filter(site=site, gameid=gameid)
+    if game.exists():
         pass
+    else:
+        game = Game(site=site, gameid=gameid, status=0)
+        game.save()
+
+    return redirect('get/{}/{}'.format(site, gameid))
+    #return redirect('chessfracture:get', kwargs={'site': site, 'gameid': gameid})
 
 
 def get(request, site, gameid):
-    out = Game.objects.filter(site=site, gameid=gameid)
-    out = '<h1>get</h1>' + out
+    out = '<h1>get</h1>'
+
+    data = Game.objects.filter(site=site, gameid=gameid)
+    if not data:
+        context = { 'error_message': 'Game not found' }
+        return render(request, 'chessfracture/error.html', context)
+
+    game = data[0]
+    out += '{} {}/{} status={}'.format(game.lastmodified, game.site, game.gameid, game.status)
+
     return HttpResponse(out)
