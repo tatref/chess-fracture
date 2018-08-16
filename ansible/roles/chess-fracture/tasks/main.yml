@@ -22,8 +22,6 @@
     src: "{{ playbook_dir }}/.."
     dest: "/home/{{ ansible_user }}/chess-fracture"
   become_user: "{{ ansible_user }}"
-  notify:
-    - rebuild webapp
 
 
 - name: turbovnc
@@ -35,6 +33,6 @@
 - name: blender
   include: blender.yml
 
-- name: webapp
-  include: webapp.yml
+- name: postgres
+  include: postgres.yml
 

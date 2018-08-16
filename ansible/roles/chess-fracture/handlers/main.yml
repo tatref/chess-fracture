@@ -1,21 +1,10 @@
 ---
 # handlers file for chess-fracture
-- name: restart docker
-  service:
-    name: docker
-    state: restarted
 
 - name: restart tvncserver
   service:
     name: tvncserver
     state: restarted
-
-- name: rebuild webapp
-  command: /home/ansible/.cargo/bin/cargo build
-  args:
-    chdir: "/home/{{ ansible_user }}/chess-fracture/webapp"
-  become_user: "{{ ansible_user }}"
-  notify: restart webapp
 
 - name: restart nginx
   service:
@@ -25,7 +14,3 @@
 - name: systemctl daemon-reload
   command: systemctl daemon-reload
 
-- name: restart webapp
-  service:
-    name: webapp
-    state: restarted
