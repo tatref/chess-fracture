@@ -17,6 +17,9 @@
       - gcc
       - openssl-devel
 
+- name: docker
+  include: docker.yml
+
 - name: sync files
   synchronize:
     src: "{{ playbook_dir }}/.."
@@ -35,4 +38,7 @@
 
 - name: postgres
   include: postgres.yml
+
+- name: django
+  include: django.yml
 

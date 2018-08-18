@@ -7,8 +7,8 @@ from django.db import models
 
 
 class Game(models.Model):
-    site = models.CharField(max_length=10)
-    gameid = models.CharField(max_length=15)
+    site = models.CharField(max_length=20)
+    gameid = models.CharField(max_length=20)
     pgn = models.TextField(blank=True)
     lastmodified = models.DateTimeField(auto_now=True)
     status =  models.SmallIntegerField()  # new(0), downloaded(1), simulating(2), done(3), failed(-1)

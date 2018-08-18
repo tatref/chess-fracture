@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 
-rm -f db.sqlite3
+yes yes | ./manage.py  flush
+
 rm -f */migrations/0*.py
 
 ./manage.py makemigrations

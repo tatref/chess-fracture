@@ -14,3 +14,13 @@
 - name: systemctl daemon-reload
   command: systemctl daemon-reload
 
+- name: restart docker
+  service:
+    name: docker
+    state: restarted
+
+- name: restart postgresql-10
+  service:
+    name: postgresql-10
+    state: restarted
+

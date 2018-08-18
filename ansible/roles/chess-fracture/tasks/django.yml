@@ -1,0 +1,19 @@
+---
+
+
+- name: install python36
+  yum:
+    name: "{{item}}"
+    state: installed
+  with_items:
+    - python-virtualenv
+    - python36
+
+- name: django venv
+  pip:
+    virtualenv: "/home/{{ansible_user}}/venv"
+    virtualenv_python: python36
+    requirements: "/home/{{ansible_user}}/chess-fracture/django/requirements.txt"
+  become_user: "{{ansible_user}}"
+
+

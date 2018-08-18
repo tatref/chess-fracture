@@ -17,7 +17,7 @@
 - name: init postgres
   command: /usr/pgsql-10/bin/postgresql-10-setup initdb
   args:
-    creates: /var/lib/pgsql/10/data/
+    creates: /var/lib/pgsql/10/data/postgresql.conf
 
 - name: postgresql-10 service
   service:
@@ -39,10 +39,22 @@
     password: nopasswd
   become_user: postgres
 
-      #- name: open port 80
-      #  firewalld:
-      #    port: 80/tcp
-      #    permanent: true
-      #    immediate: true
-      #    state: enabled
+- name: listen any
+  lineinfile:
+    path: /var/lib/pgsql/10/data/postgresql.conf
+    line: "listen_addresses = '*'"
+  notify: restart postgresql-10
+
+- name: postgres user connect permissions
+  lineinfile:
+    path: /var/lib/pgsql/10/data/pg_hba.conf
+    line: "host  chessfracture  chessfracture 0.0.0.0/0 md5"
+  notify: restart postgresql-10
+
+- name: open port 5432
+  firewalld:
+    port: 5432/tcp
+    permanent: true
+    immediate: true
+    state: enabled
 
