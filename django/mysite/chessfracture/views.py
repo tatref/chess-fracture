@@ -78,7 +78,6 @@ def get(request, site, gameid):
         return render(request, 'chessfracture/error.html', context)
 
     game = data[0]
-    out += '{} {}/{} status={}'.format(game.lastdl, game.site, game.gameid, game.status)
 
     if game.status == 0:
         # new
@@ -88,13 +87,13 @@ def get(request, site, gameid):
         pass
     elif game.status == 2:
         # done
-        pass
+        response = HttpResponse(content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename={}_{}.blend'.format(site, gameid)
+        response.write(game.blend.tobytes())
+        return response
     elif game.status == -1:
         # failed
         print(game.errormessage)
         pass
 
-    response = HttpResponse(content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename={}_{}.blend'.format(site, gameid)
-    response.write(game.blend)
-    return response
+    return HttpResponse('hello')
