@@ -9,10 +9,15 @@ from django.db import models
 class Game(models.Model):
     site = models.CharField(max_length=20)
     gameid = models.CharField(max_length=20)
-    pgn = models.TextField(blank=True)
-    lastmodified = models.DateTimeField(auto_now=True)
-    status =  models.SmallIntegerField()  # new(0), downloaded(1), simulating(2), done(3), failed(-1)
-    errormessage = models.TextField(blank=True)
+
+    status =  models.SmallIntegerField()    # new(0), simulating(1), done(2), failed(-1)
+    errormessage = models.TextField(default=None, blank=True, null=True)
+
+    submitdate = models.DateTimeField(auto_now_add=True)
+    lastdl = models.DateTimeField(default=None, blank=True, null=True)
+
+    pgn = models.TextField(default=None, blank=True, null=True)
+    blend = models.BinaryField()
 
     class Meta:
         unique_together = (('site', 'gameid'),)

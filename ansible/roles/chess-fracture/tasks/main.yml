@@ -16,6 +16,7 @@
       - python2-pip
       - gcc
       - openssl-devel
+      - vim
 
 - name: docker
   include: docker.yml

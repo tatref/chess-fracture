@@ -14,5 +14,6 @@ from chessfracture.models import Game
 
 games = Game.objects.all()
 
-for g in games:
-    print(g)
+def purge_old_games(delay):
+    for old_game in Game.objects.filter(lastdl__le=(timezone.now() - timezone.timedelta(seconds=delay))):
+        old_game.delete()

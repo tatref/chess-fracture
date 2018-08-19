@@ -14,7 +14,7 @@ def index(request):
     form = FractureForm()
 
     ctx = {
-        'latest_games': Game.objects.order_by('-lastmodified')[:5],
+        'latest_games': Game.objects.order_by('-submitdate')[:5],
         'form': form,
     }
     return render(request, 'chessfracture/index.html', ctx)
@@ -74,10 +74,27 @@ def get(request, site, gameid):
 
     data = Game.objects.filter(site=site, gameid=gameid)
     if not data:
-        context = { 'error_message': 'Game not found' }
+        context = { 'error_message': 'Game not found (submit first?)' }
         return render(request, 'chessfracture/error.html', context)
 
     game = data[0]
-    out += '{} {}/{} status={}'.format(game.lastmodified, game.site, game.gameid, game.status)
+    out += '{} {}/{} status={}'.format(game.lastdl, game.site, game.gameid, game.status)
 
-    return HttpResponse(out)
+    if game.status == 0:
+        # new
+        pass
+    elif game.status == 1:
+        # simulating
+        pass
+    elif game.status == 2:
+        # done
+        pass
+    elif game.status == -1:
+        # failed
+        print(game.errormessage)
+        pass
+
+    response = HttpResponse(content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename={}_{}.blend'.format(site, gameid)
+    response.write(game.blend)
+    return response

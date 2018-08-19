@@ -5,15 +5,28 @@
   yum:
     name: "{{item}}"
     state: installed
+    enablerepo: epel-testing
   with_items:
     - python-virtualenv
     - python36
+    - uwsgi
+    - uwsgi-plugin-python36
 
 - name: django venv
   pip:
-    virtualenv: "/home/{{ansible_user}}/venv"
+    virtualenv: "{{django_venv_path}}"
     virtualenv_python: python36
     requirements: "/home/{{ansible_user}}/chess-fracture/django/requirements.txt"
   become_user: "{{ansible_user}}"
 
+- name: configure uwsgi
+  template:
+    src: etc/uwsgi.ini
+    dest: /etc/uwsgi.ini
+  notify: restart uwsgi
 
+- name: start uwsgi
+  service:
+    name: uwsgi
+    state: started
+    enabled: true
