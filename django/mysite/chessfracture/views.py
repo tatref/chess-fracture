@@ -14,7 +14,7 @@ def index(request):
     form = FractureForm()
 
     ctx = {
-        'latest_games': Game.objects.order_by('-submitdate')[:5],
+        'latest_games': Game.objects.order_by('-submitdate')[:10],
         'form': form,
     }
     return render(request, 'chessfracture/index.html', ctx)
@@ -70,8 +70,6 @@ def fracture(request):
 
 
 def get(request, site, gameid):
-    out = '<h1>get</h1>'
-
     data = Game.objects.filter(site=site, gameid=gameid)
     if not data:
         context = { 'error_message': 'Game not found (submit first?)' }
@@ -81,10 +79,13 @@ def get(request, site, gameid):
 
     if game.status == 0:
         # new
-        pass
+        # TODO: print queue
+        context = {}
+        return render(request, 'chessfracture/refresh.html', context)
     elif game.status == 1:
         # simulating
-        pass
+        context = {}
+        return render(request, 'chessfracture/refresh.html', context)
     elif game.status == 2:
         # done
         response = HttpResponse(content_type='application/octet-stream')
@@ -93,7 +94,11 @@ def get(request, site, gameid):
         return response
     elif game.status == -1:
         # failed
-        print(game.errormessage)
-        pass
-
-    return HttpResponse('hello')
+        error_message = game.errormessage
+        context = { 'error_message': 'Simulation failed (unsupported PGN?): {}'.format(error_message) }
+        return render(request, 'chessfracture/error.html', context)
+    else:
+        # unknown status???
+        context = { 'error_message': 'Unknown game state: {}'.format(game.status) }
+        return render(request, 'chessfracture/error.html', context)
+    # unreachable

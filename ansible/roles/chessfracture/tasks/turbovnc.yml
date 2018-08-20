@@ -6,7 +6,8 @@
     description: TurboVNC official RPMs
     baseurl: https://sourceforge.net/projects/turbovnc/files
     gpgcheck: yes
-    gpgkey: http://pgp.mit.edu/pks/lookup?op=get&search=0x6BBEFA1972FEB9CE
+    gpgkey: https://www.turbovnc.org/key/VGL-GPG-KEY
+    #gpgkey: http://pgp.mit.edu/pks/lookup?op=get&search=0x6BBEFA1972FEB9CE
     enabled: yes
 
 - name: install turbovnc

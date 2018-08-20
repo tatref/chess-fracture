@@ -1,5 +1,5 @@
 ---
-# handlers file for chess-fracture
+# handlers file for chessfracture
 
 - name: restart tvncserver
   service:

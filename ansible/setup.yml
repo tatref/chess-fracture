@@ -1,5 +1,5 @@
 ---
-- hosts: chess-fracture
+- hosts: chessfracture
   roles:
     - goozbach.EPEL
-    - chess-fracture
+    - chessfracture

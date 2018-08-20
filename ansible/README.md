@@ -8,7 +8,7 @@ pip install -r requirements.txt
 ```
 cp inventory_sample.yml inventory.yml
 ```
-Edit `inventory.yml` so the host `chess-fracture` resolves to a CentOS 7 server (minimal installation)
+Edit `inventory.yml` so the host `chessfracture` resolves to a CentOS 7 server (minimal installation)
 
 # Client setup
 visudo

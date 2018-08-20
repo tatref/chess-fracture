@@ -1,5 +1,5 @@
 ---
-# tasks file for chess-fracture
+# tasks file for chessfracture
 - name: test connection
   ping:
 
@@ -24,8 +24,9 @@
 - name: sync files
   synchronize:
     src: "{{ playbook_dir }}/.."
-    dest: "/home/{{ ansible_user }}/chess-fracture"
+    dest: "/home/{{ ansible_user }}/chessfracture"
   become_user: "{{ ansible_user }}"
+  notify: restart uwsgi
 
 
 - name: turbovnc

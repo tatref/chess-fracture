@@ -50,7 +50,7 @@ DISPLAY=:1 xhost local:name
 ## Building the container
 ```
 git lfs pull
-docker build -t chess-fracture .
+docker build -t chessfracture .
 ```
 
 ## Usage
@@ -64,7 +64,7 @@ CHESS_FRACTURE_OUT_BLEND=my_awsome_game.blend
 # input PGN (absolute path required)
 CHESS_FRACTURE_PGN_PATH=/path/to/my_awsome_game.pgn
 
-docker run --name chess-fracture1 \
+docker run --name chessfracture1 \
            --security-opt label=type:container_runtime_t \
            --rm \
            --mount type=bind,src=$CHESS_FRACTURE_PGN_PATH,dst=/work/input.pgn,ro=true \
@@ -72,7 +72,7 @@ docker run --name chess-fracture1 \
            --mount type=bind,src=/tmp/.X11-unix/X$VNC_DISPLAY,dst=/tmp/.X11-unix/X$VNC_DISPLAY \
            -e DISPLAY=:$VNC_DISPLAY \
            -e CHESS_FRACTURE_OUT_BLEND=$CHESS_FRACTURE_OUT_BLEND \
-           chess-fracture:latest
+           chessfracture:latest
 ```
 
 ## Variables

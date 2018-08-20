@@ -1,23 +1,35 @@
-{% include 'chessfracture/header.html' %}
+<!DOCTYPE html>
 
-<h1>Fracture</h1>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Chess Fracture</title>
+  </head>
 
-<div>
-<form action="fracture" method="post">
-  {% csrf_token %}
-  {{ form }}
-  <input type="submit" value="Fracture!">
-</form>
-</div>
-
-
-{% if latest_games %}
-<h2>Last games</h2>
-  <ul>
-  {% for game in latest_games %}
-    <li><a href="get/{{game.site}}/{{game.gameid}}">{{ game.gameid }}</a></li>
-  {% endfor %}
-  </ul>
-{% else %}
-  <p>No game yet</p>
-{% endif %}
+  <body>
+    <div style="text-align:center">
+      {% include 'chessfracture/header.html' %}
+      
+      <h1>Chessfracture</h1>
+      
+      <div>
+      <form action="fracture" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Fracture!">
+      </form>
+      </div>
+      
+      {% if latest_games %}
+      <h2>Last games</h2>
+        <ul>
+        {% for game in latest_games %}
+          <li><a href="get/{{game.site}}/{{game.gameid}}">{{ game.gameid }}</a></li>
+        {% endfor %}
+        </ul>
+      {% else %}
+        <p>No game yet</p>
+      {% endif %}
+    </div>
+  </body>
+</html>

@@ -16,7 +16,7 @@
   pip:
     virtualenv: "{{django_venv_path}}"
     virtualenv_python: python36
-    requirements: "/home/{{ansible_user}}/chess-fracture/django/requirements.txt"
+    requirements: "/home/{{ansible_user}}/chessfracture/django/requirements.txt"
   become_user: "{{ansible_user}}"
 
 - name: configure uwsgi

@@ -5,8 +5,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/{{ ansible_user }}/chess-fracture/webapp
-ExecStart=/home/{{ ansible_user }}/chess-fracture/webapp/target/debug/webapp
+WorkingDirectory=/home/{{ ansible_user }}/chessfracture/webapp
+ExecStart=/home/{{ ansible_user }}/chessfracture/webapp/target/debug/webapp
 Restart=on-failure
 User={{ ansible_user }}
 Environment=RUST_BACKTRACE=1

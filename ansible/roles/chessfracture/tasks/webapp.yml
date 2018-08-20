@@ -10,8 +10,8 @@
 - name: build webapp
   command: /home/ansible/.cargo/bin/cargo build
   args:
-    chdir: "/home/{{ ansible_user }}/chess-fracture/webapp"
-    creates: "/home/{{ ansible_user }}/chess-fracture/webapp/target/"
+    chdir: "/home/{{ ansible_user }}/chessfracture/webapp"
+    creates: "/home/{{ ansible_user }}/chessfracture/webapp/target/"
   become_user: "{{ ansible_user }}"
   notify: restart webapp
 
