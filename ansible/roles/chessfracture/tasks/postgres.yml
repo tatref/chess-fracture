@@ -48,8 +48,13 @@
 - name: postgres user connect permissions
   lineinfile:
     path: /var/lib/pgsql/10/data/pg_hba.conf
-    line: "host  chessfracture  chessfracture 0.0.0.0/0 md5"
+    line: "{{item}}"
+    insertbefore: BOF
   notify: restart postgresql-10
+  with_items:
+    - "host  chessfracture  chessfracture 0.0.0.0/0 md5"
+    - "host  chessfracture  chessfracture 127.0.0.0/8 md5"
+    - "host  chessfracture  chessfracture ::1/128 md5"
 
 - name: open port 5432
   firewalld:
