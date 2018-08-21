@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
 
-yes yes | ./manage.py  flush
 
-rm -f */migrations/0*.py
+set -eu
+
+. ~/django_venv/bin/activate
+
+
+#yes yes | ./manage.py  flush
+
 
 ./manage.py makemigrations
 ./manage.py migrate
