@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 
+. ~/django_venv/bin/activate
+
 
 set -eu
-
-. ~/django_venv/bin/activate
 
 
 #yes yes | ./manage.py  flush

@@ -18,13 +18,19 @@
       - openssl-devel
       - vim
 
-- name: docker
-  include: docker.yml
+        #- name: docker
+        #  include: docker.yml
+
+
+- name: "create user {{ chessfracture_user }}"
+  user:
+    name: "{{ chessfracture_user }}"
 
 - name: sync files
   synchronize:
     src: "{{ playbook_dir }}/.."
     dest: "/home/{{ chessfracture_user }}/chessfracture"
+    rsync_path: "sudo -u {{ chessfracture_user }} rsync"
   become_user: "{{ chessfracture_user }}"
   notify: restart uwsgi
 
