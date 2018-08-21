@@ -10,7 +10,7 @@ class Game(models.Model):
     site = models.CharField(max_length=20)
     gameid = models.CharField(max_length=20)
 
-    status =  models.SmallIntegerField()    # new(0), pgn_downloaded(1), simulating(2), done(3), failed(-1)
+    status =  models.SmallIntegerField()    # done(0), new(1), pgn_downloaded(2), simulating(3), failed(-1)
     errormessage = models.TextField(default=None, blank=True, null=True)
 
     submitdate = models.DateTimeField(auto_now_add=True)

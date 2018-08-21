@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'chessfracture',
         'USER': 'chessfracture',
         'PASSWORD': 'nopasswd',
-        'HOST': 'localhost',
+        'HOST': 'chessfracture-db',
         'PORT': '',
     }
     #'default': {

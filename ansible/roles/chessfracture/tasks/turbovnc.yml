@@ -26,11 +26,11 @@
 
 - name: turbovnc passwd dir
   file:
-    path: "/home/{{ ansible_user }}/.vnc/"
+    path: "/home/{{ chessfracture_user }}/.vnc/"
     state: directory
     mode: "u+rwx"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "{{ chessfracture_user }}"
+    group: "{{ chessfracture_user }}"
 
     #- name: turbovnc passwd
     #  copy:
@@ -43,10 +43,10 @@
     #  notify: restart tvncserver
 
 - name: turbovnc passwd
-  shell: 'umask 077; echo mypassword | /opt/TurboVNC/bin/vncpasswd -f > /home/{{ ansible_user }}/.vnc/passwd'
+  shell: 'umask 077; echo mypassword | /opt/TurboVNC/bin/vncpasswd -f > /home/{{ chessfracture_user }}/.vnc/passwd'
   args:
-    creates: "/home/{{ ansible_user }}/.vnc/passwd"
-  become_user: "{{ ansible_user }}"
+    creates: "/home/{{ chessfracture_user }}/.vnc/passwd"
+  become_user: "{{ chessfracture_user }}"
   notify: restart tvncserver
 
 - name: enable tvncserver service

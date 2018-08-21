@@ -62,7 +62,7 @@ def fracture(request):
     if game.exists():
         pass
     else:
-        game = Game(site=site, gameid=gameid, status=0)
+        game = Game(site=site, gameid=gameid, status=1)
         game.save()
 
     return redirect('get/{}/{}'.format(site, gameid))
@@ -78,20 +78,23 @@ def get(request, site, gameid):
     game = data[0]
 
     if game.status == 0:
-        # new
-        # TODO: print queue
-        context = {}
-        return render(request, 'chessfracture/refresh.html', context)
-    elif game.status == 1:
-        # simulating
-        context = {}
-        return render(request, 'chessfracture/refresh.html', context)
-    elif game.status == 2:
         # done
         response = HttpResponse(content_type='application/octet-stream')
-        response['Content-Disposition'] = 'attachment; filename={}_{}.blend'.format(site, gameid)
+        response['Content-Disposition'] = 'attachment; filename={}_{}.blend.zip'.format(site, gameid)
         response.write(game.blend.tobytes())
         return response
+    elif game.status == 1:
+        # new
+        context = { 'status': game.status}
+        return render(request, 'chessfracture/refresh.html', context)
+    elif game.status == 2:
+        # pgn_downloaded
+        context = { 'status': game.status}
+        return render(request, 'chessfracture/refresh.html', context)
+    elif game.status == 3:
+        # simulating
+        context = { 'status': game.status}
+        return render(request, 'chessfracture/refresh.html', context)
     elif game.status == -1:
         # failed
         error_message = game.errormessage

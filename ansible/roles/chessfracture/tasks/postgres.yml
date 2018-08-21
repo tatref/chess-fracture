@@ -52,9 +52,9 @@
     insertbefore: BOF
   notify: restart postgresql-10
   with_items:
-    - "host  chessfracture  chessfracture 0.0.0.0/0 md5"
-    - "host  chessfracture  chessfracture 127.0.0.0/8 md5"
-    - "host  chessfracture  chessfracture ::1/128 md5"
+    - "host  chessfracture  {{ chessfracture_user }} 0.0.0.0/0 md5"
+    - "host  chessfracture  {{ chessfracture_user }} 127.0.0.0/8 md5"
+    - "host  chessfracture  {{ chessfracture_user }} ::1/128 md5"
 
 - name: open port 5432
   firewalld:

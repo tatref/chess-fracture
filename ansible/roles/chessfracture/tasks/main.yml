@@ -24,8 +24,8 @@
 - name: sync files
   synchronize:
     src: "{{ playbook_dir }}/.."
-    dest: "/home/{{ ansible_user }}/chessfracture"
-  become_user: "{{ ansible_user }}"
+    dest: "/home/{{ chessfracture_user }}/chessfracture"
+  become_user: "{{ chessfracture_user }}"
   notify: restart uwsgi
 
 

@@ -18,7 +18,11 @@ ansible ALL=(ALL)       NOPASSWD:ALL
 Defaults:ansible !requiretty
 ```
 
+```
+ssh-copy-id ...
+```
+
 # Usage
 ```
-ansible-playbook play.yml
+ansible-playbook setup.yml
 ```
