@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'chessfracture',
         'USER': 'chessfracture',
         'PASSWORD': 'nopasswd',
-        'HOST': '192.168.0.100',
+        'HOST': 'localhost',
         'PORT': '',
     }
     #'default': {
