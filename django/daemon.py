@@ -8,6 +8,7 @@ import sys, os
 import subprocess
 import zipfile
 import io
+import time
 
 import django
 import requests
@@ -92,9 +93,10 @@ def run_simulations(games):
             f.write(g.pgn)
 
         try:
+            g.status = 3
+            g.save
+
             blender = run_simulation(pgn_path, out_blend)
-            from pprint import pprint
-            pprint(blender)
         except Exception as e:
             print('Simulation failed: ' + str(e))
             g.status = -1
@@ -113,7 +115,6 @@ def run_simulations(games):
             g.errormessage = str(e)
             g.save
             continue
-
 
 
 def download_lichess_pgn(gameid):
@@ -143,10 +144,23 @@ def save_pgns(games):
 
 
 def new_games_loop():
-    new_games = Game.objects.filter(status=0).order_by('submitdate')
+    # download PGN: 1 -> 2
+    new_games = Game.objects.filter(status=1).order_by('submitdate')
 
     save_pgns(new_games)
 
+
 def simulations_loop():
-    need_simulation = Game.objects.filter(status=1).order_by('submitdate')
+    # run simulation: 2 -> 3 -> 0
+    need_simulation = Game.objects.filter(status=2).order_by('submitdate')
     run_simulations(need_simulation)
+
+
+if __name__ == '__main__':
+    while True:
+        new_games_loop()
+        simulations_loop()
+
+        print('Sleeping...')
+        time.sleep(1)
+

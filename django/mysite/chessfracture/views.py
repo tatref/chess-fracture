@@ -1,11 +1,12 @@
+import re
+from urllib.parse import urlparse
+
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 
 from .models import Game
 from .forms import FractureForm
-
-import re
-from urllib.parse import urlparse
 
 # Create your views here.
 
@@ -72,13 +73,16 @@ def fracture(request):
 def get(request, site, gameid):
     data = Game.objects.filter(site=site, gameid=gameid)
     if not data:
-        context = { 'error_message': 'Game not found (submit first?)' }
+        context = { 'error_message': 'Game not found' }
         return render(request, 'chessfracture/error.html', context)
 
     game = data[0]
 
     if game.status == 0:
         # done
+        game.lastdl = timezone.now()
+        game.save()
+
         response = HttpResponse(content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename={}_{}.blend.zip'.format(site, gameid)
         response.write(game.blend.tobytes())
