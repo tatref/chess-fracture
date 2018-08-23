@@ -18,9 +18,6 @@
       - openssl-devel
       - vim
 
-        #- name: docker
-        #  include: docker.yml
-
 
 - name: "create user {{ chessfracture_user }}"
   user:
@@ -32,20 +29,6 @@
     dest: "/home/{{ chessfracture_user }}/chessfracture"
     rsync_path: "sudo -u {{ chessfracture_user }} rsync"
   become_user: "{{ chessfracture_user }}"
-  notify: restart uwsgi
-
-
-- name: turbovnc
-  include: turbovnc.yml
-
-- name: reverse proxy
-  include: nginx.yml
-
-- name: blender
-  include: blender.yml
-
-- name: postgres
-  include: postgres.yml
 
 - name: django
   include: django.yml

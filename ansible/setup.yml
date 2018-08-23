@@ -1,5 +1,14 @@
 ---
-- hosts: chessfracture
+- hosts: all
   roles:
     - goozbach.EPEL
-    - chessfracture
+    - chessfracture-common
+
+- hosts: web
+  roles:
+    - chessfracture-web
+    - chessfracture-worker
+
+- hosts: workers
+  roles:
+    - chessfracture-worker

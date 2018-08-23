@@ -26,6 +26,8 @@ class Game(models.Model):
         return self.site + '/' + self.gameid
 
 
-    
+class ComputeNode(models.Model):
+    id = models.AutoField(primary_key=True)
+    heartbeat = models.DateTimeField(auto_now=True)
 
 

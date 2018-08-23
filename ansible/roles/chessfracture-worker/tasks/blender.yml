@@ -67,3 +67,11 @@
   when: python_chess.stat.exists == false
   become_user: "{{ chessfracture_user }}"
 
+- name: create /tmp/blender
+  file:
+    path: /tmp/blender
+    state: directory
+    mode: 0755
+    owner: "{{ chessfracture_user }}"
+    group: "{{ chessfracture_user }}"
+

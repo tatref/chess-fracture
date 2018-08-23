@@ -1,0 +1,25 @@
+---
+
+
+- name: install python36
+  yum:
+    name: "{{item}}"
+    state: installed
+    enablerepo: epel-testing
+  with_items:
+    - python-virtualenv
+    - python36
+
+- name: django venv
+  pip:
+    virtualenv: "{{django_venv_path}}"
+    virtualenv_python: python36
+    requirements: "/home/{{ chessfracture_user }}/chessfracture/django/requirements.txt"
+  become_user: "{{ chessfracture_user }}"
+
+- name: chessfracture-db hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: chessfracture-db
+    line: "{{ansible_host}} chessfracture-db"
+

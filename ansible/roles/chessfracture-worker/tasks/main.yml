@@ -1,0 +1,11 @@
+---
+# tasks file for chessfracture-worker
+
+- name: turbovnc
+  include: turbovnc.yml
+
+- name: blender
+  include: blender.yml
+
+- name: django
+  include: django.yml
