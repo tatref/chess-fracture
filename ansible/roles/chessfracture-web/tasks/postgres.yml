@@ -56,6 +56,8 @@
     - "host  chessfracture  {{ chessfracture_user }} 127.0.0.0/8 md5"
     - "host  chessfracture  {{ chessfracture_user }} ::1/128 md5"
 
+- meta: flush_handlers
+
 - name: open port 5432
   firewalld:
     port: 5432/tcp

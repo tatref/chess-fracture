@@ -19,12 +19,6 @@
     requirements: "/home/{{ chessfracture_user }}/chessfracture/django/requirements.txt"
   become_user: "{{ chessfracture_user }}"
 
-- name: chessfracture-db hosts
-  lineinfile:
-    path: /etc/hosts
-    regexp: chessfracture-db
-    line: "{{ansible_host}} chessfracture-db"
-
 - name: migrate db
   django_manage:
     command: makemigrations
