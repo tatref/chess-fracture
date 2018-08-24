@@ -9,8 +9,10 @@ import subprocess
 import zipfile
 import io
 import time
+import signal
 
 import django
+from django.db import transaction
 import requests
 
 
@@ -18,12 +20,23 @@ sys.path.append('/home/{}/chessfracture/django/mysite'.format(os.environ['USER']
 os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
 django.setup()
 
+from chessfracture.models import Game, ComputeNode
 
-from chessfracture.models import Game
 
 
-games = Game.objects.all()
+cn = ComputeNode()
+cn.save()
+print('Registred compute node {}'.format(cn.id))
 
+
+class GracefulKiller:
+  kill_now = False
+  def __init__(self):
+    signal.signal(signal.SIGINT, self.exit_gracefully)
+    signal.signal(signal.SIGTERM, self.exit_gracefully)
+  
+  def exit_gracefully(self,signum, frame):
+    self.kill_now = True
 
 
 
@@ -56,11 +69,12 @@ def run_simulation(pgn_path, out_blend, display=':1'):
         'CHESS_FRACTURE_OUT_BLEND': out_blend,
         'DISPLAY': display,
         'CHESS_FRACTURE_PGN_PATH': pgn_path,
-        'CHESS_FRACTURE_TEST': '',
         'CHESS_FRACTURE_FRAMES_PER_MOVE': '20',
         'CHESS_FRACTURE_FRAGMENTS': '10',
         }
     )
+    if 'CHESS_FRACTURE_TEST' in os.environ:
+        env['CHESS_FRACTURE_TEST'] = ''
 
     run_args = [
             blender_exe,
@@ -94,14 +108,15 @@ def run_simulations(games):
 
         try:
             g.status = 3
-            g.save
+            g.save()
 
             blender = run_simulation(pgn_path, out_blend)
+            # TODO: delete temp files
         except Exception as e:
             print('Simulation failed: ' + str(e))
             g.status = -1
             g.errormessage = str(e)
-            g.save
+            g.save()
             continue
 
         try:
@@ -113,11 +128,13 @@ def run_simulations(games):
             print('Saving compressed blend failed: ' + str(e))
             g.status = -1
             g.errormessage = str(e)
-            g.save
+            g.save()
             continue
+        print('Simulation done')
 
 
 def download_lichess_pgn(gameid):
+    # TODO 404
     base_url = 'https://lichess.org/game/export/'
     url = base_url  + gameid
     r = requests.get(url)
@@ -143,24 +160,42 @@ def save_pgns(games):
         save_pgn(g)
 
 
+def assign_compute_node():
+    with transaction.atomic():
+        game = Game.objects.filter(status=1, computenode=None) \
+            .order_by('submitdate') \
+            .select_for_update() \
+            .first()
+        if game:
+            game.computenode = cn
+            game.save()
+            print('{} assigned to {}'.format(game, cn))
+
+
 def new_games_loop():
     # download PGN: 1 -> 2
-    new_games = Game.objects.filter(status=1).order_by('submitdate')
+    new_games = Game.objects.filter(status=1, computenode=cn) \
+        .order_by('submitdate')
 
     save_pgns(new_games)
 
 
 def simulations_loop():
     # run simulation: 2 -> 3 -> 0
-    need_simulation = Game.objects.filter(status=2).order_by('submitdate')
+    need_simulation = Game.objects.filter(status=2, computenode=cn) \
+        .order_by('submitdate')
     run_simulations(need_simulation)
 
 
 if __name__ == '__main__':
-    while True:
+    killer = GracefulKiller()
+
+    while not killer.kill_now:
+        assign_compute_node()
         new_games_loop()
         simulations_loop()
 
-        print('Sleeping...')
         time.sleep(1)
+        cn.save()
+    print('Exiting')
 

@@ -19,7 +19,7 @@
     requirements: "/home/{{ chessfracture_user }}/chessfracture/django/requirements.txt"
   become_user: "{{ chessfracture_user }}"
 
-- name: migrate db
+- name: makemigrations
   django_manage:
     command: makemigrations
     virtualenv: "{{ django_venv_path }}"

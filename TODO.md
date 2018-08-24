@@ -1,4 +1,5 @@
 # TODO list
 
+* handle promotions
 * limit max memory / cpu time (cgroups)
 * limit concurent executions

@@ -5,6 +5,13 @@ from django.db import models
 # Create your models here.
 
 
+class ComputeNode(models.Model):
+    id = models.AutoField(primary_key=True)
+    heartbeat = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.id) + ' ' + str(self.heartbeat)
+
 
 class Game(models.Model):
     site = models.CharField(max_length=20)
@@ -19,15 +26,12 @@ class Game(models.Model):
     pgn = models.TextField(default=None, blank=True, null=True)
     blend = models.BinaryField()
 
+    computenode = models.ForeignKey(ComputeNode, blank=True, null=True, on_delete=models.SET_NULL)
+
     class Meta:
         unique_together = (('site', 'gameid'),)
 
     def __str__(self):
         return self.site + '/' + self.gameid
-
-
-class ComputeNode(models.Model):
-    id = models.AutoField(primary_key=True)
-    heartbeat = models.DateTimeField(auto_now=True)
 
 

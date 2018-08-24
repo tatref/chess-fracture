@@ -16,8 +16,10 @@
     dest: /etc/uwsgi.ini
   notify: restart uwsgi
 
+  #- meta: flush_handlers
+
 - name: start uwsgi
   service:
     name: uwsgi
-    state: restarted
+    state: started
     enabled: true
