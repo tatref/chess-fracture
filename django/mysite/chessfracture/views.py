@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse
 
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 
@@ -109,3 +109,23 @@ def get(request, site, gameid):
         context = { 'error_message': 'Unknown game state: {}'.format(game.status) }
         return render(request, 'chessfracture/error.html', context)
     # unreachable
+
+
+def monitoring(request):
+    total_games = Game.objects.all().count()
+    failed_games = Game.objects.filter(status=-1).count()
+    queued_games = Game.objects.filter(status=1).count()
+    simulation_finished_games = Game.objects.filter(status=0).count()
+
+    data = {
+        'games':
+            {
+                'total': total_games,
+                'failed': failed_games,
+                'queued': queued_games,
+                'finished': simulation_finished_games,
+            }
+    }
+
+    response = JsonResponse(data)
+    return response

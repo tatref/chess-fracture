@@ -25,6 +25,7 @@ class Game(models.Model):
 
     pgn = models.TextField(default=None, blank=True, null=True)
     blend = models.BinaryField()
+    simulation_duration = models.DurationField(default=None, blank=True, null=True)
 
     computenode = models.ForeignKey(ComputeNode, blank=True, null=True, on_delete=models.SET_NULL)
 

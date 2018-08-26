@@ -28,6 +28,7 @@
     src: "{{ playbook_dir }}/.."
     dest: "/home/{{ chessfracture_user }}/chessfracture"
     rsync_path: "sudo -u {{ chessfracture_user }} rsync"
+    delete: yes
   become_user: "{{ chessfracture_user }}"
 
 - name: django

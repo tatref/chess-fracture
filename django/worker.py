@@ -13,6 +13,7 @@ import signal
 
 import django
 from django.db import transaction
+from django.utils import timezone
 import requests
 
 
@@ -27,6 +28,7 @@ from chessfracture.models import Game, ComputeNode
 cn = ComputeNode()
 cn.save()
 print('Registred compute node {}'.format(cn.id))
+sys.stdout.flush()
 
 
 class GracefulKiller:
@@ -99,6 +101,7 @@ def run_simulation(pgn_path, out_blend, display=':1'):
 def run_simulations(games):
     for g in games:
         print('Running simulation for {}'.format(g))
+        sys.stdout.flush()
 
         pgn_path = TMPDIR + os.sep + g.site + '_' + g.gameid + '.pgn'
         out_blend = TMPDIR + os.sep + g.site + '_' + g.gameid + '.blend'
@@ -110,13 +113,35 @@ def run_simulations(games):
             g.status = 3
             g.save()
 
+            sim_start = timezone.now()
             blender = run_simulation(pgn_path, out_blend)
-            # TODO: delete temp files
+            sim_duration = timezone.now() - sim_start
+            g.simulation_duration = sim_duration
+            g.save()
+
+            if blender.returncode != 0:
+                print('Simulation failed: ' + str(blender))
+                sys.stdout.flush()
+                g.status = -1
+                g.errormessage = str(blender)
+                g.save()
+                continue
+            os.remove(pgn_path)
         except Exception as e:
+            # unreachable if blender was launched?
             print('Simulation failed: ' + str(e))
+            sys.stdout.flush()
             g.status = -1
             g.errormessage = str(e)
             g.save()
+            try:
+                os.remove(pgn_path)
+            except:
+                pass
+            try:
+                os.remove(out_blend)
+            except:
+                pass
             continue
 
         try:
@@ -124,20 +149,28 @@ def run_simulations(games):
             g.blend = compressed_blend.read()
             g.status = 0
             g.save()
+            os.remove(out_blend)
         except Exception as e:
             print('Saving compressed blend failed: ' + str(e))
+            sys.stdout.flush()
             g.status = -1
             g.errormessage = str(e)
             g.save()
+            try:
+                os.remove(out_blend)
+            except:
+                pass
             continue
-        print('Simulation done')
+        print('Simulation done: {}'.format(g))
+        sys.stdout.flush()
 
 
 def download_lichess_pgn(gameid):
-    # TODO 404
     base_url = 'https://lichess.org/game/export/'
     url = base_url  + gameid
     r = requests.get(url)
+    if not r.ok:
+        raise Exception('PGN download failed, status_code={}'.format(r.status_code))
     pgn = r.text
 
     return pgn
@@ -145,10 +178,22 @@ def download_lichess_pgn(gameid):
 
 def save_pgn(game):
     if game.site == 'lichess.org':
-        pgn = download_lichess_pgn(game.gameid)
+        try:
+            pgn = download_lichess_pgn(game.gameid)
+        except Exception as e:
+            game.status = -1
+            game.errormessage = str(e)
+            game.save()
+            print('Download failed for {}: {}'.format(game, e))
+            sys.stdout.flush()
+            return
     else:
-        print('unknown site')
-        sys.exit(1)
+        game.status = -1
+        game.errormessage = 'Unknown site {}'.format(game.site)
+        game.save()
+        print('Download failed for {}: unknown site: {}'.format(game, game.site))
+        sys.stdout.flush()
+        return
 
     game.pgn = pgn
     game.status = 2
@@ -169,7 +214,8 @@ def assign_compute_node():
         if game:
             game.computenode = cn
             game.save()
-            print('{} assigned to {}'.format(game, cn))
+            print('{} assigned to compute node {}#'.format(game, cn.id))
+            sys.stdout.flush()
 
 
 def new_games_loop():
@@ -198,4 +244,5 @@ if __name__ == '__main__':
         time.sleep(1)
         cn.save()
     print('Exiting')
+    sys.stdout.flush()
 

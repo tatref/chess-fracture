@@ -24,7 +24,7 @@
       <h2>Last games</h2>
         <ul>
         {% for game in latest_games %}
-          <li><a href="get/{{game.site}}/{{game.gameid}}">{{ game.gameid }}</a></li>
+          <li><a href="get/{{game.site}}/{{game.gameid}}">{{ game.site }}/{{ game.gameid }}</a></li>
         {% endfor %}
         </ul>
       {% else %}

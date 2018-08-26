@@ -1,0 +1,19 @@
+[Unit]
+Description=Chessfracture worker
+Wants=network.target
+After=network-pre.target dbus.service
+Before=network.target network.service
+
+[Service]
+Type=simple
+User={{ chessfracture_user }}
+Group={{ chessfracture_user }}
+ExecStart={{ django_venv_path }}/bin/python36 /home/{{ chessfracture_user }}/chessfracture/django/worker.py
+#ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+#KillMode=process
+
+
+#ProtectSystem=full
+#ReadWritePaths=/tmp
+

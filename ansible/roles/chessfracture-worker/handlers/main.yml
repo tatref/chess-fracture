@@ -1,11 +1,15 @@
 ---
 # handlers file for chessfracture
 
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
 - name: restart tvncserver
   service:
     name: tvncserver
     state: restarted
 
-- name: systemctl daemon-reload
-  command: systemctl daemon-reload
-
+- name: restart chessfracture.worker
+  service:
+    name: chessfracture.worker
+    state: restarted
