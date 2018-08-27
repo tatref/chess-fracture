@@ -220,6 +220,9 @@ def play(board_map, game, frames_per_move, n_fragments):
         is_kingside_castling = board.is_kingside_castling(move)
         is_queenside_castling = board.is_queenside_castling(move)
         is_en_passant = board.is_en_passant(move)
+        promotion = move.promotion
+        if promotion:
+            promoted_piece = chess.PIECE_NAMES[promotion]
     
         print('{}: {}, cap: {}, castl: {}'.format((move_number // 2) + 1, move, is_capture, is_castling))
 
