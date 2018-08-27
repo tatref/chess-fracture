@@ -15,7 +15,7 @@ def index(request):
     form = FractureForm()
 
     ctx = {
-        'latest_games': Game.objects.order_by('-submitdate')[:10],
+        'latest_games': Game.objects.filter(status=0).order_by('-submitdate')[:10],
         'form': form,
     }
     return render(request, 'chessfracture/index.html', ctx)

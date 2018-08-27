@@ -21,13 +21,13 @@ sys.path.append('/home/{}/chessfracture/django/mysite'.format(os.environ['USER']
 os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
 django.setup()
 
-from chessfracture.models import Game, ComputeNode
+from chessfracture.models import Game, Worker
 
 
 
-cn = ComputeNode()
-cn.save()
-print('Registred compute node {}'.format(cn.id))
+worker = Worker()
+worker.save()
+print('Registred worker {}'.format(worker.id))
 sys.stdout.flush()
 
 
@@ -205,22 +205,22 @@ def save_pgns(games):
         save_pgn(g)
 
 
-def assign_compute_node():
+def assign_woker():
     with transaction.atomic():
-        game = Game.objects.filter(status=1, computenode=None) \
+        game = Game.objects.filter(status=1, worker=None) \
             .order_by('submitdate') \
             .select_for_update() \
             .first()
         if game:
-            game.computenode = cn
+            game.worker = worker
             game.save()
-            print('{} assigned to compute node {}#'.format(game, cn.id))
+            print('{} assigned to worker {}#'.format(game, worker.id))
             sys.stdout.flush()
 
 
 def new_games_loop():
     # download PGN: 1 -> 2
-    new_games = Game.objects.filter(status=1, computenode=cn) \
+    new_games = Game.objects.filter(status=1, worker=worker) \
         .order_by('submitdate')
 
     save_pgns(new_games)
@@ -228,7 +228,7 @@ def new_games_loop():
 
 def simulations_loop():
     # run simulation: 2 -> 3 -> 0
-    need_simulation = Game.objects.filter(status=2, computenode=cn) \
+    need_simulation = Game.objects.filter(status=2, worker=worker) \
         .order_by('submitdate')
     run_simulations(need_simulation)
 
@@ -237,12 +237,12 @@ if __name__ == '__main__':
     killer = GracefulKiller()
 
     while not killer.kill_now:
-        assign_compute_node()
+        assign_woker()
         new_games_loop()
         simulations_loop()
 
         time.sleep(1)
-        cn.save()
+        worker.save()
     print('Exiting')
     sys.stdout.flush()
 
