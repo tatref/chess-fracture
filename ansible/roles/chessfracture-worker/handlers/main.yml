@@ -11,5 +11,6 @@
 
 - name: restart chessfracture.worker
   service:
-    name: chessfracture.worker
+    name: "chessfracture.worker@{{ item }}"
     state: restarted
+  with_sequence: count={{ansible_processor_cores}}

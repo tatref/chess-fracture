@@ -1,10 +1,10 @@
 ---
 
-- name: makemigrations
-  django_manage:
-    command: makemigrations
-    virtualenv: "{{ django_venv_path }}"
-    app_path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite"
+#- name: makemigrations
+#  django_manage:
+#    command: makemigrations
+#    virtualenv: "{{ django_venv_path }}"
+#    app_path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite"
 
 - name: migrate
   django_manage:
