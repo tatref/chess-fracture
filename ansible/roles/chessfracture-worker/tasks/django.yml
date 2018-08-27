@@ -7,9 +7,14 @@
 
 - name: create systemd service
   template:
-    src: etc/systemd/system/chessfracture.worker.service
-    dest: /etc/systemd/system/chessfracture.worker.service
+    src: etc/systemd/system/chessfracture.worker@.service
+    dest: /etc/systemd/system/chessfracture.worker@.service
   notify:
     - systemctl daemon-reload
     - restart chessfracture.worker
 
+- name: enable chessfracture.worker service
+  service:
+    name: chessfracture.worker@1
+    enabled: yes
+    state: started
