@@ -117,14 +117,20 @@ def monitoring(request):
     queued_games = Game.objects.filter(status=1).count()
     simulation_finished_games = Game.objects.filter(status=0).count()
 
-    data = {
-        'games':
-            {
-                'total': total_games,
-                'failed': failed_games,
-                'queued': queued_games,
-                'finished': simulation_finished_games,
-            }
+    data = {}
+    data['games'] = {
+        'total': total_games,
+        'failed': failed_games,
+        'queued': queued_games,
+        'finished': simulation_finished_games,
+    }
+
+    threshold = 5 * 60
+    active_threshold = timezone.now() - datetime.timedelta(seconds=threshold)
+    active_workers = Worker.objects.filter(heartbeat__gt=active_threshold).count()
+
+    data['workers'] = {
+        'active': active_workers,
     }
 
     response = JsonResponse(data)

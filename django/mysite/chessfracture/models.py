@@ -5,7 +5,7 @@ from django.db import models
 # Create your models here.
 
 
-class ComputeNode(models.Model):
+class Worker(models.Model):
     id = models.AutoField(primary_key=True)
     heartbeat = models.DateTimeField(auto_now=True)
 
@@ -27,7 +27,7 @@ class Game(models.Model):
     blend = models.BinaryField()
     simulation_duration = models.DurationField(default=None, blank=True, null=True)
 
-    computenode = models.ForeignKey(ComputeNode, blank=True, null=True, on_delete=models.SET_NULL)
+    worker = models.ForeignKey(Worker, blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         unique_together = (('site', 'gameid'),)
