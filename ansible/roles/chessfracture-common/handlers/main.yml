@@ -1,6 +1,9 @@
 ---
 # handlers file for chessfracture
 
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+
 - name: restart tvncserver
   service:
     name: tvncserver
@@ -11,9 +14,6 @@
     name: nginx
     state: restarted
 
-- name: systemctl daemon-reload
-  command: systemctl daemon-reload
-
 - name: restart docker
   service:
     name: docker
@@ -22,10 +22,5 @@
 - name: restart postgresql-10
   service:
     name: postgresql-10
-    state: restarted
-
-- name: restart uwsgi
-  service:
-    name: uwsgi
     state: restarted
 

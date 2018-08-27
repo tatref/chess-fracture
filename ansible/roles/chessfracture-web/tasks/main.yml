@@ -10,6 +10,15 @@
 - name: django
   include: django.yml
 
+- name: install uwsgi
+  yum:
+    name: "{{item}}"
+    state: installed
+    enablerepo: epel-testing
+  with_items:
+    - uwsgi-plugin-python36
+    - uwsgi
+
 - name: configure uwsgi
   template:
     src: etc/uwsgi.ini
