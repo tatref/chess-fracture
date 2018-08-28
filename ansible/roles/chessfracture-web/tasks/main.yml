@@ -1,15 +1,6 @@
 ---
 # tasks file for chessfracture-web
 
-- name: reverse proxy
-  include: nginx.yml
-
-- name: postgres
-  include: postgres.yml
-
-- name: django
-  include: django.yml
-
 - name: install uwsgi
   yum:
     name: "{{item}}"
@@ -24,6 +15,15 @@
     src: etc/uwsgi.ini
     dest: /etc/uwsgi.ini
   notify: restart uwsgi
+
+- name: reverse proxy
+  include: nginx.yml
+
+- name: postgres
+  include: postgres.yml
+
+- name: django
+  include: django.yml
 
   #- meta: flush_handlers
 
