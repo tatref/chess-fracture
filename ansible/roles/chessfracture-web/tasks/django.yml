@@ -11,3 +11,8 @@
     command: migrate
     virtualenv: "{{ django_venv_path }}"
     app_path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite"
+
+- name: restart uwsgi
+  service:
+    name: uwsgi
+    state: restarted

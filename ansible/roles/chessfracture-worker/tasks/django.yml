@@ -17,5 +17,5 @@
   service:
     name: "chessfracture.worker@{{ item }}"
     enabled: yes
-    state: started
+    state: restarted
   with_sequence: count={{ansible_processor_cores}}
