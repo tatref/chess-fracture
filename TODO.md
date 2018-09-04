@@ -1,7 +1,8 @@
 # TODO list
 
-* systemctl clean stop/restart (don't kill current blender subprocess)
+* errors: display gameid on error page, display gameid in logs (simulation failed)
 * handle promotions (blender/chess_fracture.py)
+* add custom exit codes to blender
 * selinux
-* limit max memory / cpu time (systemd service)
 * rate limit (nginx)
+* limit max memory (systemd service)

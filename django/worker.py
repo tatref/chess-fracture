@@ -10,6 +10,7 @@ import zipfile
 import io
 import time
 import signal
+import resource
 
 import django
 from django.db import transaction
@@ -32,14 +33,20 @@ sys.stdout.flush()
 
 
 class GracefulKiller:
-  kill_now = False
-  def __init__(self):
-    signal.signal(signal.SIGINT, self.exit_gracefully)
-    signal.signal(signal.SIGTERM, self.exit_gracefully)
-  
-  def exit_gracefully(self,signum, frame):
-    self.kill_now = True
+    kill_now = False
+    def __init__(self):
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
+    
+    def exit_gracefully(self, signum, frame):
+        self.kill_now = True
+        print('Received signal {}, will exit after simulation'.format(signum))
+        sys.stdout.flush()
 
+def set_child_limits():
+    # 50M
+    MEM_LIMIT = 300 * 1024 * 1024
+    #resource.setrlimit(resource.RLIMIT_AS, (MEM_LIMIT, MEM_LIMIT))
 
 
 def purge_old_games(delay):
@@ -88,15 +95,21 @@ def run_simulation(pgn_path, out_blend, display=':1'):
             blender_script,
             ]
 
-    blender = subprocess.run(
+    popen = subprocess.Popen(
             run_args,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
             cwd='/tmp',
-            env=env
+            env=env,
+            start_new_session=True,
+            preexec_fn=set_child_limits,
             )
-    return blender
+    try:
+        stdout_data, stderr_data = popen.communicate(timeout=timeout)
+    except Exception as e:
+        raise Exception('Timeout ({}) exceeded for : {} - {}'.format(timeout, pgn_path, e))
+    return popen, stdout_data, stderr_data
+
 
 def run_simulations(games):
     for g in games:
@@ -114,13 +127,13 @@ def run_simulations(games):
             g.save()
 
             sim_start = timezone.now()
-            blender = run_simulation(pgn_path, out_blend)
+            blender, stdout, stderr = run_simulation(pgn_path, out_blend)
             sim_duration = timezone.now() - sim_start
             g.simulation_duration = sim_duration
             g.save()
 
             if blender.returncode != 0:
-                print('Simulation failed: ' + str(blender))
+                print('Simulation failed: retcode={}, out={}, err={}'.format(blender.returncode, stdout, stderr))
                 sys.stdout.flush()
                 g.status = -1
                 g.errormessage = str(blender)

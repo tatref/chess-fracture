@@ -8,10 +8,12 @@ Before=network.target network.service
 Type=simple
 User={{ chessfracture_user }}
 Group={{ chessfracture_user }}
+
 ExecStart={{ django_venv_path }}/bin/python36 /home/{{ chessfracture_user }}/chessfracture/django/worker.py
-#ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 #KillMode=process
+TimeoutStopSec=180s
+KillMode=mixed
 
 
 #ProtectSystem=full
