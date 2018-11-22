@@ -8,15 +8,16 @@ all:
       ansible_ssh_private_key_file: ./ansible_rsa
       ansible_become: true
 
-workers:
-  hosts:
-    worker0:
-      ansible_host: 192.168.0.200
-      ansible_user: ansible
-      ansible_ssh_private_key_file: ./ansible_rsa
-      ansible_become: true
-    worker1:
-      ansible_host: 192.168.0.201
-      ansible_user: ansible
-      ansible_ssh_private_key_file: ./ansible_rsa
-      ansible_become: true
+# multi machine example
+#workers:
+#  hosts:
+#    worker0:
+#      ansible_host: 192.168.0.200
+#      ansible_user: ansible
+#      ansible_ssh_private_key_file: ./ansible_rsa
+#      ansible_become: true
+#    worker1:
+#      ansible_host: 192.168.0.201
+#      ansible_user: ansible
+#      ansible_ssh_private_key_file: ./ansible_rsa
+#      ansible_become: true
