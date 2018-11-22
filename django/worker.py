@@ -73,6 +73,7 @@ def run_simulation(pgn_path, out_blend, display=':1'):
 
     env = os.environ
 
+    # FIXME: should come before os.environ?
     env.update(
         {
         'CHESS_FRACTURE_OUT_BLEND': out_blend,
