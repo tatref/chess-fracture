@@ -13,13 +13,13 @@ Render with some materials:
 
 A Blender script + website to generate Blender files from chess PGN from Lichess
 
-# Compatibility
+# Compatibility
 
 * Only Lichess at the moment
 * Python script tested on Blender 2.79b
 * Ansible setup for CentOS 7
 
-# Code
+# Code
 
 If you are only looking for the Blender script, see here: [blender script](blender/chess_fracture.py)
 
