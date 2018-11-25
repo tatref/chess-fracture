@@ -1,6 +1,6 @@
 # What is this?
 
-A Blender script + website to generate Blender files from chess PGN from Lichess
+A Blender script + website to generate Blender animations with fracture modifier, from PGN files (Lichess)
 
 # Teasers
 
