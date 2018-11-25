@@ -1,5 +1,5 @@
-# Windows usage
-## Blender / Python setup
+# Blender setup
+## Windows
 Download `pip` from https://bootstrap.pypa.io/get-pip.py
 
 Save the file next to `python` under `$blender/2.79/python/bin/`, where `$blender` is the install dir of blender, usually `C:/Program files/Blender`
@@ -14,15 +14,24 @@ Install `python-chess`
 .\python.exe -m pip install python-chess
 ```
 
-## Running
+# Linux
+```
+cd Downloads/blender-2.79b-linux-glibc219-x86_64/
+cd 2.79/python/bin/
+curl -O https://bootstrap.pypa.io/get-pip.py
+./python3.5m get-pip.py 
+./python3.5m -m pip install python-chess
+```
+
+# Running
 Set the `CHESS_FRACTURE_PGN_PATH` environnement variable.
 
-Windows
+## Windows
 ```
 set CHESS_FRACTURE_PGN_PATH=.\path\to\pgn\file.pgn
 ```
 
-Linux
+## Linux
 ```
 export CHESS_FRACTURE_PGN_PATH=/path/to/pgn/file.pgn
 ```
@@ -32,8 +41,14 @@ To create the simulation, run blender like so
 blender.exe .\chess_fracture_template.blend --addons object_fracture_cell --python .\chess_fracture.py
 ```
 
+# Variables
+- `CHESS_FRACTURE_PGN_PATH`: path to the PGN input file
+- `CHESS_FRACTURE_OUT_BLEND`: output name (`*.blend`)
+- `CHESS_FRACTURE_FRAMES_PER_MOVE`
+- `CHESS_FRACTURE_FRAGMENTS`: fragments per collison
+- `CHESS_FRACTURE_TEST`: early exit the python script for easier testing
 
-# Docker
+# Docker (deprecated)
 ## Requirements
 ### TurboVnc
 An OpenGL accelerated X11 is required (seems that some features of Blender simply won't work with `--background`
@@ -74,10 +89,3 @@ docker run --name chessfracture1 \
            -e CHESS_FRACTURE_OUT_BLEND=$CHESS_FRACTURE_OUT_BLEND \
            chessfracture:latest
 ```
-
-## Variables
-- `CHESS_FRACTURE_PGN_PATH`: path to the PGN input file
-- `CHESS_FRACTURE_OUT_BLEND`: output name (`*.blend`)
-- `CHESS_FRACTURE_FRAMES_PER_MOVE`
-- `CHESS_FRACTURE_FRAGMENTS`: fragments per collison
-- `CHESS_FRACTURE_TEST`: early exit the python script for easier testing
