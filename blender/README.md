@@ -29,7 +29,7 @@ export CHESS_FRACTURE_PGN_PATH=/path/to/pgn/file.pgn
 
 To create the simulation, run blender like so
 ```
-blender.exe .\chess_fracture_template.blend --python .\chess_fracture.py
+blender.exe .\chess_fracture_template.blend --addons object_fracture_cell --python .\chess_fracture.py
 ```
 
 
