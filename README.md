@@ -1,3 +1,7 @@
+# What is this?
+
+A Blender script + website to generate Blender files from chess PGN from Lichess
+
 # Teasers
 
 Original game URL: https://lichess.org/XqFNCoJP/black#91
@@ -8,10 +12,6 @@ Generated scene:
 Render with some materials:
 ![scene](./teaser2.png "scene")
 
-
-# What is this?
-
-A Blender script + website to generate Blender files from chess PGN from Lichess
 
 # Compatibility
 
