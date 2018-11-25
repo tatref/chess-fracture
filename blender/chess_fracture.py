@@ -19,8 +19,18 @@ except Exception as e:
     sys.exit(1)
 
 
+# square size in blender units
 SQUARE_SIZE = 3.0
 
+# center of gravity for the pieces
+Z_MAP = {
+    'king': 2.32912,
+    'queen': 2.0401,
+    'bishop': 1.7937,
+    'knight': 1.,
+    'rook': 1.46252,
+    'pawn': 1.35288,
+}
 
 
 def chess_to_coordinates(row, col, z):
@@ -38,6 +48,27 @@ def clean():
         if mesh.users == 0:
             bpy.data.meshes.remove(mesh)
 
+
+def instantiate_piece(piece_name, player, board_location):
+    col, row = board_location
+    src_obj = bpy.context.scene.objects['template_' + piece_name]
+
+    new_obj = src_obj.copy()
+    new_obj.data = src_obj.data.copy()
+    new_obj.animation_data_clear()
+    new_obj.name = piece_name + '.' + player + '.' + col + row
+    
+    bpy.context.scene.objects.link(new_obj)
+    
+    new_obj.location = chess_to_coordinates(col, row, Z_MAP[piece_name])
+    new_obj.keyframe_insert(data_path='location')
+    
+    # physics
+    bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
+
+    return new_obj
+
+
 def initial_setup():
     clean()
     
@@ -52,7 +83,7 @@ def initial_setup():
 
     
     bpy.context.scene.frame_set(1)
-    bpy.context.scene.frame_end = 2000
+    bpy.context.scene.frame_end = 3000
     
 
     #bpy.ops.rigidbody.world_add()
@@ -60,110 +91,72 @@ def initial_setup():
     
     board_map = {}
     # PAWNS
-    z = 1.35288
+    piece_name = 'pawn'
     for idx1, col in enumerate("abcdefgh"):
         for idx2, row in enumerate("27"):
-            src_obj = bpy.context.scene.objects['template_pawn']
-
-            new_obj = src_obj.copy()
-            new_obj.data = src_obj.data.copy()
-            new_obj.animation_data_clear()
-            new_obj.name = 'pawn.' + col + row
-            
-            bpy.context.scene.objects.link(new_obj)
-            
+            board_location = (col, row)
+            if int(row) < 4:
+                player = 'white'
+            else:
+                player = 'black'
+            new_obj = instantiate_piece(piece_name, player, board_location)
             board_map[col + row] = new_obj
-            new_obj.location = chess_to_coordinates(col, row, z)
-            new_obj.keyframe_insert(data_path='location')
-            
-            # physics
-            bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
 
     # ROOKS
-    z = 1.46252
+    piece_name = 'rook'
     for idx1, col in enumerate("ah"):
         for idx2, row in enumerate("18"):
-            src_obj = bpy.context.scene.objects['template_rook']
-
-            new_obj = src_obj.copy()
-            new_obj.data = src_obj.data.copy()
-            new_obj.animation_data_clear()
-            new_obj.name = 'rook.' + col + row
-            
-            bpy.context.scene.objects.link(new_obj)
-            
+            if int(row) < 4:
+                player = 'white'
+            else:
+                player = 'black'
+            board_location = (col, row)
+            new_obj = instantiate_piece(piece_name, player, board_location)
             board_map[col + row] = new_obj
-            new_obj.location = chess_to_coordinates(col, row, z)
-            new_obj.keyframe_insert(data_path='location')
-            bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
     # KNIGHTS
-    z = 1.
+    piece_name = 'knight'
     for idx1, col in enumerate("bg"):
         for idx2, row in enumerate("18"):
-            src_obj = bpy.context.scene.objects['template_knight']
-
-            new_obj = src_obj.copy()
-            new_obj.data = src_obj.data.copy()
-            new_obj.animation_data_clear()
-            new_obj.name = 'knight.' + col + row
-            
-            bpy.context.scene.objects.link(new_obj)
-            
+            if int(row) < 4:
+                player = 'white'
+            else:
+                player = 'black'
+            board_location = (col, row)
+            new_obj = instantiate_piece(piece_name, player, board_location)
             board_map[col + row] = new_obj
-            new_obj.location = chess_to_coordinates(col, row, z)
-            new_obj.keyframe_insert(data_path='location')
-            bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
     # BISHOPS
-    z = 1.7937
+    piece_name = 'bishop'
     for idx1, col in enumerate("cf"):
         for idx2, row in enumerate("18"):
-            src_obj = bpy.context.scene.objects['template_bishop']
-
-            new_obj = src_obj.copy()
-            new_obj.data = src_obj.data.copy()
-            new_obj.animation_data_clear()
-            new_obj.name = 'bishop.' + col + row
-            
-            bpy.context.scene.objects.link(new_obj)
-            
+            if int(row) < 4:
+                player = 'white'
+            else:
+                player = 'black'
+            board_location = (col, row)
+            new_obj = instantiate_piece(piece_name, player, board_location)
             board_map[col + row] = new_obj
-            new_obj.location = chess_to_coordinates(col, row, z)
-            new_obj.keyframe_insert(data_path='location')
-            bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
     # QUEENS
-    z = 2.0401
+    piece_name = 'queen'
     for idx1, col in enumerate("d"):
         for idx2, row in enumerate("18"):
-            src_obj = bpy.context.scene.objects['template_queen']
-
-            new_obj = src_obj.copy()
-            new_obj.data = src_obj.data.copy()
-            new_obj.animation_data_clear()
-            new_obj.name = 'queen.' + col + row
-            
-            bpy.context.scene.objects.link(new_obj)
-            
+            if int(row) < 4:
+                player = 'white'
+            else:
+                player = 'black'
+            board_location = (col, row)
+            new_obj = instantiate_piece(piece_name, player, board_location)
             board_map[col + row] = new_obj
-            new_obj.location = chess_to_coordinates(col, row, z)
-            new_obj.keyframe_insert(data_path='location')
-            bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
     # KINGS
-    z = 2.32912
+    piece_name = 'king'
     for idx1, col in enumerate("e"):
         for idx2, row in enumerate("18"):
-            src_obj = bpy.context.scene.objects['template_king']
-
-            new_obj = src_obj.copy()
-            new_obj.data = src_obj.data.copy()
-            new_obj.animation_data_clear()
-            new_obj.name = 'king.' + col + row
-            
-            bpy.context.scene.objects.link(new_obj)
-            
+            if int(row) < 4:
+                player = 'white'
+            else:
+                player = 'black'
+            board_location = (col, row)
+            new_obj = instantiate_piece(piece_name, player, board_location)
             board_map[col + row] = new_obj
-            new_obj.location = chess_to_coordinates(col, row, z)
-            new_obj.keyframe_insert(data_path='location')
-            bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
     
     # BOARD  
     bpy.ops.mesh.primitive_plane_add(view_align=False, enter_editmode=False, location=(0, 0, 0), layers=(True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))
@@ -222,7 +215,10 @@ def play(board_map, game, frames_per_move, n_fragments):
         is_en_passant = board.is_en_passant(move)
         promotion = move.promotion
         if promotion:
+            # TODO
             promoted_piece = chess.PIECE_NAMES[promotion]
+            print('Promoted to: ' + str(promoted_piece))
+            break
     
         print('{}: {}, cap: {}, castl: {}'.format((move_number // 2) + 1, move, is_capture, is_castling))
 
@@ -386,8 +382,8 @@ def play(board_map, game, frames_per_move, n_fragments):
     white_mat = bpy.data.materials.get('white')
     black_mat = bpy.data.materials.get('black')
     
-    whites_re = re.compile(r'[a-z]+\.[a-h][12].*')
-    blacks_re = re.compile(r'[a-z]+\.[a-h][78].*')
+    whites_re = re.compile(r'.*white.*')
+    blacks_re = re.compile(r'.*black.*')
     for obj in bpy.data.objects:
         if whites_re.match(obj.name):
             obj.data.materials.append(white_mat)
