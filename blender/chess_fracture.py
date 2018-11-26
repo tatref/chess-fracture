@@ -49,14 +49,18 @@ def clean():
             bpy.data.meshes.remove(mesh)
 
 
-def instantiate_piece(piece_name, player, board_location):
+def instantiate_piece(piece_name, player, board_location, name=None):
     col, row = board_location
     src_obj = bpy.context.scene.objects['template_' + piece_name]
 
     new_obj = src_obj.copy()
     new_obj.data = src_obj.data.copy()
     new_obj.animation_data_clear()
-    new_obj.name = piece_name + '.' + player + '.' + col + row
+
+    if name:
+        new_obj.name = name
+    else:
+        new_obj.name = piece_name + '.' + player + '.' + col + row
     
     bpy.context.scene.objects.link(new_obj)
     
@@ -214,13 +218,8 @@ def play(board_map, game, frames_per_move, n_fragments):
         is_queenside_castling = board.is_queenside_castling(move)
         is_en_passant = board.is_en_passant(move)
         promotion = move.promotion
-        if promotion:
-            # TODO
-            promoted_piece = chess.PIECE_NAMES[promotion]
-            print('Promoted to: ' + str(promoted_piece))
-            break
     
-        print('{}: {}, cap: {}, castl: {}'.format((move_number // 2) + 1, move, is_capture, is_castling))
+        print('{}: {}, cap: {}, castl: {}, promot: {}'.format((move_number // 2) + 1, move, is_capture, is_castling, promotion))
 
 
         if is_castling:
@@ -366,9 +365,27 @@ def play(board_map, game, frames_per_move, n_fragments):
             board_map[from_square].location = chess_to_coordinates(to_square[0], to_square[1], board_map[from_square].location.z)
             board_map[from_square].keyframe_insert(data_path='location')
             
-            # actually play the move
+            # play the move on board
             board_map[to_square] = board_map[from_square]
             board_map.pop(from_square)
+
+        if promotion:
+            TURN_COLOR_MAP = { True: 'white', False: 'black' }
+            player = TURN_COLOR_MAP[board.turn]
+
+            promoted_piece = chess.PIECE_NAMES[promotion]
+            print('Promoted to: ' + str(promoted_piece))
+
+            (col, row) = (to_square[0], to_square[1])
+            new_obj = instantiate_piece(promoted_piece, player, (col, row), name='{}.{}.promoted.{}{}'.format(promoted_piece, player, col, row))
+            board_map[col + row] = new_obj
+            
+            # TODO
+            # disable physics until now, enable after
+            # distroy promoted pawn
+            # update board_map
+            print('TODO: promotion')
+            break
 
         # update the board
         board.push(move)
