@@ -414,26 +414,22 @@ def play(board_map, game, frames_per_move, n_fragments):
     # end def play
 
 
+def get_env_or_default(name, default):
+    if name in os.environ:
+        return os.environ[name]
+    else:
+        return default
+
 
 def main():
-    if 'CHESS_FRACTURE_FRAMES_PER_MOVE' in os.environ:
-        frames_per_move = int(os.environ['CHESS_FRACTURE_FRAMES_PER_MOVE'])
-    else:
-        frames_per_move = 20
+    frames_per_move = int(get_env_or_default('CHESS_FRACTURE_FRAMES_PER_MOVE', 20))
     print("CHESS_FRACTURE_FRAMES_PER_MOVE=" + str(frames_per_move))
 
-    if 'CHESS_FRACTURE_FRAGMENTS' in os.environ:
-        n_fragments = int(os.environ['CHESS_FRACTURE_FRAGMENTS'])
-    else:
-        n_fragments = 10
+    n_fragments = int(get_env_or_default('CHESS_FRACTURE_FRAGMENTS', 10))
     print("CHESS_FRACTURE_FRAGMENTS=" + str(n_fragments))
 
-    if 'CHESS_FRACTURE_PGN_PATH' in os.environ:
-        print('CHESS_FRACTURE_PGN_PATH=' + str(os.environ['CHESS_FRACTURE_PGN_PATH']))
-        game = load_pgn(os.environ['CHESS_FRACTURE_PGN_PATH'])
-    else:
-        game = load_pgn('/work/input.pgn')
-
+    pgn_path = get_env_or_default('CHESS_FRACTURE_PGN_PATH', '/work/input.pgn')
+    game = load_pgn(pgn_path)
 
     variant = game.board().uci_variant
     if variant != 'chess':
