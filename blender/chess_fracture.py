@@ -66,6 +66,8 @@ def instantiate_piece(piece_name, player, board_location, name=None):
     
     new_obj.location = chess_to_coordinates(col, row, Z_MAP[piece_name])
     new_obj.keyframe_insert(data_path='location')
+
+    print('Instantiating ' + str(new_obj.name) + ' for ' + str(player) + ' at ' + str(new_obj.location))
     
     # physics
     bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
@@ -373,16 +375,42 @@ def play(board_map, game, frames_per_move, n_fragments):
             TURN_COLOR_MAP = { True: 'white', False: 'black' }
             player = TURN_COLOR_MAP[board.turn]
 
-            promoted_piece = chess.PIECE_NAMES[promotion]
-            print('Promoted to: ' + str(promoted_piece))
+            promoted_piece_name = chess.PIECE_NAMES[promotion]
+            print('Promoted to: ' + str(promoted_piece_name))
 
             (col, row) = (to_square[0], to_square[1])
-            new_obj = instantiate_piece(promoted_piece, player, (col, row), name='{}.{}.promoted.{}{}'.format(promoted_piece, player, col, row))
-            board_map[col + row] = new_obj
+            promoted_piece = instantiate_piece(promoted_piece_name, player, (col, row), name='{}.{}.promoted.{}{}'.format(promoted_piece_name, player, col, row))
+            print('promoted piece = ' + str(promoted_piece_name) + ', at ' + str((col, row)))
+            pawn = board_map[col + row]
+            print('promotion pawn = ' + str(pawn))
             
+            # disable physics and display for promoted piece from #0 to #this_frame
+            this_frame = bpy.context.scene.frame_current
+            bpy.context.scene.frame_set(2)
+            bpy.context.scene.frame_set(3)
+            bpy.context.scene.frame_set(1)
+            bpy.context.scene.frame_set(this_frame - 1)
+            promoted_piece.rigid_body.kinematic = True
+            promoted_piece.keyframe_insert('rigid_body.kinematic')
+            promoted_piece.rigid_body.collision_groups[0] = True
+            promoted_piece.keyframe_insert('rigid_body.collision_groups')
+            promoted_piece.hide = True
+            promoted_piece.keyframe_insert('hide')
+            promoted_piece.hide_render = True
+            promoted_piece.keyframe_insert('hide_render')
+            
+            # promoted piece appears on #this_frame
+            bpy.context.scene.frame_set(this_frame)
+            promoted_piece.rigid_body.collision_groups[0] = True
+            promoted_piece.keyframe_insert('rigid_body.collision_groups')
+            promoted_piece.hide = False
+            promoted_piece.keyframe_insert('hide')
+            promoted_piece.hide_render = False
+            promoted_piece.keyframe_insert('hide_render')
+
             # TODO
-            # disable physics until now, enable after
             # distroy promoted pawn
+            # animate promoted piece?
             # update board_map
             print('TODO: promotion')
             break
