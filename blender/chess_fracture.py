@@ -206,6 +206,78 @@ def load_pgn(pgn_path):
     return game
     
 
+def fracture(obj, n_fragments, current_frame):
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select = True
+    bpy.ops.object.add_fracture_cell_objects(source_limit=n_fragments)
+    
+    for o in filter(lambda x: x.name.startswith(obj.name + '_cell'), bpy.data.objects):
+        bpy.context.scene.rigidbody_world.group.objects.link(o)
+
+    bpy.context.scene.frame_set(1)
+    bpy.context.scene.frame_set(2)
+    bpy.context.scene.frame_set(current_frame)
+    
+    for o in filter(lambda x: x.name.startswith(obj.name + '_cell'), bpy.data.objects):
+        print('enable rigid_body.kinematic for ' + str(o))
+        o.rigid_body.kinematic = True
+        o.keyframe_insert('rigid_body.kinematic')
+
+    # disable old piece
+    for o in bpy.data.objects:
+        o.select = False
+    obj.select = True
+
+    # needed or obj.rigid_body is None
+    bpy.context.scene.frame_set(0)
+    bpy.context.scene.frame_set(1)
+    bpy.context.scene.frame_set(2)
+    bpy.context.scene.frame_set(0)
+
+    obj.rigid_body.collision_groups[0] = True
+    obj.keyframe_insert('rigid_body.collision_groups')
+    obj.hide = False
+    obj.keyframe_insert('hide')
+    obj.hide_render = False
+    obj.keyframe_insert('hide_render')
+    
+    bpy.context.scene.frame_set(current_frame - 1)
+    obj.rigid_body.collision_groups[0] = False
+    obj.keyframe_insert('rigid_body.collision_groups')
+    obj.hide = True
+    obj.keyframe_insert('hide')
+    obj.hide_render = True
+    obj.keyframe_insert('hide_render')
+            
+    # enable rigid body for cells
+    bpy.context.scene.frame_set(current_frame - 1)
+    for o in filter(lambda x: x.name.startswith(obj.name + '_cell'), bpy.data.objects):
+        o.rigid_body.kinematic = True
+        o.keyframe_insert('rigid_body.kinematic')
+        o.rigid_body.collision_groups[0] = False
+        o.keyframe_insert('rigid_body.collision_groups')
+    bpy.context.scene.frame_set(current_frame)
+    for o in filter(lambda x: x.name.startswith(obj.name + '_cell'), bpy.data.objects):
+        o.rigid_body.kinematic = False
+        o.keyframe_insert('rigid_body.kinematic')
+        o.rigid_body.collision_groups[0] = True
+        o.keyframe_insert('rigid_body.collision_groups')
+    
+    # hide/unhide
+    bpy.context.scene.frame_set(0)
+    for o in filter(lambda x: x.name.startswith(obj.name + '_cell'), bpy.data.objects):
+        o.hide = True
+        o.keyframe_insert('hide')
+        o.hide_render = True
+        o.keyframe_insert('hide_render')
+    bpy.context.scene.frame_set(current_frame - 1)
+    for o in filter(lambda x: x.name.startswith(obj.name + '_cell'), bpy.data.objects):
+        o.hide = False
+        o.keyframe_insert('hide')
+        o.hide_render = False
+        o.keyframe_insert('hide_render')
+
+
 def play(board_map, game, frames_per_move, n_fragments):
     start_time = time.time()
 
@@ -262,7 +334,7 @@ def play(board_map, game, frames_per_move, n_fragments):
             board_map[to_square] = king
             board_map[rook_dest] = rook
             
-            
+            # end if castling
         elif is_capture:
             # keyframe for previous position
             board_map[from_square].keyframe_insert(data_path='location')
@@ -273,76 +345,14 @@ def play(board_map, game, frames_per_move, n_fragments):
             board_map[to_square].keyframe_insert('rigid_body.kinematic')
             bpy.context.scene.frame_set(bpy.context.scene.frame_current + -1)
             
-            bpy.ops.object.select_all(action='DESELECT')
-            board_map[to_square].select = True
-            bpy.ops.object.add_fracture_cell_objects(source_limit=n_fragments)
-            
-            for obj in filter(lambda x: x.name.startswith(board_map[to_square].name + '_cell'), bpy.data.objects):
-                bpy.context.scene.rigidbody_world.group.objects.link(obj)
+            current_frame = bpy.context.scene.frame_current
 
-            this_frame = bpy.context.scene.frame_current
-            bpy.context.scene.frame_set(1)
-            bpy.context.scene.frame_set(2)
-            bpy.context.scene.frame_set(this_frame)
-            
-            for obj in filter(lambda x: x.name.startswith(board_map[to_square].name + '_cell'), bpy.data.objects):
-                obj.rigid_body.kinematic = True
-                obj.keyframe_insert('rigid_body.kinematic')
 
-            # disable old piece
-            for obj in bpy.data.objects:
-                obj.select = False
-            board_map[to_square].select = True
-            bpy.context.scene.frame_set(0)
-            board_map[to_square].rigid_body.collision_groups[0] = True
-            board_map[to_square].keyframe_insert('rigid_body.collision_groups')
-            board_map[to_square].hide = False
-            board_map[to_square].keyframe_insert('hide')
-            board_map[to_square].hide_render = False
-            board_map[to_square].keyframe_insert('hide_render')
-            
-            bpy.context.scene.frame_set(this_frame - 1)
-            board_map[to_square].rigid_body.collision_groups[0] = False
-            board_map[to_square].keyframe_insert('rigid_body.collision_groups')
-            board_map[to_square].hide = True
-            board_map[to_square].keyframe_insert('hide')
-            board_map[to_square].hide_render = True
-            board_map[to_square].keyframe_insert('hide_render')
-            
-            
-            
-            # enable rigid body for cells
-            bpy.context.scene.frame_set(this_frame - 1)
-            for obj in filter(lambda x: x.name.startswith(board_map[to_square].name + '_cell'), bpy.data.objects):
-                obj.rigid_body.kinematic = True
-                obj.keyframe_insert('rigid_body.kinematic')
-                obj.rigid_body.collision_groups[0] = False
-                obj.keyframe_insert('rigid_body.collision_groups')
-                
-            bpy.context.scene.frame_set(this_frame)
-            for obj in filter(lambda x: x.name.startswith(board_map[to_square].name + '_cell'), bpy.data.objects):
-                obj.rigid_body.kinematic = False
-                obj.keyframe_insert('rigid_body.kinematic')
-                obj.rigid_body.collision_groups[0] = True
-                obj.keyframe_insert('rigid_body.collision_groups')
-            
-            bpy.context.scene.frame_set(0)
-            for obj in filter(lambda x: x.name.startswith(board_map[to_square].name + '_cell'), bpy.data.objects):
-                obj.hide = True
-                obj.keyframe_insert('hide')
-                obj.hide_render = True
-                obj.keyframe_insert('hide_render')
-            bpy.context.scene.frame_set(this_frame - 1)
-            for obj in filter(lambda x: x.name.startswith(board_map[to_square].name + '_cell'), bpy.data.objects):
-                obj.hide = False
-                obj.keyframe_insert('hide')
-                obj.hide_render = False
-                obj.keyframe_insert('hide_render')
-            
+            fracture(board_map[to_square], n_fragments, current_frame)
             
             
             # timestep
-            bpy.context.scene.frame_set(this_frame + frames_per_move)
+            bpy.context.scene.frame_set(current_frame + frames_per_move)
         
             # move piece
             board_map[from_square].location = chess_to_coordinates(to_square[0], to_square[1], board_map[from_square].location.z)
@@ -351,10 +361,11 @@ def play(board_map, game, frames_per_move, n_fragments):
             
             
             
-            # actually play the move
+            # play the move on the board_map
             board_map[to_square] = board_map[from_square]
             board_map.pop(from_square)
 
+        # end if capture
         else:
             # simple move
             # keyframe for previous position
@@ -371,6 +382,8 @@ def play(board_map, game, frames_per_move, n_fragments):
             board_map[to_square] = board_map[from_square]
             board_map.pop(from_square)
 
+            # end simple move
+
         if promotion:
             TURN_COLOR_MAP = { True: 'white', False: 'black' }
             player = TURN_COLOR_MAP[board.turn]
@@ -380,16 +393,21 @@ def play(board_map, game, frames_per_move, n_fragments):
 
             (col, row) = (to_square[0], to_square[1])
             promoted_piece = instantiate_piece(promoted_piece_name, player, (col, row), name='{}.{}.promoted.{}{}'.format(promoted_piece_name, player, col, row))
+            promoted_piece.location[2] -= 10.
+
             print('promoted piece = ' + str(promoted_piece_name) + ', at ' + str((col, row)))
             pawn = board_map[col + row]
             print('promotion pawn = ' + str(pawn))
             
-            # disable physics and display for promoted piece from #0 to #this_frame
-            this_frame = bpy.context.scene.frame_current
+            # disable physics and display for promoted piece from #0 to #current_frame
+            current_frame = bpy.context.scene.frame_current
+
+            # otherwise promoted_piece.rigid_body == None
             bpy.context.scene.frame_set(2)
             bpy.context.scene.frame_set(3)
             bpy.context.scene.frame_set(1)
-            bpy.context.scene.frame_set(this_frame - 1)
+            bpy.context.scene.frame_set(current_frame - 1)
+
             promoted_piece.rigid_body.kinematic = True
             promoted_piece.keyframe_insert('rigid_body.kinematic')
             promoted_piece.rigid_body.collision_groups[0] = True
@@ -399,8 +417,8 @@ def play(board_map, game, frames_per_move, n_fragments):
             promoted_piece.hide_render = True
             promoted_piece.keyframe_insert('hide_render')
             
-            # promoted piece appears on #this_frame
-            bpy.context.scene.frame_set(this_frame)
+            # promoted piece appears on #current_frame
+            bpy.context.scene.frame_set(current_frame)
             promoted_piece.rigid_body.collision_groups[0] = True
             promoted_piece.keyframe_insert('rigid_body.collision_groups')
             promoted_piece.hide = False
@@ -408,8 +426,10 @@ def play(board_map, game, frames_per_move, n_fragments):
             promoted_piece.hide_render = False
             promoted_piece.keyframe_insert('hide_render')
 
+            # distroy pawn
+            fracture(pawn, n_fragments, current_frame)
+
             # TODO
-            # distroy promoted pawn
             # animate promoted piece?
             # update board_map
             print('TODO: promotion')
