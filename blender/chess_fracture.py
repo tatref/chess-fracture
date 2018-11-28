@@ -49,7 +49,7 @@ def clean():
             bpy.data.meshes.remove(mesh)
 
 
-def instantiate_piece(piece_name, player, board_location, name=None):
+def instantiate_piece(piece_name, player, board_location, z, name=None):
     col, row = board_location
     src_obj = bpy.context.scene.objects['template_' + piece_name]
 
@@ -64,7 +64,7 @@ def instantiate_piece(piece_name, player, board_location, name=None):
     
     bpy.context.scene.objects.link(new_obj)
     
-    new_obj.location = chess_to_coordinates(col, row, Z_MAP[piece_name])
+    new_obj.location = chess_to_coordinates(col, row, z)
     new_obj.keyframe_insert(data_path='location')
 
     print('Instantiating ' + str(new_obj.name) + ' for ' + str(player) + ' at ' + str(new_obj.location))
@@ -105,7 +105,7 @@ def initial_setup():
                 player = 'white'
             else:
                 player = 'black'
-            new_obj = instantiate_piece(piece_name, player, board_location)
+            new_obj = instantiate_piece(piece_name, player, board_location, Z_MAP[piece_name])
             board_map[col + row] = new_obj
 
     # ROOKS
@@ -117,7 +117,7 @@ def initial_setup():
             else:
                 player = 'black'
             board_location = (col, row)
-            new_obj = instantiate_piece(piece_name, player, board_location)
+            new_obj = instantiate_piece(piece_name, player, board_location, Z_MAP[piece_name])
             board_map[col + row] = new_obj
     # KNIGHTS
     piece_name = 'knight'
@@ -128,7 +128,7 @@ def initial_setup():
             else:
                 player = 'black'
             board_location = (col, row)
-            new_obj = instantiate_piece(piece_name, player, board_location)
+            new_obj = instantiate_piece(piece_name, player, board_location, Z_MAP[piece_name])
             board_map[col + row] = new_obj
     # BISHOPS
     piece_name = 'bishop'
@@ -139,7 +139,7 @@ def initial_setup():
             else:
                 player = 'black'
             board_location = (col, row)
-            new_obj = instantiate_piece(piece_name, player, board_location)
+            new_obj = instantiate_piece(piece_name, player, board_location, Z_MAP[piece_name])
             board_map[col + row] = new_obj
     # QUEENS
     piece_name = 'queen'
@@ -150,7 +150,7 @@ def initial_setup():
             else:
                 player = 'black'
             board_location = (col, row)
-            new_obj = instantiate_piece(piece_name, player, board_location)
+            new_obj = instantiate_piece(piece_name, player, board_location, Z_MAP[piece_name])
             board_map[col + row] = new_obj
     # KINGS
     piece_name = 'king'
@@ -161,7 +161,7 @@ def initial_setup():
             else:
                 player = 'black'
             board_location = (col, row)
-            new_obj = instantiate_piece(piece_name, player, board_location)
+            new_obj = instantiate_piece(piece_name, player, board_location, Z_MAP[piece_name])
             board_map[col + row] = new_obj
     
     # BOARD  
@@ -392,7 +392,8 @@ def play(board_map, game, frames_per_move, n_fragments):
             print('Promoted to: ' + str(promoted_piece_name))
 
             (col, row) = (to_square[0], to_square[1])
-            promoted_piece = instantiate_piece(promoted_piece_name, player, (col, row), name='{}.{}.promoted.{}{}'.format(promoted_piece_name, player, col, row))
+            z = Z_MAP[promoted_piece_name] - 10.
+            promoted_piece = instantiate_piece(promoted_piece_name, player, (col, row), z, name='{}.{}.promoted.{}{}'.format(promoted_piece_name, player, col, row))
             promoted_piece.location[2] -= 10.
 
             print('promoted piece = ' + str(promoted_piece_name) + ', at ' + str((col, row)))
