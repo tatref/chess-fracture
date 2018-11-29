@@ -394,7 +394,6 @@ def play(board_map, game, frames_per_move, n_fragments):
             (col, row) = (to_square[0], to_square[1])
             z = Z_MAP[promoted_piece_name] - 10.
             promoted_piece = instantiate_piece(promoted_piece_name, player, (col, row), z, name='{}.{}.promoted.{}{}'.format(promoted_piece_name, player, col, row))
-            promoted_piece.location[2] -= 10.
 
             print('promoted piece = ' + str(promoted_piece_name) + ', at ' + str((col, row)))
             pawn = board_map[col + row]
@@ -430,11 +429,14 @@ def play(board_map, game, frames_per_move, n_fragments):
             # distroy pawn
             fracture(pawn, n_fragments, current_frame)
 
-            # TODO
             # animate promoted piece?
+            current_frame += frames_per_move
+            bpy.context.scene.frame_set(current_frame)
+            promoted_piece.location[2] += 10.
+            promoted_piece.keyframe_insert(data_path='location')
+
             # update board_map
-            print('TODO: promotion')
-            break
+            board_map[to_square] = promoted_piece
 
         # update the board
         board.push(move)
