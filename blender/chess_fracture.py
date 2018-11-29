@@ -1,4 +1,16 @@
 
+EXIT_CODES = {
+    'OK': 0,
+    'UNKNOWN': -1,
+    'CHESS_FRACTURE_TEST_FAIL': 1,
+    'SIMULATION_FAILED': 2,
+    'MISSING_DEPENDENCY': 3,
+    'PGN_LOAD_FAILED': 4,
+    'UNSUPPORTED_VARIANT': 5,
+    'SAVE_FAILED': 6,
+}
+
+
 from io import StringIO
 
 import os
@@ -16,7 +28,7 @@ try:
 except Exception as e:
     print('chess module missing (pip install python-chess?)')
     traceback.print_exc()
-    sys.exit(1)
+    sys.exit(EXIT_CODES['MISSING_DEPENDENCY'])
 
 
 # square size in blender units
@@ -200,8 +212,7 @@ def load_pgn(pgn_path):
     except Exception as e:
         print("Load PGN failed")
         traceback.print_exc()
-        sys.exit(1)
-    
+        sys.exit(EXIT_CODES['PGN_LOAD_FAILED'])
     
     return game
     
@@ -473,6 +484,10 @@ def get_env_or_default(name, default):
 
 
 def main():
+    if 'CHESS_FRACTURE_TEST_FAIL' in os.environ:
+        print('CHESS_FRACTURE_TEST_FAIL')
+        sys.exit(EXIT_CODES['CHESS_FRACTURE_TEST_FAIL'])
+
     frames_per_move = int(get_env_or_default('CHESS_FRACTURE_FRAMES_PER_MOVE', 20))
     print("CHESS_FRACTURE_FRAMES_PER_MOVE=" + str(frames_per_move))
 
@@ -485,7 +500,7 @@ def main():
     variant = game.board().uci_variant
     if variant != 'chess':
         sys.stdout.write('Unsupported game type {}\n'.format(variant))
-        sys.exit(1)
+        sys.exit(EXIT_CODES['UNSUPPORTED_VARIANT'])
 
     board_map = initial_setup()
     print('Board setup done')
@@ -496,7 +511,7 @@ def main():
     except Exception as e:
         print('Simulation failed')
         traceback.print_exc()
-        sys.exit(1)
+        sys.exit(EXIT_CODES['SIMULATION_FAILED'])
 
     try:
         if 'CHESS_FRACTURE_OUT_BLEND' in os.environ:
@@ -506,11 +521,11 @@ def main():
         
             print('File saved as "{}"'.format(save_file))
         
-            sys.exit(0)  # happy path
+            sys.exit(EXIT_CODES['OK'])  # happy path
     except Exception as e:
         print('Save failed ' + str(e))
         traceback.print_exc()
-        sys.exit(1)
+        sys.exit(EXIT_CODES['SAVE_FAILED'])
     # end def main
 
 
@@ -520,4 +535,4 @@ if __name__ == '__main__':
     except Exception as e:
         print('main failed :' + str(e))
         traceback.print_exc()
-        sys.exit(1)
+        sys.exit(EXIT_CODES['UNKNOWN'])

@@ -128,21 +128,22 @@ def run_simulations(games):
             g.save()
 
             sim_start = timezone.now()
-            blender, stdout, stderr = run_simulation(pgn_path, out_blend)
+            blender_popen, stdout, stderr = run_simulation(pgn_path, out_blend)
             sim_duration = timezone.now() - sim_start
             g.simulation_duration = sim_duration
             g.save()
 
-            if blender.returncode != 0:
-                print('Simulation failed: retcode={}, out={}, err={}'.format(blender.returncode, stdout, stderr))
+            if blender_popen.returncode != 0:
+                print('Simulation failed: retcode={}, out={}, err={}'.format(blender_popen.returncode, stdout, stderr))
                 sys.stdout.flush()
                 g.status = -1
-                g.errormessage = str(blender)
+                db_error_message = "{}\nstdout:\n{}\nstderr:\{}".format(blender_popen, stdout, stderr)
+                g.errormessage = db_error_message
                 g.save()
                 continue
             os.remove(pgn_path)
         except Exception as e:
-            # unreachable if blender was launched?
+            # unreachable if blender_popen was launched?
             print('Simulation failed: ' + str(e))
             sys.stdout.flush()
             g.status = -1
