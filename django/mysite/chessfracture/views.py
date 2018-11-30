@@ -32,7 +32,7 @@ def parse_pgn_url(url):
         raise Exception('Invalid site')
     path = url.path
     # https://lichess.org/xxxxx/white#2
-    r = re.compile(r'^/(?P<gameid>\w+)(?:/(white|black)?)')
+    r = re.compile(r'^/(?P<gameid>\w+)(?:/(white|black)?)?')
     m = r.match(path)
     if m:
         gameid, color = m.groups()
