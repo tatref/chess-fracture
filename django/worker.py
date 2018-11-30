@@ -69,20 +69,17 @@ def run_simulation(pgn_path, out_blend, display=':1'):
     blender_exe = '/home/{}/blender-2.79b-linux-glibc219-x86_64/blender'.format(os.environ['USER'])
     blend_template = '/home/{}/chessfracture/blender/chess_fracture_template.blend'.format(os.environ['USER'])
     blender_script = '/home/{}/chessfracture/blender/chess_fracture.py'.format(os.environ['USER'])
-    timeout = 100
+    timeout = 200
 
-    env = os.environ
+    env = {
+            'CHESS_FRACTURE_OUT_BLEND': out_blend,
+            'DISPLAY': display,
+            'CHESS_FRACTURE_PGN_PATH': pgn_path,
+            'CHESS_FRACTURE_FRAMES_PER_MOVE': '20',
+            'CHESS_FRACTURE_FRAGMENTS': '5',
+            }
+    env.update(os.environ)
 
-    # FIXME: should come before os.environ?
-    env.update(
-        {
-        'CHESS_FRACTURE_OUT_BLEND': out_blend,
-        'DISPLAY': display,
-        'CHESS_FRACTURE_PGN_PATH': pgn_path,
-        'CHESS_FRACTURE_FRAMES_PER_MOVE': '20',
-        'CHESS_FRACTURE_FRAGMENTS': '10',
-        }
-    )
     if 'CHESS_FRACTURE_TEST' in os.environ:
         env['CHESS_FRACTURE_TEST'] = ''
 
