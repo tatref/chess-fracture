@@ -38,8 +38,16 @@
     policy: targeted
     state: permissive
 
-- name: copy /static
+- name: create /var/www/media
+  file:
+    path: /var/www/media
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: copy media to /var/www/media
   synchronize:
-    src: static/
-    dest: /static
+    src: media/
+    dest: /var/www/media
     delete: yes

@@ -11,7 +11,7 @@ Group={{ chessfracture_user }}
 
 Environment=CHESS_FRACTURE_FRAMES_PER_MOVE=20
 Environment=CHESS_FRACTURE_FRAGMENTS=5
-Environment=CHESS_FRACTURE_TEST=""
+#Environment=CHESS_FRACTURE_TEST=""
 
 ExecStart={{ django_venv_path }}/bin/python36 /home/{{ chessfracture_user }}/chessfracture/django/worker.py
 Restart=on-failure
