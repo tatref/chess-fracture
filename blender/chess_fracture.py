@@ -20,6 +20,7 @@ from pprint import pprint
 import time
 import re
 import traceback
+from math import pi
 
 import bpy
 
@@ -39,7 +40,7 @@ Z_MAP = {
     'king': 2.32912,
     'queen': 2.0401,
     'bishop': 1.7937,
-    'knight': 1.,
+    'knight': 1.4525,
     'rook': 1.46252,
     'pawn': 1.35288,
 }
@@ -77,6 +78,10 @@ def instantiate_piece(piece_name, player, board_location, z, name=None):
     bpy.context.scene.objects.link(new_obj)
     
     new_obj.location = chess_to_coordinates(col, row, z)
+
+    if player == 'black':
+        new_obj.rotation_euler[2] += pi
+
     new_obj.keyframe_insert(data_path='location')
 
     print('Instantiating ' + str(new_obj.name) + ' for ' + str(player) + ' at ' + str(new_obj.location))
