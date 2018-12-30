@@ -1,0 +1,10 @@
+---
+
+
+- name: open port 9090
+  firewalld:
+    port: 9090/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+

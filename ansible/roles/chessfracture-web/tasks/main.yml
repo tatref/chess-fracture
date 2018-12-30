@@ -25,6 +25,12 @@
 - name: django
   include: django.yml
 
+- name: prometheus
+  include: prometheus.yml
+
+- name: grafana
+  include: grafana.yml
+
   #- meta: flush_handlers
 
 - name: start uwsgi

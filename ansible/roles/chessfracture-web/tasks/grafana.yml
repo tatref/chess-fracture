@@ -1,0 +1,25 @@
+---
+
+
+- name: open port 3000
+  firewalld:
+    port: 3000/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: copy dashboard provisioning to /etc/grafana/provisioning/dashboards/dashboard.yml
+  copy:
+    src: etc/grafana/provisioning/dashboards/dashboard.yml
+    dest: /etc/grafana/provisioning/dashboards/dashboard.yml
+    owner: grafana
+    group: grafana
+    mode: 0644
+
+- name: copy dashboard to /var/lib/grafana/dashboards
+  copy:
+    src: var/lib/grafana/dashboards/grafana_dashboard.json
+    dest: /var/lib/grafana/dashboards
+    owner: grafana
+    group: grafana
+    mode: 0644

@@ -3,11 +3,44 @@
   roles:
     - goozbach.EPEL
     - chessfracture-common
+    - cloudalchemy.node-exporter
+  vars:
+    node_exporter_enabled_collectors:
+    - interrupts
+    - ksmd
+    - logind
+    - meminfo_numa
+    - mountstats
+    - processes
+    - systemd
+    - tcpstat
+
 
 - hosts: web
   roles:
+    - cloudalchemy.prometheus
+    - cloudalchemy.grafana
     - chessfracture-web
     - chessfracture-worker
+  vars:
+    prometheus_targets:
+      node:
+      - targets:
+        - web:9100
+          #- worker0:9100
+    prometheus_global:
+      scrape_interval: 5s
+    grafana_datasources:
+      - name: prometheus
+        type: prometheus
+        access: proxy
+        url: http://web:9090
+        basicAuth: false
+        isDefault: true
+    grafana_security:
+      admin_user: admin
+      admin_password: admin
+
 
 - hosts: workers
   roles:
