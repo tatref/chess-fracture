@@ -7,8 +7,9 @@
     state: installed
     enablerepo: epel-testing
   with_items:
-    - uwsgi-plugin-python36
     - uwsgi
+    - uwsgi-plugin-python36
+    - uwsgi-logger-file
 
 - name: configure uwsgi
   template:
