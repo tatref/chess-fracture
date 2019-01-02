@@ -1,22 +1,24 @@
 ---
 
+- name: disable selinux # FIXME
+  selinux:
+    policy: targeted
+    state: permissive
+
 - name: install nginx
   yum:
     name: nginx
     state: installed
 
-- name: nginx service
-  service:
-    name: nginx
-    state: started
-    enabled: true
-
-- name: open port 80
+- name: open nginx ports
   firewalld:
-    port: 80/tcp
+    port: "{{item}}/tcp"
     permanent: true
     immediate: true
     state: enabled
+  with_items:
+    - 80
+    - 443
 
 - name: configure nginx.conf
   template:
@@ -31,12 +33,52 @@
   notify: restart nginx
   with_items:
     - default
-    - django
+    - certbot
 
-- name: disable selinux # FIXME
-  selinux:
-    policy: targeted
-    state: permissive
+- name: start nginx
+  service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: create /var/www/.well-known/acme-challenge
+  file:
+    path: /var/www/.well-known/acme-challenge
+    state: directory
+    mode: 0755
+
+- name: install certbot
+  yum:
+    name: certbot
+    state: installed
+
+- name: get certificate
+  shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos
+  args:
+    creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
+
+- name: certbot crontab
+  cron:
+    cron_file: certbot
+    job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos
+    special_time: weekly
+    user: root
+
+- name: nginx service
+  service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: configure nginx webapp.conf
+  template:
+    src: "etc/nginx/conf.d/{{item}}.conf"
+    dest: "/etc/nginx/conf.d/{{item}}.conf"
+  notify: restart nginx
+  with_items:
+    - default
+    - django
+    - certbot
 
 - name: create /var/www/media
   file:
@@ -51,3 +93,4 @@
     src: media/
     dest: /var/www/media
     delete: yes
+ 
