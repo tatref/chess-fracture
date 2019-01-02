@@ -8,3 +8,44 @@
     immediate: true
     state: enabled
 
+- name: verify if postgres_exporter is present
+  stat:
+    path: "/tmp/postgres_exporter_v0.4.7_linux-amd64.tar.gz"
+  register: postgres_exporter_archive
+
+- name: wget postgres_exporter
+  get_url:
+    url: https://github.com/wrouesnel/postgres_exporter/releases/download/v0.4.7/postgres_exporter_v0.4.7_linux-amd64.tar.gz
+    dest: "/tmp"
+  when: postgres_exporter_archive.stat.exists == false
+
+- name: unarchive postgres_exporter
+  unarchive:
+    remote_src: yes
+    src: "/tmp/postgres_exporter_v0.4.7_linux-amd64.tar.gz"
+    dest: "/tmp"
+    creates: "/tmp/postgres_exporter_v0.4.7_linux-amd64"
+
+- name: postgres_exporter to /usr/local/bin/
+  copy:
+    src: /tmp/postgres_exporter_v0.4.7_linux-amd64/postgres_exporter
+    dest: /usr/local/bin/
+    mode: 0755
+    owner: root
+    group: root
+    remote_src: yes
+
+- name: create systemd service
+  template:
+    src: etc/systemd/system/postgres_exporter.service
+    dest: /etc/systemd/system/postgres_exporter.service
+  notify:
+    - systemctl daemon-reload
+
+- name: restart postgres_exporter
+  service:
+    name: "postgres_exporter"
+    enabled: yes
+    state: started
+
+

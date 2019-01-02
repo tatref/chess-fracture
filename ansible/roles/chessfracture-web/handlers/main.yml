@@ -19,3 +19,8 @@
     name: uwsgi
     state: restarted
 
+- name: restart grafana
+  service:
+    name: grafana
+    state: restarted
+

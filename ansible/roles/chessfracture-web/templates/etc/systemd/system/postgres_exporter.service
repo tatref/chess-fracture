@@ -1,0 +1,22 @@
+[Unit]
+Description=Postgres Prometheus exporter
+Wants=network.target
+After=network-pre.target dbus.service
+Before=network.target network.service
+
+[Service]
+Type=simple
+User=node-exp
+Group=node-exp
+
+Environment=DATA_SOURCE_NAME="postgresql://chessfracture:nopasswd@localhost:5432/chessfracture?sslmode=disable"
+
+ExecStart=/usr/local/bin/postgres_exporter --web.listen-address=":9187"
+Restart=on-failure
+#KillMode=process
+TimeoutStopSec=180s
+
+
+#ProtectSystem=full
+#ReadWritePaths=/tmp
+

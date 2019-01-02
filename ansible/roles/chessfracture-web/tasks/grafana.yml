@@ -15,11 +15,15 @@
     owner: grafana
     group: grafana
     mode: 0644
+  notify:
+    - restart grafana
 
 - name: copy dashboard to /var/lib/grafana/dashboards
   copy:
-    src: var/lib/grafana/dashboards/grafana_dashboard.json
+    src: var/lib/grafana/dashboards/system_dashboard.json
     dest: /var/lib/grafana/dashboards
     owner: grafana
     group: grafana
     mode: 0644
+  notify:
+    - restart grafana

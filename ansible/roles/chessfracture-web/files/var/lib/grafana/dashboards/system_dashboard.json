@@ -16,6 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
+  "iteration": 1546457640337,
   "links": [],
   "panels": [
     {
@@ -944,7 +945,6 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
           "text": "web:9100",
           "value": [
             "web:9100"
@@ -1001,7 +1001,7 @@
     ]
   },
   "timezone": "",
-  "title": "dashboard 1",
+  "title": "System",
   "uid": "afd2rgUmk",
-  "version": 41
+  "version": 1
 }
