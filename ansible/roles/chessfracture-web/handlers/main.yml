@@ -24,3 +24,13 @@
     name: grafana
     state: restarted
 
+- name: restart prometheus-nginxlog-exporter
+  service:
+    name: prometheus-nginxlog-exporter
+    state: restarted
+
+- name: restart nginx-prometheus-exporter
+  service:
+    name: nginx-prometheus-exporter
+    state: restarted
+

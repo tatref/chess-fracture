@@ -945,9 +945,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "web:9100",
+          "text": "localhost:9100",
           "value": [
-            "web:9100"
+            "localhost:9100"
           ]
         },
         "datasource": "prometheus",
