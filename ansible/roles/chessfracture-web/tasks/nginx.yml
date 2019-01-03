@@ -53,9 +53,24 @@
     state: installed
 
 - name: get certificate
+  shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging
+  args:
+    creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
+  when: certbot_staging is defined
+
+- name: get certificate
   shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos
   args:
     creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
+  when: not certbot_staging is defined
+
+- name: certbot crontab
+  cron:
+    cron_file: certbot
+    job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging
+    special_time: weekly
+    user: root
+  when: certbot_staging is defined
 
 - name: certbot crontab
   cron:
@@ -63,6 +78,7 @@
     job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos
     special_time: weekly
     user: root
+  when: not certbot_staging is defined
 
 - name: nginx service
   service:
@@ -79,6 +95,7 @@
     - default
     - django
     - certbot
+    - stub_status
 
 - name: create /var/www/media
   file:

@@ -18,12 +18,15 @@
   notify:
     - restart grafana
 
-- name: copy dashboard to /var/lib/grafana/dashboards
+- name: copy dashboards to /var/lib/grafana/dashboards
   copy:
-    src: var/lib/grafana/dashboards/system_dashboard.json
+    src: "var/lib/grafana/dashboards/{{item}}"
     dest: /var/lib/grafana/dashboards
     owner: grafana
     group: grafana
     mode: 0644
+  with_items:
+    - system_dashboard.json
+    - nginx_dashboard.json
   notify:
     - restart grafana

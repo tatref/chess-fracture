@@ -1,0 +1,13 @@
+[Unit]
+Description=NGINX connections metrics exporter for Prometheus
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/nginx-prometheus-exporter -nginx.scrape-uri http://127.0.0.1:8080/stub_status -web.listen-address localhost:9113
+Restart=always
+#ProtectSystem=full
+#CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
+

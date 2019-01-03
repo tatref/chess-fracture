@@ -35,6 +35,8 @@
     mode: 0755
     owner: root
     group: root
+  notify:
+    - restart prometheus-nginxlog-exporter
 
 - name: create systemd service
   template:
@@ -86,6 +88,47 @@
 - name: start postgres_exporter
   service:
     name: "postgres_exporter"
+    enabled: yes
+    state: started
+
+- name: verify if nginx-prometheus-exporter is present
+  stat:
+    path: "/tmp/nginx-prometheus-exporter-0.2.0-linux-amd64.tar.gz"
+  register: nginx_prometheus_exporter
+
+- name: wget nginx-prometheus-exporter
+  get_url:
+    url: https://github.com/nginxinc/nginx-prometheus-exporter/releases/download/v0.2.0/nginx-prometheus-exporter-0.2.0-linux-amd64.tar.gz
+    dest: "/tmp"
+  when: nginx_prometheus_exporter.stat.exists == false
+
+- name: unarchive nginx-prometheus-exporter
+  unarchive:
+    remote_src: yes
+    src: "/tmp/nginx-prometheus-exporter-0.2.0-linux-amd64.tar.gz"
+    dest: "/tmp/"
+    creates: "/tmp/nginx-prometheus-exporter"
+
+- name: nginx-prometheus-exporter to /usr/local/bin/
+  copy:
+    src: /tmp/nginx-prometheus-exporter
+    dest: /usr/local/bin/
+    mode: 0755
+    owner: root
+    group: root
+    remote_src: yes
+
+- name: create systemd service
+  template:
+    src: etc/systemd/system/nginx-prometheus-exporter.service
+    dest: /etc/systemd/system/nginx-prometheus-exporter.service
+  notify:
+    - systemctl daemon-reload
+    - restart nginx-prometheus-exporter
+
+- name: start nginx-prometheus-exporter
+  service:
+    name: "nginx-prometheus-exporter"
     enabled: yes
     state: started
 

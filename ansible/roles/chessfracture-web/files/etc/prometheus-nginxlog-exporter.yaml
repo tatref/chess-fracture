@@ -2,7 +2,7 @@
 
 listen:
   port: 4040
-  address: "web"
+  address: "localhost"
 
 namespaces:
   - name: chessfracture

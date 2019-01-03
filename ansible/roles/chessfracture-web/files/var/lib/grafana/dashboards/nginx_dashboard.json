@@ -30,7 +30,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 4,
+      "id": 9,
       "legend": {
         "avg": false,
         "current": false,
@@ -54,18 +54,53 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(chessfracture_http_response_time_seconds{status=\"200\"}[1m]) * 1000",
+          "expr": "rate(nginx_connections_accepted[1m])",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "quantile = {{quantile}}",
+          "legendFormat": "accepted",
           "refId": "A"
+        },
+        {
+          "expr": "rate(nginx_connections_active[1m])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "active",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(nginx_connections_handled[1m])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "handled",
+          "refId": "C"
+        },
+        {
+          "expr": "rate(nginx_connections_reading[1m])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "reading",
+          "refId": "D"
+        },
+        {
+          "expr": "rate(nginx_connections_writing[1m])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "writing",
+          "refId": "E"
+        },
+        {
+          "expr": "rate(nginx_connections_waiting[1m])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "waiting",
+          "refId": "F"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "chessfracture_http_response_time_seconds",
+      "title": "connections",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -81,7 +116,7 @@
       },
       "yaxes": [
         {
-          "format": "ms",
+          "format": "short",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -113,6 +148,174 @@
         "w": 12,
         "x": 12,
         "y": 0
+      },
+      "id": 5,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "irate(chessfracture_http_response_count_total[15s])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "{{method}} {{status}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "chessfracture_http_response_count_total",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "id": 7,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(nginx_http_requests_total[1m])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "nginx_http_requests_total",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "nginx_http_requests_total",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 9
       },
       "id": 2,
       "legend": {
@@ -196,9 +399,9 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 18
       },
-      "id": 5,
+      "id": 4,
       "legend": {
         "avg": false,
         "current": false,
@@ -222,10 +425,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(chessfracture_http_response_count_total[15s])",
+          "expr": "rate(chessfracture_http_response_time_seconds{status=\"200\"}[1m]) * 1000",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "{{method}} {{status}}",
+          "legendFormat": "quantile = {{quantile}}",
           "refId": "A"
         }
       ],
@@ -233,7 +436,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "chessfracture_http_response_count_total",
+      "title": "chessfracture_http_response_time_seconds",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -249,7 +452,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "ms",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -310,5 +513,5 @@
   "timezone": "",
   "title": "nginx",
   "uid": "G6Vlpp8mz",
-  "version": 10
+  "version": 11
 }

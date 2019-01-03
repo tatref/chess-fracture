@@ -31,7 +31,12 @@ To speedup the initial setup, you can also:
     └── blender-2.79b-linux-glibc219-x86_64.tar.bz2
 ```
 
-# Usage
+# PROD usage
 ```
 ansible-playbook setup.yml
+```
+
+# DEV usage
+```
+ansible-playbook setup.yml --extra-vars "certbot_staging="
 ```
