@@ -8,6 +8,47 @@
     immediate: true
     state: enabled
 
+- name: verify if prometheus-nginxlog-exporter is present
+  stat:
+    path: "/tmp/prometheus-nginxlog-exporter"
+  register: prometheus_nginxlog_exporter
+
+- name: wget prometheus-nginxlog-exporter
+  get_url:
+    url: https://github.com/martin-helmich/prometheus-nginxlog-exporter/releases/download/v1.2.1/prometheus-nginxlog-exporter
+    dest: "/tmp"
+  when: prometheus_nginxlog_exporter.stat.exists == false
+
+- name: prometheus-nginxlog-exporter to /usr/local/bin/
+  copy:
+    src: /tmp/prometheus-nginxlog-exporter
+    dest: /usr/local/bin/
+    mode: 0755
+    owner: root
+    group: root
+    remote_src: yes
+
+- name: copy /etc/prometheus-nginxlog-exporter.yaml
+  copy:
+    src: etc/prometheus-nginxlog-exporter.yaml
+    dest: /etc/prometheus-nginxlog-exporter.yaml
+    mode: 0755
+    owner: root
+    group: root
+
+- name: create systemd service
+  template:
+    src: etc/systemd/system/prometheus-nginxlog-exporter.service
+    dest: /etc/systemd/system/prometheus-nginxlog-exporter.service
+  notify:
+    - systemctl daemon-reload
+
+- name: start prometheus-nginxlog-exporter
+  service:
+    name: "prometheus-nginxlog-exporter"
+    enabled: yes
+    state: started
+
 - name: verify if postgres_exporter is present
   stat:
     path: "/tmp/postgres_exporter_v0.4.7_linux-amd64.tar.gz"
@@ -42,7 +83,7 @@
   notify:
     - systemctl daemon-reload
 
-- name: restart postgres_exporter
+- name: start postgres_exporter
   service:
     name: "postgres_exporter"
     enabled: yes
