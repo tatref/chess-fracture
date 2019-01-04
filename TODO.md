@@ -1,7 +1,6 @@
 # TODO list
 * https://github.com/wrouesnel/postgres_exporter
-* sync only necessary files (roles/chessfracture-common/tasks/main.yml)
-* errors: display gameid on error page, display gameid in logs (simulation failed)
+* errors: improve display gameid on error page, display gameid in logs (simulation failed)
 
 
 # security
