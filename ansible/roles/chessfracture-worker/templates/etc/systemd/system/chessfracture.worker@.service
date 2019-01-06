@@ -23,3 +23,5 @@ KillMode=mixed
 #ProtectSystem=full
 #ReadWritePaths=/tmp
 
+[Install]
+WantedBy=multi-user.target

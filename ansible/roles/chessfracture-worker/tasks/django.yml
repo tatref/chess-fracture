@@ -13,9 +13,9 @@
     - systemctl daemon-reload
     - restart chessfracture.worker
 
-- name: restart chessfracture.worker
+- name: start chessfracture.worker
   service:
     name: "chessfracture.worker@{{ item }}"
     enabled: yes
-    state: restarted
+    state: started
   with_sequence: count={{ansible_processor_cores}}
