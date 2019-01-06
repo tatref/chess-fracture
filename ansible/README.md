@@ -40,3 +40,14 @@ ansible-playbook setup.yml
 ```
 ansible-playbook setup.yml --extra-vars "certbot_staging="
 ```
+
+## URLs
+Main site
+https://chessfracture.net
+
+Prometheus
+http://chessfracture.net:9090
+
+Grafana
+http://chessfracture.net:3000
+
