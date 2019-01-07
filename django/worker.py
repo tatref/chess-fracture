@@ -140,7 +140,7 @@ def run_simulations(games):
                 continue
             os.remove(pgn_path)
         except Exception as e:
-            # unreachable if blender_popen was launched?
+            # unreachable if blender_popen was launched?
             print('Simulation failed: ' + str(e))
             sys.stdout.flush()
             g.status = -1
