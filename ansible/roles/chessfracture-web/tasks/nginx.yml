@@ -1,9 +1,33 @@
 ---
 
-- name: disable selinux # FIXME
-  selinux:
-    policy: targeted
-    state: permissive
+- name: create /var/www/.well-known/acme-challenge
+  file:
+    path: /var/www/.well-known/acme-challenge
+    state: directory
+    mode: 0755
+
+- name: create /var/www/media
+  file:
+    path: /var/www/media
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: copy media to /var/www/media
+  synchronize:
+    src: media/
+    dest: /var/www/media
+    delete: yes
+
+- name: restorecon -Rv /var/www
+  command: restorecon -Rv /var/www
+
+- name: selinux bool httpd_can_network_connect
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
 
 - name: install nginx
   yum:
@@ -40,12 +64,6 @@
     name: nginx
     state: started
     enabled: true
-
-- name: create /var/www/.well-known/acme-challenge
-  file:
-    path: /var/www/.well-known/acme-challenge
-    state: directory
-    mode: 0755
 
 - name: install certbot
   yum:
@@ -96,18 +114,3 @@
     - django
     - certbot
     - stub_status
-
-- name: create /var/www/media
-  file:
-    path: /var/www/media
-    state: directory
-    mode: 0755
-    owner: root
-    group: root
-
-- name: copy media to /var/www/media
-  synchronize:
-    src: media/
-    dest: /var/www/media
-    delete: yes
- 
