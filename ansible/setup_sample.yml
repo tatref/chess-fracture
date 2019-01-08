@@ -27,8 +27,10 @@
     prometheus_targets:
       node:
       - targets:
-        - web:9100
-        - web:9187
+        - localhost:9100
+        - localhost:9187
+        - localhost:4040
+        - localhost:9113
         #- worker0:9100
     prometheus_global:
       scrape_interval: 5s
