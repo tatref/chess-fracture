@@ -3,12 +3,11 @@
 
 - name: install python36
   yum:
-    name: "{{item}}"
+    name:
+      - python-virtualenv
+      - python36
     state: installed
     enablerepo: epel-testing
-  with_items:
-    - python-virtualenv
-    - python36
 
 - name: django venv
   pip:

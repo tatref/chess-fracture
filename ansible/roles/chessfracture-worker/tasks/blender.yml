@@ -2,16 +2,15 @@
 
 - name: install blender requirements
   yum:
-    name: "{{ item }}"
+    name:
+      - bzip2
+      - mesa-libGLU
+      - libXi
+      - libXrender
+      - xorg-x11-server-Xvfb
+      - xorg-x11-utils
+      - mesa-dri-drivers
     state: installed
-  with_items:
-    - bzip2
-    - mesa-libGLU
-    - libXi
-    - libXrender
-    - xorg-x11-server-Xvfb
-    - xorg-x11-utils
-    - mesa-dri-drivers
 
 - name: verify if blender archive is present
   stat:

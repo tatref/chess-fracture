@@ -7,12 +7,11 @@
 
 - name: install postgres
   yum:
-    name: "{{item}}"
+    name:
+      - python-psycopg2
+      - postgresql10
+      - postgresql10-server
     state: installed
-  with_items:
-    - python-psycopg2
-    - postgresql10
-    - postgresql10-server
 
 - name: init postgres
   command: /usr/pgsql-10/bin/postgresql-10-setup initdb

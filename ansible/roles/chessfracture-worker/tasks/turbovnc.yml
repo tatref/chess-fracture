@@ -12,7 +12,8 @@
 
 - name: install turbovnc
   yum:
-    name: turbovnc
+    name:
+      - turbovnc
     state: installed
 
 - name: turbovnc sysconfig
