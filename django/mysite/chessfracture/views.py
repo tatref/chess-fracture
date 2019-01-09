@@ -136,3 +136,22 @@ def monitoring(request):
 
     response = JsonResponse(data)
     return response
+
+def prometheus_monitoring(request):
+    total_games = Game.objects.all().count()
+    failed_games = Game.objects.filter(status=-1).count()
+    queued_games = Game.objects.filter(status=1).count()
+    simulation_finished_games = Game.objects.filter(status=0).count()
+
+    threshold = 5 * 60
+    active_threshold = timezone.now() - datetime.timedelta(seconds=threshold)
+    active_workers = Worker.objects.filter(heartbeat__gt=active_threshold).count()
+
+    response = ''
+    response += 'chessfracture_jobs_total {}\n'.format(total_games)
+    response += 'chessfracture_jobs_failed {}\n'.format(failed_games)
+    response += 'chessfracture_jobs_queued {}\n'.format(queued_games)
+    response += 'chessfracture_jobs_finished {}\n'.format(simulation_finished_games)
+    response += 'chessfracture_active_workers {}\n'.format(active_workers)
+
+    return HttpResponse(response, content_type="text/plain")

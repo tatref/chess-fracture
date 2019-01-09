@@ -28,5 +28,6 @@
   with_items:
     - system_dashboard.json
     - nginx_dashboard.json
+    - workers.json
   notify:
     - restart grafana
