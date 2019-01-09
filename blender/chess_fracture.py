@@ -298,7 +298,7 @@ def play(board_map, game, frames_per_move, n_fragments):
     start_time = time.time()
 
     board = game.board()
-    for move_number, move in enumerate(game.main_line()):
+    for move_number, move in enumerate(game.mainline_moves()):
         from_square = move.uci()[0:2]
         to_square = move.uci()[2:4]
         
