@@ -7,6 +7,7 @@ idna==2.7
 ipython==6.5.0
 ipython-genutils==0.2.0
 jedi==0.12.1
+lxml==4.3.0
 parso==0.3.1
 pexpect==4.6.0
 pickleshare==0.7.4
@@ -14,6 +15,7 @@ prompt-toolkit==1.0.15
 psycopg2==2.7.5
 ptyprocess==0.6.0
 Pygments==2.2.0
+python-chess==0.24.2
 pytz==2018.5
 requests==2.20.1
 simplegeneric==0.8.1
