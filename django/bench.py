@@ -9,8 +9,6 @@ import urllib3
 urllib3.disable_warnings()
 
 
-PGN_FILE_PATH = '~/Downloads/lichess_tatrefthekiller_2019-01-10.pgn'
-
 
 def get_csrf_token(s):
     try:
@@ -65,8 +63,6 @@ if __name__ == '__main__':
            submit_game(s, game_url)
            i += 1
            print(i)
-           if i > 100:
-               break
        except ValueError as e:
            pass
 
