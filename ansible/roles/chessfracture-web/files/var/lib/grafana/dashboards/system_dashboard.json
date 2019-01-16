@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 1,
-  "iteration": 1546457640337,
+  "iteration": 1547161976241,
   "links": [],
   "panels": [
     {
@@ -365,6 +364,13 @@
           "intervalFactor": 1,
           "legendFormat": "free",
           "refId": "F"
+        },
+        {
+          "expr": "node_memory_SwapTotal_bytes{instance=~'$node'} - node_memory_SwapFree_bytes{instance=~'$node'}",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "swap",
+          "refId": "H"
         }
       ],
       "thresholds": [],
