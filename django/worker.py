@@ -11,6 +11,7 @@ import io
 import time
 import signal
 import resource
+import chess.pgn
 
 import django
 from django.db import transaction
@@ -191,7 +192,7 @@ def download_lichess_pgn(gameid):
 def save_pgn(game):
     if game.site == 'lichess.org':
         try:
-            pgn = download_lichess_pgn(game.gameid)
+            pgn_data = download_lichess_pgn(game.gameid)
         except Exception as e:
             game.status = -1
             game.errormessage = str(e)
@@ -207,7 +208,12 @@ def save_pgn(game):
         sys.stdout.flush()
         return
 
-    game.pgn = pgn
+    chess_game = chess.pgn.read_game(io.StringIO(pgn_data))
+    game.white = chess_game.headers['White']
+    game.black = chess_game.headers['Black']
+    game.utcdate = chess_game.headers['UTCDate'].replace('.', '-') + ' ' + chess_game.headers['UTCTime']
+
+    game.pgn = pgn_data
     game.status = 2
     game.save()
 

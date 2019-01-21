@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 
+<style>
+.bottom-space {
+  margin-bottom: 1.5cm;
+}
+
+table.center {
+  margin-left:auto;
+  margin-right:auto;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+</style>
+
+
 <html>
   <head>
     <meta charset="utf-8" />
@@ -15,10 +31,11 @@
     <div style="text-align:center">
       {% include 'chessfracture/header.html' %}
       
-      <h1>Chessfracture</h1>
-      
-      <div>
-        Paste Lichess <b>analysis</b> URL - try https://lichess.org/167D6zBT
+      <div class="bottom-space">
+        Paste Lichess <b>analysis</b> URL from a <b>stardard</b> game &#8212; eg https://lichess.org/167D6zBT
+      </div>
+
+      <div class="bottom-space">
       <form action="fracture" method="post">
         {% csrf_token %}
         {{ form }}
@@ -28,11 +45,15 @@
       
       {% if latest_games %}
       <h2>Last games</h2>
-        <ul>
+        <table class="center">
         {% for game in latest_games %}
-          <li><a href="get/{{game.site}}/{{game.gameid}}">{{ game.site }}/{{ game.gameid }}</a></li>
+        <tr>
+          <td>{{game.utcdate}} <b>{{game.white}}</b> vs <b>{{game.black}}</b></a></td>
+          <td><a href="https://{{game.site}}/{{game.gameid}}">Lichess.org</a></td>
+          <td><a href="get/{{game.site}}/{{game.gameid}}">Fracture</a></td>
+        </tr>
         {% endfor %}
-        </ul>
+        </table>
       {% else %}
         <p>No game yet</p>
       {% endif %}

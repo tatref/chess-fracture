@@ -24,6 +24,10 @@ class Game(models.Model):
     lastdl = models.DateTimeField(default=None, blank=True, null=True)
 
     pgn = models.TextField(default=None, blank=True, null=True)
+    white = models.TextField(default=None, blank=True, null=True)
+    black = models.TextField(default=None, blank=True, null=True)
+    utcdate = models.DateTimeField(default=None, blank=True, null=True)
+
     blend = models.BinaryField()
     simulation_duration = models.DurationField(default=None, blank=True, null=True)
 
