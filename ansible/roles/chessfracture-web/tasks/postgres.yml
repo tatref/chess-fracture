@@ -50,7 +50,7 @@
     line: "{{item}}"
     insertbefore: BOF
   notify: restart postgresql-10
-  with_items:
+  loop:
     - "host  chessfracture  {{ chessfracture_user }} 0.0.0.0/0 md5"
     - "host  chessfracture  {{ chessfracture_user }} 127.0.0.0/8 md5"
     - "host  chessfracture  {{ chessfracture_user }} ::1/128 md5"

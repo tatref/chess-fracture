@@ -40,7 +40,7 @@
     permanent: true
     immediate: true
     state: enabled
-  with_items:
+  loop:
     - 80
     - 443
 
@@ -55,7 +55,7 @@
     src: "etc/nginx/conf.d/{{item}}.conf"
     dest: "/etc/nginx/conf.d/{{item}}.conf"
   notify: restart nginx
-  with_items:
+  loop:
     - default
     - certbot
 
@@ -109,7 +109,7 @@
     src: "etc/nginx/conf.d/{{item}}.conf"
     dest: "/etc/nginx/conf.d/{{item}}.conf"
   notify: restart nginx
-  with_items:
+  loop:
     - default
     - django
     - certbot

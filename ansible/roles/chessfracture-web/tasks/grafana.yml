@@ -25,7 +25,7 @@
     owner: grafana
     group: grafana
     mode: 0644
-  with_items:
+  loop:
     - system_dashboard.json
     - nginx_dashboard.json
     - workers.json
