@@ -17,7 +17,16 @@
       - gcc
       - openssl-devel
       - vim
+      - bash-completion
+      - tcpdump
 
+- name: copy /etc/systemd/system.conf
+  copy:
+    src: etc/systemd/system.conf
+    dest: /etc/systemd/system.conf
+    owner: root
+    group: root
+    mode: 0644
 
 - name: "create user {{ chessfracture_user }}"
   user:
