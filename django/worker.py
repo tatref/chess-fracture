@@ -216,7 +216,7 @@ def save_pgn(game):
     chess_game = chess.pgn.read_game(io.StringIO(pgn_data))
     game.white = chess_game.headers['White']
     game.black = chess_game.headers['Black']
-    game.utcdate = chess_game.headers['UTCDate'].replace('.', '-') + ' ' + chess_game.headers['UTCTime']
+    game.utcdate = chess_game.headers['UTCDate'].replace('.', '-') + ' ' + chess_game.headers['UTCTime'] + '+00:00'
 
     game.pgn = pgn_data
     game.status = 2
