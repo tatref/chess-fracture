@@ -15,6 +15,7 @@ import chess.pgn
 
 import django
 from django.db import transaction
+from django import db
 from django.utils import timezone
 import requests
 
@@ -105,6 +106,8 @@ def run_simulation(pgn_path, out_blend, display=':1'):
             )
     try:
         stdout_data, stderr_data = popen.communicate(timeout=timeout)
+        popen.stdout.close()
+        popen.stderr.close()
     except Exception as e:
         raise Exception('Timeout ({}) exceeded for : {} - {}'.format(timeout, pgn_path, e))
     return popen, stdout_data, stderr_data
@@ -140,6 +143,7 @@ def run_simulations(games):
                 g.save()
                 continue
             os.remove(pgn_path)
+
         except Exception as e:
             # unreachable if blender_popen was launched?
             print('Simulation failed: ' + str(e))
@@ -160,6 +164,7 @@ def run_simulations(games):
         try:
             compressed_blend = compress_file(out_blend)
             g.blend = compressed_blend.read()
+            compressed_blend.close()
             g.status = 0
             g.save()
             os.remove(out_blend)
@@ -261,6 +266,7 @@ if __name__ == '__main__':
 
         time.sleep(1)
         worker.save()
+        db.reset_queries()
     print('Exiting')
     sys.stdout.flush()
 
