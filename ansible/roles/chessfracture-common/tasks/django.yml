@@ -20,5 +20,5 @@
   lineinfile:
     path: /etc/hosts
     regexp: chessfracture-db
-    line: "{{ hostvars['web'].ansible_host }} chessfracture-db web"
+    line: "{{ hostvars['web'].ansible_default_ipv4.address }} chessfracture-db web"
 

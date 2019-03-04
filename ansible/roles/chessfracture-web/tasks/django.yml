@@ -15,4 +15,4 @@
 - name: restart uwsgi
   service:
     name: uwsgi
-    state: restarted
+    state: started

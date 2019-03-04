@@ -13,15 +13,18 @@
     mode: 0755
     owner: root
     group: root
+  changed_when: false
 
 - name: copy media to /var/www/media
   synchronize:
     src: media/
     dest: /var/www/media
     delete: yes
+  changed_when: false
 
 - name: restorecon -Rv /var/www
   command: restorecon -Rv /var/www
+  changed_when: false
 
 - name: selinux bool httpd_can_network_connect
   seboolean:
@@ -88,6 +91,7 @@
     job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging
     special_time: weekly
     user: root
+    name: certbot update certificate
   when: certbot_staging is defined
 
 - name: certbot crontab

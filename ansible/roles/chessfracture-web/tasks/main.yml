@@ -1,6 +1,18 @@
 ---
 # tasks file for chessfracture-web
 
+- name: install firewalld
+  yum:
+    name:
+      - firewalld
+    state: installed
+
+- name: enable firewalld
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
 - name: install uwsgi
   yum:
     name:
