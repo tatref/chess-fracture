@@ -23,7 +23,7 @@ Render with some materials:
 
 If you are only looking for the Blender script, see here: [blender script](blender/chess_fracture.py)
 
-To test by yourself, see the [website](https://chessfracture.net), or setup an instance yourself [ansible setup](ansible)
+To test by yourself, see the website [chessfracture.net](https://chessfracture.net), or setup an instance yourself [ansible setup](ansible)
 
 # Libraries
 
