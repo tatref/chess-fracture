@@ -88,7 +88,7 @@
 - name: certbot crontab
   cron:
     cron_file: certbot
-    job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging
+    job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging --force-renewal
     special_time: weekly
     user: root
     name: certbot update certificate
@@ -97,9 +97,10 @@
 - name: certbot crontab
   cron:
     cron_file: certbot
-    job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos
+    job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --force-renewal
     special_time: weekly
     user: root
+    name: certbot update certificate
   when: not certbot_staging is defined
 
 - name: nginx service
