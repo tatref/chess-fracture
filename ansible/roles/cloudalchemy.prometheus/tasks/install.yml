@@ -12,7 +12,7 @@
     shell: "/sbin/nologin"
     group: prometheus
     createhome: false
-    home: /tmp
+    home: "{{ prometheus_db_dir }}"
 
 - name: create prometheus data directory
   file:
@@ -28,7 +28,7 @@
     state: directory
     owner: root
     group: prometheus
-    mode: 0750
+    mode: 0770
   with_items:
     - "{{ prometheus_config_dir }}"
     - "{{ prometheus_config_dir }}/conf.d"
@@ -47,6 +47,7 @@
   delay: 2
   # run_once: true # <-- this canfalset be set due to multi-arch support
   delegate_to: localhost
+  check_mode: false
 
 - name: unpack prometheus binaries
   become: false
@@ -67,7 +68,6 @@
   with_items:
     - prometheus
     - promtool
-  check_mode: false
   notify:
     - restart prometheus
 
@@ -75,24 +75,14 @@
   copy:
     src: "/tmp/prometheus-{{ prometheus_version }}.linux-{{ go_arch_map[ansible_architecture] | default(ansible_architecture) }}/{{ item }}/"
     dest: "{{ prometheus_config_dir }}/{{ item }}/"
-    mode: 0755
+    mode: 0644
     owner: root
     group: root
   with_items:
     - console_libraries
     - consoles
-  check_mode: false
   notify:
     - restart prometheus
-
-- name: remove prometheus binaries from old location
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - /opt/prometheus/prometheus
-    - /opt/prometheus/promtool
-    - /opt/prometheus
 
 - name: create systemd service unit
   template:

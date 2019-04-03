@@ -1,13 +1,84 @@
 # Change Log
 
+
 ## [**Next release**](https://galaxy.ansible.com/cloudalchemy/prometheus)
 
+**Implemented enhancements:**
+
+- Get more recognition! [\#131](https://github.com/cloudalchemy/ansible-prometheus/issues/131)
+
+**Fixed bugs:**
+
+- Get more recognition! [\#131](https://github.com/cloudalchemy/ansible-prometheus/issues/131)
+
+**Closed issues:**
+
+- can't create prometheus user again [\#185](https://github.com/cloudalchemy/ansible-prometheus/issues/185)
+- Implement Uninstalls based on specific variables [\#181](https://github.com/cloudalchemy/ansible-prometheus/issues/181)
+- Allow Multiple blackbox exporters [\#179](https://github.com/cloudalchemy/ansible-prometheus/issues/179)
+- Install prometheus using docker [\#173](https://github.com/cloudalchemy/ansible-prometheus/issues/173)
+
+**Merged pull requests:**
+
+- New prometheus upstream release! [\#193](https://github.com/cloudalchemy/ansible-prometheus/pull/193) ([cloudalchemybot](https://github.com/cloudalchemybot))
+- prometheus.service.j2: stop using tests as filters [\#191](https://github.com/cloudalchemy/ansible-prometheus/pull/191) ([JordanP](https://github.com/JordanP))
+- Preflight checks refactor [\#189](https://github.com/cloudalchemy/ansible-prometheus/pull/189) ([paulfantom](https://github.com/paulfantom))
+- do not remove '/opt/prometheus' [\#188](https://github.com/cloudalchemy/ansible-prometheus/pull/188) ([paulfantom](https://github.com/paulfantom))
+- Parameterise custom static targets file paths [\#187](https://github.com/cloudalchemy/ansible-prometheus/pull/187) ([hamishforbes](https://github.com/hamishforbes))
+- Make prometheus user owner of prometheus folders [\#174](https://github.com/cloudalchemy/ansible-prometheus/pull/174) ([curantes](https://github.com/curantes))
+
+## [2.7.0](https://galaxy.ansible.com/cloudalchemy/prometheus) (2019-03-04)
+**Merged pull requests:**
+
+- New prometheus upstream release! [\#186](https://github.com/cloudalchemy/ansible-prometheus/pull/186) ([cloudalchemybot](https://github.com/cloudalchemybot))
+- Reworked prometheus\_alert\_rules\_files [\#183](https://github.com/cloudalchemy/ansible-prometheus/pull/183) ([eRadical](https://github.com/eRadical))
+- Separate test scenarios and run "privileged" one only on master branch [\#175](https://github.com/cloudalchemy/ansible-prometheus/pull/175) ([paulfantom](https://github.com/paulfantom))
+
+## [2.6.0](https://galaxy.ansible.com/cloudalchemy/prometheus) (2019-02-19)
+**Merged pull requests:**
+
+- Add support for retention by size [\#182](https://github.com/cloudalchemy/ansible-prometheus/pull/182) ([SuperQ](https://github.com/SuperQ))
+
+## [2.5.2](https://galaxy.ansible.com/cloudalchemy/prometheus) (2019-01-31)
+## [2.5.1](https://galaxy.ansible.com/cloudalchemy/prometheus) (2019-01-30)
+**Closed issues:**
+
+- Allow specifying source url for Prometheus archive [\#176](https://github.com/cloudalchemy/ansible-prometheus/issues/176)
+
+**Merged pull requests:**
+
+- New prometheus upstream release! [\#178](https://github.com/cloudalchemy/ansible-prometheus/pull/178) ([cloudalchemybot](https://github.com/cloudalchemybot))
+- New prometheus upstream release! [\#172](https://github.com/cloudalchemy/ansible-prometheus/pull/172) ([cloudalchemybot](https://github.com/cloudalchemybot))
+
+## [2.5.0](https://galaxy.ansible.com/cloudalchemy/prometheus) (2019-01-13)
+**Fixed bugs:**
+
+- Default rules not working correctly [\#157](https://github.com/cloudalchemy/ansible-prometheus/issues/157)
+
+**Closed issues:**
+
+- Executable HTML files in consoles and console\_libraries in prometheus\_config\_dir [\#168](https://github.com/cloudalchemy/ansible-prometheus/issues/168)
+- Wrong home directory for the prometheus user [\#166](https://github.com/cloudalchemy/ansible-prometheus/issues/166)
+- Autostart fails [\#162](https://github.com/cloudalchemy/ansible-prometheus/issues/162)
+- prometheus\_alert\_rules are not copied as expected [\#148](https://github.com/cloudalchemy/ansible-prometheus/issues/148)
+
+**Merged pull requests:**
+
+- Change permissions of console templates to 0644. [\#171](https://github.com/cloudalchemy/ansible-prometheus/pull/171) ([dreig](https://github.com/dreig))
+- Reuse `prometheus\_db\_dir` as prometheus user home directory [\#170](https://github.com/cloudalchemy/ansible-prometheus/pull/170) ([paulfantom](https://github.com/paulfantom))
+- New prometheus upstream release! [\#167](https://github.com/cloudalchemy/ansible-prometheus/pull/167) ([cloudalchemybot](https://github.com/cloudalchemybot))
+- Alert expression fix [\#161](https://github.com/cloudalchemy/ansible-prometheus/pull/161) ([sjal](https://github.com/sjal))
+- Fix running Dry Mode and improved tag usage [\#160](https://github.com/cloudalchemy/ansible-prometheus/pull/160) ([krzyzakp](https://github.com/krzyzakp))
+- New prometheus upstream release! [\#159](https://github.com/cloudalchemy/ansible-prometheus/pull/159) ([cloudalchemybot](https://github.com/cloudalchemybot))
+
+## [2.4.1](https://galaxy.ansible.com/cloudalchemy/prometheus) (2018-10-29)
 **Closed issues:**
 
 - When used on GCE with gce\_sd\_config discovery scrape config, the ProtectHome=Yes option prevents Prometheus to discover Google Cloud Instances [\#153](https://github.com/cloudalchemy/ansible-prometheus/issues/153)
 
 **Merged pull requests:**
 
+- Add clarification surrounding when the .rules file is copied & where it goes [\#156](https://github.com/cloudalchemy/ansible-prometheus/pull/156) ([wbh1](https://github.com/wbh1))
 - Resolves \#153 prometheus homedir set to /tmp [\#155](https://github.com/cloudalchemy/ansible-prometheus/pull/155) ([michalklempa](https://github.com/michalklempa))
 - Document alert relabeling in README.md [\#152](https://github.com/cloudalchemy/ansible-prometheus/pull/152) ([juliusv](https://github.com/juliusv))
 
