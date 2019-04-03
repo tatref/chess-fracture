@@ -474,9 +474,21 @@ def play(board_map, game, frames_per_move, n_fragments):
         elif blacks_re.match(obj.name):
             obj.data.materials.append(black_mat)
 
+    # change interpolation method
+    piece_re = re.compile(r'.*[a-h]\d$')
+    for o in bpy.data.objects:
+        if piece_re.match(o.name) and hasattr(o.animation_data, 'action'):
+            fcurves = o.animation_data.action.fcurves
+
+            print('curve: ' + str(o.name))
+            for fcurve in fcurves:
+                for kf in fcurve.keyframe_points:
+                    kf.interpolation = 'QUAD'
+
     # compute some stats
     end_time = time.time()
     duration = end_time - start_time
+    print()
     print('Duration: ' + str(duration))
     # end def play
 
