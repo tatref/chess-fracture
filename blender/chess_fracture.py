@@ -23,6 +23,8 @@ import traceback
 from math import pi
 
 import bpy
+import bmesh
+from mathutils.bvhtree import BVHTree
 
 try:
     import chess.pgn
@@ -90,6 +92,30 @@ def instantiate_piece(piece_name, player, board_location, z, name=None):
     bpy.context.scene.rigidbody_world.group.objects.link(new_obj)
 
     return new_obj
+
+
+def check_object_intersects(a, b):
+    '''
+    Checks if 2 objects meshes intersects
+    https://blender.stackexchange.com/questions/71289/using-overlap-to-check-if-two-meshes-are-intersecting
+    '''
+
+    bmA = bmesh.new()
+    bmB = bmesh.new()
+
+    #fill bmesh data from objects
+    bmA.from_mesh(a.data)
+    bmB.from_mesh(b.data)
+    #fixed it here:
+    bmA.transform(a.matrix_world)
+    bmB.transform(b.matrix_world)
+    #make BVH tree from BMesh of objects
+    bvhA = BVHTree.FromBMesh(bmA)
+    bvhB = BVHTree.FromBMesh(bmB)
+    #get intersecting pairs
+    inter = bvhA.overlap(bvhB)
+    #if list is empty, no objects are touching
+    return inter
 
 
 def initial_setup():
@@ -356,25 +382,44 @@ def play(board_map, game, frames_per_move, n_fragments):
             board_map[from_square].keyframe_insert(data_path='location')
             board_map[to_square].keyframe_insert('rigid_body.kinematic')
             
-            bpy.context.scene.frame_set(bpy.context.scene.frame_current + 1)
-            board_map[to_square].rigid_body.kinematic = False
-            board_map[to_square].keyframe_insert('rigid_body.kinematic')
-            bpy.context.scene.frame_set(bpy.context.scene.frame_current + -1)
+            # WTF was that?
+            #bpy.context.scene.frame_set(bpy.context.scene.frame_current + 1)
+            #board_map[to_square].rigid_body.kinematic = False
+            #board_map[to_square].keyframe_insert('rigid_body.kinematic')
+            #bpy.context.scene.frame_set(bpy.context.scene.frame_current - 1)
             
             current_frame = bpy.context.scene.frame_current
-
-
-            fracture(board_map[to_square], n_fragments, current_frame)
-            
             
             # timestep
             bpy.context.scene.frame_set(current_frame + frames_per_move)
-        
             # move piece
             board_map[from_square].location = chess_to_coordinates(to_square[0], to_square[1], board_map[from_square].location.z)
             board_map[from_square].keyframe_insert(data_path='location')
             
-            
+            # change interpolation method (need to be done before computing the collision instant)
+            piece_re = re.compile(r'.*[a-h]\d$')
+            for o in bpy.data.objects:
+                if piece_re.match(o.name) and hasattr(o.animation_data, 'action'):
+                    fcurves = o.animation_data.action.fcurves
+
+                    print('curve: ' + str(o.name))
+                    for fcurve in fcurves:
+                        for kf in fcurve.keyframe_points:
+                            kf.interpolation = 'SINE'
+
+            # find collison frame
+            print('Looking for collision...')
+            collision_frame = 0
+            for i in range(frames_per_move):
+                bpy.context.scene.frame_set(current_frame + i)
+                flag = check_object_intersects(board_map[from_square], board_map[to_square])
+                print('i={}: {}'.format(i, len(flag)))
+                if flag:
+                    print('Collision on frame {}'.format(bpy.context.scene.frame_current))
+                    collision_frame = bpy.context.scene.frame_current
+                    break
+
+            fracture(board_map[to_square], n_fragments, collision_frame)
             
             
             # play the move on the board_map
@@ -474,7 +519,7 @@ def play(board_map, game, frames_per_move, n_fragments):
         elif blacks_re.match(obj.name):
             obj.data.materials.append(black_mat)
 
-    # change interpolation method
+    # interpolation method
     piece_re = re.compile(r'.*[a-h]\d$')
     for o in bpy.data.objects:
         if piece_re.match(o.name) and hasattr(o.animation_data, 'action'):
@@ -483,7 +528,7 @@ def play(board_map, game, frames_per_move, n_fragments):
             print('curve: ' + str(o.name))
             for fcurve in fcurves:
                 for kf in fcurve.keyframe_points:
-                    kf.interpolation = 'QUAD'
+                    kf.interpolation = 'SINE'
 
     # compute some stats
     end_time = time.time()
