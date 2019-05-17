@@ -560,7 +560,7 @@ def main():
     game = load_pgn(pgn_path)
 
     variant = game.board().uci_variant
-    if variant != 'chess':
+    if variant != 'chess' or game.board().chess960:
         sys.stdout.write('Unsupported game type {}\n'.format(variant))
         sys.exit(EXIT_CODES['UNSUPPORTED_VARIANT'])
 
