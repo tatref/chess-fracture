@@ -41,7 +41,7 @@ SQUARE_SIZE = 3.0
 Z_MAP = {
     'king': 2.32912,
     'queen': 2.0401,
-    'bishop': 1.7937,
+    'bishop': 1.1886,
     'knight': 1.4525,
     'rook': 1.46252,
     'pawn': 1.35288,
