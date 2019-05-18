@@ -4,14 +4,12 @@
 
 
 # security
-* limit max memory (systemd service)
 * selinux
-* passwords
+* passwords / ansible vault
   * grafana
   * postgres
-* postgres 0.0.0.0/0
+* limit max memory (systemd service)
+* postgres 0.0.0.0/0 / ansible hosts list
 * django: https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 * nginx
 * uwsgi user
-* listen socket 127.0.0.1
-* rate limit (nginx)
