@@ -10,10 +10,22 @@
     <div style="text-align:center">
       {% include 'chessfracture/header.html' %}
       <p>
-        Simulation is still running, this should take ~1min
-      </p>
+      {% if status == 1 %}
+        You are {{ queue_length }} nth in the queue
+      {% elif status == 2 or status == 3 %}
       <p>
-      {{ status }}
+        Simulation is running, this should take ~1min
+      </p>
+      {% elif status == -1 %}
+      Oops the simulation failed please report a bug with your game ID: {{ gameid }} </br>
+
+        <p>
+        Detailed error:
+        {{ error_message }}
+        </p>
+      {% else %}
+        UNKNOWN
+      {% endif %}
       </p>
     </div>
   </body>

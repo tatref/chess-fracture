@@ -90,7 +90,12 @@ def get(request, site, gameid):
         return response
     elif game.status == 1:
         # new
-        context = { 'status': game.status}
+        # number of games more recent than mine
+        queue_length = Game.objects \
+            .filter(status=1, submitdate__lt=game.submitdate) \
+            .count() + 1
+
+        context = { 'status': game.status, 'queue_length': queue_length }
         return render(request, 'chessfracture/refresh.html', context)
     elif game.status == 2:
         # pgn_downloaded
@@ -103,7 +108,7 @@ def get(request, site, gameid):
     elif game.status == -1:
         # failed
         error_message = game.errormessage
-        context = { 'error_message': 'Simulation failed (unsupported PGN?): {}'.format(error_message) }
+        context = { 'gameid': game.gameid, 'error_message': 'Simulation failed (unsupported PGN?): {}'.format(error_message) }
         return render(request, 'chessfracture/error.html', context)
     else:
         # unknown status???
