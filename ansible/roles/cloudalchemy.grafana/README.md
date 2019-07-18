@@ -15,6 +15,7 @@ Provision and manage [grafana](https://github.com/grafana/grafana) - platform fo
 - Ansible >= 2.5
 - libselinux-python on deployer host (only when deployer machine has SELinux)
 - grafana >= 5.1 (for older grafana versions use this role in version 0.10.1 or earlier)
+- jmespath on deployer machine. If you are using Ansible from a Python virtualenv, install *jmespath* to the same virtualenv via pip.
 
 ## Role Variables
 
@@ -22,15 +23,18 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 
 | Name           | Default Value | Description                        |
 | -------------- | ------------- | -----------------------------------|
-| `grafana_use_provisioning` | true | Use Grafana provisioning capalibity when possible (**grafana_version=latest will assume >= 5.0**) |
+| `grafana_use_provisioning` | true | Use Grafana provisioning capalibity when possible (**grafana_version=latest will assume >= 5.0**). |
+| `grafana_provisioning_synced` | false | Ensure no previously provisioned dashboards are kept if not referenced anymore. |
 | `grafana_system_user` | grafana | Grafana server system user |
 | `grafana_system_group` | grafana | Grafana server system group |
 | `grafana_version` | latest | Grafana package version |
+| `grafana_yum_repo_template` | etc/yum.repos.d/grafana.repo.j2 | Yum template to use |
 | `grafana_instance` | {{ ansible_fqdn \| default(ansible_host) \| default(inventory_hostname) }} | Grafana instance name |
 | `grafana_logs_dir` | /var/log/grafana | Path to logs directory |
 | `grafana_data_dir` | /var/lib/grafana | Path to database directory |
 | `grafana_address` | 0.0.0.0 | Address on which grafana listens |
 | `grafana_port` | 3000 | port on which grafana listens |
+| `grafana_cap_net_bind_service` | false | Enables the use of ports below 1024 without root privilages by leveraging the 'capabilities' of the linux kernel. read: http://man7.org/linux/man-pages/man7/capabilities.7.html |
 | `grafana_url` | "http://{{ grafana_address }}:{{ grafana_port }}" | Full URL used to access Grafana from a web browser |
 | `grafana_api_url` | "{{ grafana_url }}" | URL used for API calls in provisioning if different from public URL. See [this issue](https://github.com/cloudalchemy/ansible-grafana/issues/70). |
 | `grafana_domain` | "{{ ansible_fqdn \| default(ansible_host) \| default('localhost') }}" | setting is only used in as a part of the `root_url` option. Useful when using GitHub or Google OAuth |
@@ -44,7 +48,8 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `grafana_session` | {} | [session](http://docs.grafana.org/installation/configuration/#session) management configuration section |
 | `grafana_analytics` | {} | Google [analytics](http://docs.grafana.org/installation/configuration/#analytics) configuration section |
 | `grafana_smtp` | {} | [smtp](http://docs.grafana.org/installation/configuration/#smtp) configuration section |
-| `grafana_alerting` | true | [alerting](http://docs.grafana.org/installation/configuration/#alerting) configuration section |
+| `grafana_alerting` | {} | [alerting](http://docs.grafana.org/installation/configuration/#alerting) configuration section |
+| `grafana_log` | {} | [log](http://docs.grafana.org/installation/configuration/#log) configuration section |
 | `grafana_metrics` | {} | [metrics](http://docs.grafana.org/installation/configuration/#metrics) configuration section |
 | `grafana_tracing` | {} | [tracing](http://docs.grafana.org/installation/configuration/#tracing) configuration section |
 | `grafana_snapshots` | {} | [snapshots](http://docs.grafana.org/installation/configuration/#snapshots) configuration section |
@@ -73,6 +78,24 @@ grafana_dashboards:
     revision_id: 1
     datasource: prometheus
 ```
+Use a custom Grafana Yum repo template example:
+
+- Put your template next to your playbook under `templates` folder
+
+- Use a different path than the default one, because ansible , when using relative path, use the first template found and look under the role directory at first then the playbook directory.
+
+- The template expansion will be put under  `/etc/yum.repos.d/` , and will have as a name, the `basename` of the template path without the .j2
+
+  Example:
+
+  ```yaml
+  grafana_yum_repo_template: my_yum_repos/grafana.repo.j2
+
+  # [playbook_dir]/templates/my_yum_repos/grafana.repo.j2
+  # will be put under
+  # /etc/yum.repos.d/grafana.repo
+  # on the remote host
+  ```
 
 ## Supported CPU Architectures
 

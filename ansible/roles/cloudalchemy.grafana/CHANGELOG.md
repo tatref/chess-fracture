@@ -2,6 +2,54 @@
 
 ## [**Next release**](https://galaxy.ansible.com/cloudalchemy/grafana)
 
+**Merged pull requests:**
+
+- Synchronize files from cloudalchemy/skeleton. [\#146](https://github.com/cloudalchemy/ansible-grafana/pull/146) ([cloudalchemybot](https://github.com/cloudalchemybot))
+
+## [0.14.1](https://galaxy.ansible.com/cloudalchemy/grafana) (2019-03-24)
+**Merged pull requests:**
+
+- default to only coping dashboards and not removing them [\#145](https://github.com/cloudalchemy/ansible-grafana/pull/145) ([paulfantom](https://github.com/paulfantom))
+
+## [0.14.0](https://galaxy.ansible.com/cloudalchemy/grafana) (2019-03-23)
+**Implemented enhancements:**
+
+- Use `tempfile` for `/tmp/dashboards` [\#90](https://github.com/cloudalchemy/ansible-grafana/issues/90)
+
+**Fixed bugs:**
+
+- WTF bug with grafana\_dashboards\_dir == dashboards [\#136](https://github.com/cloudalchemy/ansible-grafana/issues/136)
+- Dashboard provisioning is interactive [\#128](https://github.com/cloudalchemy/ansible-grafana/issues/128)
+
+**Closed issues:**
+
+- 500 internal server error with packagecloud.io [\#133](https://github.com/cloudalchemy/ansible-grafana/issues/133)
+
+**Merged pull requests:**
+
+- Add logging configuration options [\#142](https://github.com/cloudalchemy/ansible-grafana/pull/142) ([boutetnico](https://github.com/boutetnico))
+- Allow to override enabled parameter in auth block [\#141](https://github.com/cloudalchemy/ansible-grafana/pull/141) ([Igorshp](https://github.com/Igorshp))
+- Add option to disable alert execution [\#139](https://github.com/cloudalchemy/ansible-grafana/pull/139) ([Duologic](https://github.com/Duologic))
+- Remove files/dashboards directory [\#137](https://github.com/cloudalchemy/ansible-grafana/pull/137) ([amarao](https://github.com/amarao))
+- Refactor dashboard provisioning [\#134](https://github.com/cloudalchemy/ansible-grafana/pull/134) ([paulfantom](https://github.com/paulfantom))
+- Become root to import dashboards [\#129](https://github.com/cloudalchemy/ansible-grafana/pull/129) ([nikosmeds](https://github.com/nikosmeds))
+
+## [0.13.0](https://galaxy.ansible.com/cloudalchemy/grafana) (2019-01-08)
+**Closed issues:**
+
+- Problem installing on debian. Problems with repo and it's gpg key. [\#124](https://github.com/cloudalchemy/ansible-grafana/issues/124)
+
+**Merged pull requests:**
+
+- Replaced packagecloud repo with official Grafana repo [\#125](https://github.com/cloudalchemy/ansible-grafana/pull/125) ([wiktor2200](https://github.com/wiktor2200))
+- Fixed quotation marks to backtick in README.md [\#123](https://github.com/cloudalchemy/ansible-grafana/pull/123) ([wvh-github](https://github.com/wvh-github))
+- Enable the use of ports below 1024 [\#122](https://github.com/cloudalchemy/ansible-grafana/pull/122) ([wvh-github](https://github.com/wvh-github))
+- Feature provisioning dashboards [\#121](https://github.com/cloudalchemy/ansible-grafana/pull/121) ([mxbossard](https://github.com/mxbossard))
+- dashboard check should run on localhost [\#119](https://github.com/cloudalchemy/ansible-grafana/pull/119) ([wvh-github](https://github.com/wvh-github))
+- Add support for multi-line ansible\_managed strings [\#116](https://github.com/cloudalchemy/ansible-grafana/pull/116) ([etcet](https://github.com/etcet))
+- Fix \(\#99\) : allow custom yum repo template [\#105](https://github.com/cloudalchemy/ansible-grafana/pull/105) ([rockandska](https://github.com/rockandska))
+
+## [0.12.0](https://galaxy.ansible.com/cloudalchemy/grafana) (2018-12-04)
 **Fixed bugs:**
 
 - Preflight "tags: always" conflicts with --tags option [\#101](https://github.com/cloudalchemy/ansible-grafana/issues/101)
@@ -13,6 +61,7 @@
 
 **Merged pull requests:**
 
+- Allow disabling of Grafana alerts [\#115](https://github.com/cloudalchemy/ansible-grafana/pull/115) ([dominik-bln](https://github.com/dominik-bln))
 - Only set alerting if variable is false [\#112](https://github.com/cloudalchemy/ansible-grafana/pull/112) ([wvh-github](https://github.com/wvh-github))
 - Few smaller improvements, backward compatible [\#110](https://github.com/cloudalchemy/ansible-grafana/pull/110) ([krzyzakp](https://github.com/krzyzakp))
 - Replaced tag always, which colidate when including role.  [\#109](https://github.com/cloudalchemy/ansible-grafana/pull/109) ([krzyzakp](https://github.com/krzyzakp))
@@ -327,8 +376,8 @@
 - Old [\#1](https://github.com/cloudalchemy/ansible-grafana/pull/1) ([paulfantom](https://github.com/paulfantom))
 
 ## [0.4.0](https://galaxy.ansible.com/cloudalchemy/grafana) (2017-10-16)
-## [0.3.3](https://galaxy.ansible.com/cloudalchemy/grafana) (2017-07-27)
 ## [0.3.2](https://galaxy.ansible.com/cloudalchemy/grafana) (2017-07-27)
+## [0.3.3](https://galaxy.ansible.com/cloudalchemy/grafana) (2017-07-27)
 ## [0.3.1](https://galaxy.ansible.com/cloudalchemy/grafana) (2017-07-27)
 ## [0.3.0](https://galaxy.ansible.com/cloudalchemy/grafana) (2017-07-21)
 ## [0.1.3](https://galaxy.ansible.com/cloudalchemy/grafana) (2017-07-13)

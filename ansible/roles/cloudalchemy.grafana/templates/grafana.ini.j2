@@ -1,4 +1,4 @@
-# {{ ansible_managed }}
+{{ ansible_managed | comment }}
 # More informations:
 # http://docs.grafana.org/installation/configuration
 # https://github.com/grafana/grafana/blob/master/conf/sample.ini
@@ -58,15 +58,13 @@ disable_login_form = {{ grafana_auth.disable_login_form | default('False') }}
 disable_signout_menu = {{ grafana_auth.disable_signout_menu | default('False') }}
 {%  for section, options in grafana_auth.items() %}
 {%    if section in ['disable_login_form', 'disable_signout_menu'] %}
-{%    elif section == 'basic' %}
-[auth.basic]
-enabled = True
 {%    else %}
 [auth.{{ section }}]
+{%      if "enabled" not in options %}
 enabled = True
+{%      endif %}
 {%      for k, v in options.items() %}
-{%        if k != 'enabled' %}{{ k }} = {{ v }}
-{%        endif %}
+{{ k }} = {{ v }}
 {%      endfor %}
 {%    endif %}
 {%  endfor %}
@@ -97,12 +95,16 @@ path = {{ grafana_data_dir }}/dashboards
 
 # Alerting
 [alerting]
-{% if grafana_alerting %}
+{% if grafana_alerting != {} %}
 enabled = true
+{%   for k,v in grafana_alerting.items() %}
+{%     if k != 'enabled' %}
+{{ k }} = {{ v }}
+{%     endif %}
+{%   endfor %}
 {% else %}
 enabled = false
 {% endif %}
-;execute_alerts = true
 
 # SMTP and email config
 {% if grafana_smtp != {} %}
@@ -120,8 +122,8 @@ enabled = True
 
 # Logging
 [log]
-mode = console file
-level = info
+mode = {{ grafana_log.mode | default('console, file') }}
+level = {{ grafana_log.level | default('info') }}
 
 # Metrics
 {% if grafana_metrics != {} %}

@@ -1,8 +1,12 @@
 ---
 grafana_version: latest
+grafana_yum_repo_template: etc/yum.repos.d/grafana.repo.j2
 
 # Should we use the provisioning capability when possible (provisioning require grafana >= 5.0)
 grafana_use_provisioning: true
+
+# Should the provisioning be kept synced. If true, previous provisioned objects will be removed if not referenced anymore.
+grafana_provisioning_synced: false
 
 grafana_instance: "{{ ansible_fqdn | default(ansible_host) | default(inventory_hostname) }}"
 
@@ -11,6 +15,10 @@ grafana_data_dir: "/var/lib/grafana"
 
 grafana_address: "0.0.0.0"
 grafana_port: 3000
+# To enable the use of ports below 1024 for unprivileged processes linux needs to set CAP_NET_BIND_SERVICE.
+# This has some security implications, and should be a conscious choice.
+# Get informed by reading: http://man7.org/linux/man-pages/man7/capabilities.7.html
+grafana_cap_net_bind_service: false
 
 # External Grafana address. Variable maps to "root_url" in grafana server section
 grafana_url: "http://{{ grafana_address }}:{{ grafana_port }}"
@@ -78,7 +86,8 @@ grafana_auth: {}
 #  ldap:
 #    config_file: "/etc/grafana/ldap.toml"
 #    allow_sign_up: false
-#  basic: true
+#  basic:
+#    enabled: true
 
 grafana_ldap: {}
 #  verbose_logging: false
@@ -135,7 +144,16 @@ grafana_smtp: {}
 #  from_address:
 
 # Enable grafana alerting mechanism
-grafana_alerting: true
+grafana_alerting:
+  execute_alerts: true
+#  error_or_timeout: 'alerting'
+#  nodata_or_nullvalues: 'no_data'
+#  concurrent_render_limit: 5
+
+# Grafana logging configuration
+grafana_log:
+# mode: 'console file'
+# level: info
 
 # Internal grafana metrics system
 grafana_metrics: {}
