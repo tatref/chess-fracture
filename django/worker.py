@@ -74,8 +74,10 @@ def run_simulation(pgn_path, out_blend, display=':1'):
     timeout = 200
 
     env = {
-            'CHESS_FRACTURE_OUT_BLEND': out_blend,
             'DISPLAY': display,
+            'MESA_GL_VERSION_OVERRIDE': '3.3',
+
+            'CHESS_FRACTURE_OUT_BLEND': out_blend,
             'CHESS_FRACTURE_PGN_PATH': pgn_path,
             'CHESS_FRACTURE_FRAMES_PER_MOVE': '20',
             'CHESS_FRACTURE_FRAGMENTS': '5',
