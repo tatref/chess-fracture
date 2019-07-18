@@ -22,15 +22,6 @@ Defaults:ansible !requiretty
 ssh-copy-id ...
 ```
 
-To speedup the initial setup, you can also:
-```
-/home/
-├── ansible
-└── chessfracture
-    ├── blender-2.79b-linux-glibc219-x86_64
-    └── blender-2.79b-linux-glibc219-x86_64.tar.bz2
-```
-
 # PROD usage
 ```
 ansible-playbook setup.yml
