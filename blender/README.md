@@ -2,7 +2,7 @@
 ## Windows
 Download `pip` from https://bootstrap.pypa.io/get-pip.py
 
-Save the file next to `python` under `$blender/2.79/python/bin/`, where `$blender` is the install dir of blender, usually `C:/Program files/Blender`
+Save the file next to `python` under `$blender/2.80/python/bin/`, where `$blender` is the install dir of blender, usually `C:/Program files/Blender`
 
 Install pip
 ```
@@ -16,11 +16,11 @@ Install `python-chess`
 
 # Linux
 ```
-cd Downloads/blender-2.79b-linux-glibc219-x86_64/
-cd 2.79/python/bin/
+cd Downloads/blender-2.80b-linux-glibc219-x86_64/
+cd 2.80/python/bin/
 curl -O https://bootstrap.pypa.io/get-pip.py
-./python3.5m get-pip.py 
-./python3.5m -m pip install python-chess
+./python3.7m get-pip.py 
+./python3.7m -m pip install python-chess
 ```
 
 # Running
@@ -55,8 +55,6 @@ An OpenGL accelerated X11 is required (seems that some features of Blender simpl
 
 See [../host/setup.sh](../host/setup.sh)
 
-### Git lfs
-
 ### X11 permissions
 ```
 DISPLAY=:1 xhost local:name
@@ -64,7 +62,6 @@ DISPLAY=:1 xhost local:name
 
 ## Building the container
 ```
-git lfs pull
 docker build -t chessfracture .
 ```
 
