@@ -12,7 +12,7 @@
 - name: django venv
   pip:
     virtualenv: "{{django_venv_path}}"
-    virtualenv_python: python36
+    virtualenv_python: python3.6
     requirements: "/home/{{ chessfracture_user }}/chessfracture/django/requirements.txt"
   become_user: "{{ chessfracture_user }}"
 
