@@ -61,9 +61,15 @@ def fracture(request):
         return render(request, 'chessfracture/error.html', context)
 
     game = Game.objects.filter(site=site, gameid=gameid)
-    if game.exists():
+    if game.exists() and game.state != -1:
+        # finished or in queue, just wait
         pass
+    elif game.exists() and game.state == -1:
+        # retry the simulation
+        game = Game(site=site, gameid=gameid, status=1)
+        game.save()
     else:
+        # run new simulation
         game = Game(site=site, gameid=gameid, status=1)
         game.save()
 
