@@ -1,0 +1,21 @@
+#!/bin/bash
+
+export CHESS_FRACTURE_FRAGMENTS=10
+if [ $# -eq 1 ]
+then
+  export CHESS_FRACTURE_PGN_PATH=$(readlink -f $1)
+else
+  export CHESS_FRACTURE_PGN_PATH=~/Downloads/lichess_pgn_2019.07.15_tatrefthekiller_vs_priff.w6d9kks1.pgn
+fi
+
+pushd ~/chessfracture/blender-2.81-linux-glibc217-x86_64
+  export CHESS_FRACTURE_OUT_BLEND=~/test.blend
+  export MESA_GL_VERSION_OVERRIDE=3.3
+  export CHESS_FRACTURE_TEST=
+
+  ./blender --addons object_fracture_cell \
+    ~/chessfracture/blender/chess_fracture_template.blend \
+    --python ~/chessfracture/blender/chess_fracture_2.80.py
+
+  echo "exit code: $?"
+popd
