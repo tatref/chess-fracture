@@ -14,13 +14,13 @@
 
 - name: verify if blender archive is present
   stat:
-    path: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64.tar.bz2"
+    path: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64.tar.bz2"
   register: blender_archive
   become_user: "{{ chessfracture_user }}"
 
 - name: wget blender
   get_url:
-    url: https://download.blender.org/release/Blender2.80/blender-2.80-linux-glibc217-x86_64.tar.bz2
+    url: https://download.blender.org/release/Blender2.81/blender-2.81-linux-glibc217-x86_64.tar.bz2
     dest: "/home/{{ chessfracture_user }}/"
   when: blender_archive.stat.exists == false
   become_user: "{{ chessfracture_user }}"
@@ -28,41 +28,41 @@
 - name: unarchive blender
   unarchive:
     remote_src: yes
-    src: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64.tar.bz2"
+    src: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64.tar.bz2"
     dest: "/home/{{ chessfracture_user }}/"
-    creates: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64"
+    creates: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64"
   become_user: "{{ chessfracture_user }}"
 
 - name: verify if get-pip is present
   stat:
-    path: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64/get-pip.py"
+    path: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64/get-pip.py"
   register: get_pip
   become_user: "{{ chessfracture_user }}"
 
 - name: wget get-pip
   get_url:
     url: https://bootstrap.pypa.io/get-pip.py
-    dest: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64/"
+    dest: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64/"
   when: get_pip.stat.exists == false
   become_user: "{{ chessfracture_user }}"
 
 - name: install pip
-  command: 2.80/python/bin/python3.7m get-pip.py
+  command: 2.81/python/bin/python3.7m get-pip.py
   args:
-    chdir: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64/"
-    creates: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64/2.80/python/bin/pip"
+    chdir: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64/"
+    creates: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64/2.81/python/bin/pip"
   become_user: "{{ chessfracture_user }}"
 
 - name: verify if pip python-chess is installed
   stat:
-    path: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64/2.80/python/lib/python3.7/site-packages/chess"
+    path: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64/2.81/python/lib/python3.7/site-packages/chess"
   register: python_chess
   become_user: "{{ chessfracture_user }}"
 
 - name: pip install python-chess
-  command: 2.80/python/bin/python3.7m -m pip install python-chess
+  command: 2.81/python/bin/python3.7m -m pip install python-chess
   args:
-    chdir: "/home/{{ chessfracture_user }}/blender-2.80-linux-glibc217-x86_64/"
+    chdir: "/home/{{ chessfracture_user }}/blender-2.81-linux-glibc217-x86_64/"
   when: python_chess.stat.exists == false
   become_user: "{{ chessfracture_user }}"
 
