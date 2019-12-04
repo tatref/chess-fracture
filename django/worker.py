@@ -71,7 +71,7 @@ def run_simulation(pgn_path, out_blend, display=':1'):
     blender_exe = '/home/{}/blender-2.81-linux-glibc217-x86_64/blender-softwaregl'.format(os.environ['USER'])
     blend_template = '/home/{}/chessfracture/blender/chess_fracture_template_2.80.blend'.format(os.environ['USER'])
     blender_script = '/home/{}/chessfracture/blender/chess_fracture_2.80.py'.format(os.environ['USER'])
-    timeout = 300
+    timeout = 400
 
     env = {
             'DISPLAY': display,
