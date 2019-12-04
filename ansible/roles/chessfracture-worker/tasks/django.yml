@@ -18,4 +18,4 @@
     name: "chessfracture.worker@{{ item }}"
     enabled: yes
     state: started
-  with_sequence: count={{ansible_processor_cores}}
+  with_sequence: count={{ansible_processor_vcpus}}
