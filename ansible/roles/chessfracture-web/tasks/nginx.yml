@@ -115,7 +115,6 @@
     dest: "/etc/nginx/conf.d/{{item}}.conf"
   notify: restart nginx
   loop:
-    - default
+    - default_ssl
     - django
-    - certbot
     - stub_status
