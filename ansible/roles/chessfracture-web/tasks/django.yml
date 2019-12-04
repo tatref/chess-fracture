@@ -14,10 +14,10 @@
 
 - name: disable DEBUG
   lineinfile:
-    path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite/..."
+    path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite/secret_key"
     regexp: '^DEBUG = '
     line: 'DEBUG = False'
-    when: not dev
+  when: not dev
 
 - name: restart uwsgi
   service:
