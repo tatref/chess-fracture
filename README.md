@@ -16,7 +16,7 @@ Render with some materials:
 # Compatibility
 
 * Only Lichess at the moment
-* Python script tested on Blender 2.79b & 2.80rc2
+* Python script tested on Blender 2.79b, 2.80, 2.81
 * Ansible setup for CentOS 7
 
 # Code
