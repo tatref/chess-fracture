@@ -77,13 +77,13 @@
   shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging
   args:
     creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
-  when: certbot_staging is defined
+  when: dev is defined and firstcert is defined
 
 - name: get certificate
   shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos
   args:
     creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
-  when: not certbot_staging is defined
+  when: not dev is defined and firstcert is defined
 
 - name: certbot crontab
   cron:
@@ -92,7 +92,7 @@
     special_time: weekly
     user: root
     name: certbot update certificate
-  when: certbot_staging is defined
+  when: dev is defined
 
 - name: certbot crontab
   cron:
@@ -101,7 +101,7 @@
     special_time: weekly
     user: root
     name: certbot update certificate
-  when: not certbot_staging is defined
+  when: not dev is defined
 
 - name: nginx service
   service:

@@ -24,12 +24,12 @@ ssh-copy-id ...
 
 # PROD usage
 ```
-ansible-playbook setup.yml
+ansible-playbook setup.yml -e firstcert=
 ```
 
 # DEV usage
 ```
-ansible-playbook setup.yml --extra-vars "certbot_staging="
+ansible-playbook setup.yml -e firstcert= -e dev=
 ```
 
 ## URLs
