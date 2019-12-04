@@ -111,6 +111,7 @@ def run_simulation(pgn_path, out_blend, display=':1'):
         popen.stdout.close()
         popen.stderr.close()
     except Exception as e:
+        #popen.kill()  # not required?
         raise Exception('Timeout ({}) exceeded for : {} - {}'.format(timeout, pgn_path, e))
     return popen, stdout_data, stderr_data
 
@@ -181,7 +182,7 @@ def run_simulations(games):
             except:
                 pass
             continue
-        print('Simulation done: {}'.format(g))
+        print('Simulation finished: {} in {}s'.format(g, sim_duration))
         sys.stdout.flush()
 
 
