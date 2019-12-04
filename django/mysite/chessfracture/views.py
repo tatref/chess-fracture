@@ -43,6 +43,13 @@ def parse_pgn_url(url):
 
 
 def fracture(request):
+    queue_length = Game.objects \
+            .filter(status=1) \
+            .count()
+    if queue_length > 20:
+        context = { 'error_message': "It's crowded here, wait a moment then retry!" }
+        return render(request, 'chessfracture/error.html', context)
+
     if request.method != 'POST':
         context = { 'error_message': 'Must be POST, not GET' }
         return render(request, 'chessfracture/error.html', context)
@@ -61,10 +68,10 @@ def fracture(request):
         return render(request, 'chessfracture/error.html', context)
 
     game = Game.objects.filter(site=site, gameid=gameid)
-    if game.exists() and game.state != -1:
+    if game.exists() and game.status != -1:
         # finished or in queue, just wait
         pass
-    elif game.exists() and game.state == -1:
+    elif game.exists() and game.status == -1:
         # retry the simulation
         game = Game(site=site, gameid=gameid, status=1)
         game.save()
@@ -118,7 +125,7 @@ def get(request, site, gameid):
         return render(request, 'chessfracture/error.html', context)
     else:
         # unknown status???
-        context = { 'error_message': 'Unknown game state: {}'.format(game.status) }
+        context = { 'error_message': 'Unknown game status: {}'.format(game.status) }
         return render(request, 'chessfracture/error.html', context)
     # unreachable
 
