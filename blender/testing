@@ -8,7 +8,7 @@ else
   export CHESS_FRACTURE_PGN_PATH=~/Downloads/lichess_pgn_2019.07.15_tatrefthekiller_vs_priff.w6d9kks1.pgn
 fi
 
-pushd ~/chessfracture/blender-2.81-linux-glibc217-x86_64
+pushd ~/chessfracture/blender-2.82-linux64/
   export CHESS_FRACTURE_OUT_BLEND=~/test.blend
   export MESA_GL_VERSION_OVERRIDE=3.3
   export CHESS_FRACTURE_TEST=
