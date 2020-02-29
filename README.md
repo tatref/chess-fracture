@@ -12,6 +12,8 @@ Generated scene:
 Render with some materials:
 ![scene](./teaser2.png "scene")
 
+Video
+https://www.youtube.com/watch?v=MpawnFE7UCw
 
 # Compatibility
 
