@@ -20,7 +20,7 @@ cd Downloads/blender-2.80b-linux-glibc219-x86_64/
 cd 2.80/python/bin/
 curl -O https://bootstrap.pypa.io/get-pip.py
 ./python3.7m get-pip.py 
-./python3.7m -m pip install python-chess
+./python3.7m -m pip install python-chess==0.24.2
 ```
 
 # Running
