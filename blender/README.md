@@ -11,7 +11,7 @@ Install pip
 
 Install `python-chess`
 ```
-.\python.exe -m pip install python-chess
+.\python.exe -m pip install python-chess==0.24.2
 ```
 
 # Linux
