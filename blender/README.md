@@ -26,9 +26,13 @@ curl -O https://bootstrap.pypa.io/get-pip.py
 # Running
 Set the `CHESS_FRACTURE_PGN_PATH` environnement variable.
 
-## Windows
+## Windows (cmd)
 ```
 set CHESS_FRACTURE_PGN_PATH=.\path\to\pgn\file.pgn
+```
+## Windows (PowerShell)
+```
+$env:CHESS_FRACTURE_PGN_PATH = "..\path\to\pgn\file.pgn"
 ```
 
 ## Linux
