@@ -6,7 +6,7 @@ Save the file next to `python` under `$blender/2.80/python/bin/`, where `$blende
 
 Install pip
 ```
-.\python.exe get-pip.py
+.\python.exe get-pip.py --no-warn-script-location
 ```
 
 Install `python-chess`
