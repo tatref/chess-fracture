@@ -18,7 +18,7 @@ ptyprocess==0.6.0
 Pygments==2.2.0
 python-chess==0.24.2
 pytz==2018.5
-requests==2.21.0
+requests==2.24.0
 simplegeneric==0.8.1
 six==1.11.0
 sqlparse==0.3.0
