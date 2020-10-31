@@ -26,5 +26,5 @@ PyNaCl==1.2.1
 PyYAML==5.1
 requests==2.20.1
 six==1.11.0
-urllib3==1.25
+urllib3==1.24.3
 Werkzeug==0.15.3
