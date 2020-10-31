@@ -1,10 +1,10 @@
 ---
 
-- name: create /var/www/.well-known/acme-challenge
-  file:
-    path: /var/www/.well-known/acme-challenge
-    state: directory
-    mode: 0755
+#- name: create /var/www/.well-known/acme-challenge
+#  file:
+#    path: /var/www/.well-known/acme-challenge
+#    state: directory
+#    mode: 0755
 
 - name: create /var/www/media
   file:
@@ -67,6 +67,22 @@
     name: nginx
     state: started
     enabled: true
+
+- name: "create /home/{{ chessfracture_user }}/.aws/"
+  file:
+    path: "/home/{{ chessfracture_user }}/.aws"
+    state: directory
+    mode: "u+rwx"
+    owner: "{{ chessfracture_user }}"
+    group: "{{ chessfracture_user }}"
+
+- name: copy aws credentials
+  copy:
+    src: ../../aws
+    dest: "/home/{{ chessfracture_user }}/.aws/config"
+    owner: "{{ chessfracture_user }}"
+    group: "{{ chessfracture_user }}"
+    mode: 0600
 
 - name: get certificate
   #shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging
