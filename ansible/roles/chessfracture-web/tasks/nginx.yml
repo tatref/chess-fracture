@@ -86,14 +86,14 @@
 
 - name: get certificate
   #shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging
-  shell: {{django_venv_path}}/bin/certbot certonly --dns-route53 -n -d chessfracture.net --agree-tos --staging
+  shell: "{{django_venv_path}}/bin/certbot certonly --dns-route53 -n -d chessfracture.net --agree-tos --staging"
   args:
     creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
   when: dev is defined and firstcert is defined
 
 - name: get certificate
   #shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos
-  shell: {{django_venv_path}}/bin/certbot certonly --dns-route53 -n -d chessfracture.net --agree-tos
+  shell: "{{django_venv_path}}/bin/certbot certonly --dns-route53 -n -d chessfracture.net --agree-tos"
   args:
     creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
   when: not dev is defined and firstcert is defined
@@ -102,7 +102,7 @@
   cron:
     cron_file: certbot
     #job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --staging --force-renewal
-    job: {{django_venv_path}}/bin/certbot certonly -n --dns-route53 -d chessfracture.net --agree-tos --staging --force-renewal
+    job: "{{django_venv_path}}/bin/certbot certonly -n --dns-route53 -d chessfracture.net --agree-tos --staging --force-renewal"
     special_time: weekly
     user: root
     name: certbot update certificate
@@ -112,7 +112,7 @@
   cron:
     cron_file: certbot
     #job: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos --force-renewal
-    job: {{django_venv_path}}/bin/certbot certonly -n --dns-route53 -d chessfracture.net --agree-tos --force-renewal
+    job: "{{django_venv_path}}/bin/certbot certonly -n --dns-route53 -d chessfracture.net --agree-tos --force-renewal"
     special_time: weekly
     user: root
     name: certbot update certificate
