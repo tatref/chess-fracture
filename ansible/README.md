@@ -10,6 +10,12 @@ cp inventory_sample.yml inventory.yml
 ```
 Edit `inventory.yml` so the host `chessfracture` resolves to a CentOS 7 server (minimal installation)
 
+Generate the secret key
+
+```
+openssl rand 128 > ../django/mysite/secret_key
+```
+
 # Client setup
 visudo
 
