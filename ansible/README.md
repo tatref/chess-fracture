@@ -13,7 +13,7 @@ Edit `inventory.yml` so the host `chessfracture` resolves to a CentOS 7 server (
 Generate the secret key
 
 ```
-openssl rand 128 > ../django/mysite/secret_key
+openssl rand -hex 128 > ../django/mysite/secret_key
 ```
 
 # Client setup
