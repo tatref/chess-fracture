@@ -19,6 +19,7 @@
       - uwsgi
       - uwsgi-plugin-python36
       - uwsgi-logger-file
+      - uwsgi-logger-systemd
     state: installed
     enablerepo: epel-testing
 
