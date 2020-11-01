@@ -32,10 +32,19 @@
     state: yes
     persistent: yes
 
-- name: install nginx
+- name: install nginx and chrony
   yum:
-    name: nginx
+    name: "{{ item }}"
     state: installed
+  loop:
+    - nginx
+    - chrony
+
+- name: start chronyd
+  service:
+    name: chronyd
+    state: started
+    enabled: true
 
 - name: open nginx ports
   firewalld:
@@ -68,20 +77,20 @@
     state: started
     enabled: true
 
-- name: "create /home/{{ chessfracture_user }}/.aws/"
+- name: "create /root/.aws/"
   file:
-    path: "/home/{{ chessfracture_user }}/.aws"
+    path: "/root/.aws"
     state: directory
     mode: "u+rwx"
-    owner: "{{ chessfracture_user }}"
-    group: "{{ chessfracture_user }}"
+    owner: "root"
+    group: "root"
 
 - name: copy aws credentials
   copy:
     src: ../../aws
-    dest: "/home/{{ chessfracture_user }}/.aws/config"
-    owner: "{{ chessfracture_user }}"
-    group: "{{ chessfracture_user }}"
+    dest: "/root/.aws/config"
+    owner: "root"
+    group: "root"
     mode: 0600
 
 - name: get certificate
@@ -90,6 +99,7 @@
   args:
     creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
   when: dev is defined and firstcert is defined
+  become_user: root
 
 - name: get certificate
   #shell: certbot certonly -n --webroot -w /var/www -d chessfracture.net -m {{ letsencrypt_mail }} --agree-tos
@@ -97,6 +107,7 @@
   args:
     creates: /etc/letsencrypt/live/chessfracture.net/fullchain.pem
   when: not dev is defined and firstcert is defined
+  become_user: root
 
 - name: certbot crontab
   cron:
