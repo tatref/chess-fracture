@@ -19,6 +19,7 @@
       - vim
       - bash-completion
       - tcpdump
+      - strace
 
 - name: copy /etc/systemd/system.conf
   copy:
