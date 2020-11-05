@@ -6,18 +6,40 @@
 #    virtualenv: "{{ django_venv_path }}"
 #    app_path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite"
 
+- name: install uwsgi
+  yum:
+    name:
+      - uwsgi
+      - uwsgi-plugin-python36
+      - uwsgi-logger-file
+      - uwsgi-logger-systemd
+    state: installed
+    enablerepo: epel-testing
+
+- name: systemd uwsgi
+  template:
+    src: usr/lib/systemd/system/uwsgi.service
+    dest: /usr/lib/systemd/system/uwsgi.service
+  notify: systemctl daemon-reload
+
+- name: disable DEBUG
+  lineinfile:
+    path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite/mysite/settings.py"
+    regexp: '^DEBUG = '
+    line: 'DEBUG = False'
+  when: not dev
+
 - name: migrate
   django_manage:
     command: migrate
     virtualenv: "{{ django_venv_path }}"
     app_path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite"
 
-- name: disable DEBUG
-  lineinfile:
-    path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite/secret_key"
-    regexp: '^DEBUG = '
-    line: 'DEBUG = False'
-  when: not dev
+- name: configure uwsgi
+  template:
+    src: etc/uwsgi.ini
+    dest: /etc/uwsgi.ini
+  notify: restart uwsgi
 
 - name: restart uwsgi
   service:
