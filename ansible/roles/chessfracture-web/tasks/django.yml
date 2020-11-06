@@ -34,6 +34,7 @@
     command: migrate
     virtualenv: "{{ django_venv_path }}"
     app_path: "/home/{{ chessfracture_user }}/chessfracture/django/mysite"
+  become_user: "{{ chessfracture_user }}"
 
 - name: configure uwsgi
   template:
