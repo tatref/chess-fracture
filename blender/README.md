@@ -1,11 +1,9 @@
 # Blender setup
 ## Windows
-Download `pip` from https://bootstrap.pypa.io/get-pip.py
-
-Save the file next to `python` under `$blender/2.80/python/bin/`, where `$blender` is the install dir of blender, usually `C:/Program files/Blender`
-
 Install pip
 ```
+cd $blender/2.80/python/bin/
+ wget https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
 .\python.exe get-pip.py --no-warn-script-location
 ```
 
